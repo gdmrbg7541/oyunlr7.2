@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الكلمات</title>
+    <style>
+        @font-face {
+            font-family: 'AraKomFont';
+            src: url('arakom.ttf') format('truetype');
+        }
+
+        :root {
+            --primary: #4a90e2;
+            --secondary: #ff9800;
+            --bg: #fdfdfd;
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'AraKomFont', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+            user-select: none;
+            text-align: center;
+        }
+
+        /* Ekranlar */
+        .screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 1000;
+        }
+
+        #start-screen { background: var(--primary); }
+        #overlay { background: rgba(0, 0, 0, 0.9); display: none; }
+
+        h1 { font-size: 6rem; margin-bottom: 20px; }
+
+        /* Butonlar */
+.btn {
+    padding: 20px 60px; /* Butonun iç boşluğunu da biraz artırmak görselliği korur */
+    font-size: 3.5rem;   /* 2rem olan eski değeri 3.5rem veya ihtiyacınıza göre daha büyük yapın  */
+    background: var(--secondary);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: normal;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    margin: 10px;
+    font-family: 'AraKomFont', sans-serif;
+}
+
+        /* Yeni Ok İkonlu Geri Tuşu */
+        .back-icon-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px; /* Diğer tarafa (sola) alındı */
+            width: 60px;
+            height: 60px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            cursor: pointer;
+            border: 4px solid white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            z-index: 1100;
+            transition: transform 0.2s;
+        }
+
+        .back-icon-btn:hover {
+            transform: scale(1.1);
+            background: #c0392b;
+        }
+
+        /* Oyun Öğeleri */
+  #instruction-text {
+    position: absolute;
+    top: 100px; /* Sayfanın üst kısmında sabit durması için */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    font-size: 4.5rem; /* Oldukça büyük ve okunaklı */
+    color: #00796b;
+    font-weight: bold;
+    z-index: 200;
+    text-align: center;
+    text-shadow: 0 4px 10px rgba(255,255,255,0.9);
+    pointer-events: none;
+}
+
+        #progress-container {
+            position: absolute;
+            top: 30px;
+            right: 100px; /* Geri tuşuyla çakışmaması için sağa çekildi */
+            left: 100px;
+            height: 15px;
+            background: #eee;
+            border-radius: 10px;
+            z-index: 100;
+        }
+
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background: #4CAF50;
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+
+        #word-display {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 15px 60px;
+            border-radius: 40px;
+            font-size: 4rem;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 5px solid var(--secondary);
+            z-index: 100;
+        }
+
+        .emoji {
+            position: absolute;
+            font-size: 6rem;
+            cursor: pointer;
+            z-index: 10;
+        }
+/* Kelime kutusu için burgu (sallanma) animasyonu */
+@keyframes twist {
+    0% { transform: translateX(-50%) rotate(0deg) scale(1); }
+    25% { transform: translateX(-50%) rotate(3deg) scale(1.05); }
+    50% { transform: translateX(-50%) rotate(0deg) scale(1); }
+    75% { transform: translateX(-50%) rotate(-3deg) scale(1.05); }
+    100% { transform: translateX(-50%) rotate(0deg) scale(1); }
+}
+
+#word-display {
+    /* Mevcut özelliklere ek olarak şu satırı ekle veya değiştir: */
+    animation: twist 2s ease-in-out infinite;
+    transform-origin: center;
+}
+    </style>
+</head>
+<body>
+
+    <div id="start-screen" class="screen">
+        <div class="back-icon-btn" onclick="window.location.href='index.html'">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+    </svg>
+</div>
+        <h1>لُعْبَة الكَلِمات المَرِحَة</h1>
+        <button class="btn" onclick="startGame()">اِبْدَأْ</button>
+    </div>
+
+    <div id="game-ui" style="display: none;">
+        <div class="back-icon-btn" onclick="goBackToStart()">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+    </svg>
+</div>
+        <div id="instruction-text">اُنْقُرْ عَلى الصّورَة المُناسِبَة لِلْكَلِمَة!</div>
+        <div id="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+        <div id="word-display">...</div>
+    </div>
+
+    <div id="overlay" class="screen">
+        <div style="font-size: 120px; animation: spin 4s linear infinite;">🔄</div>
+        <h2 style="font-size: 3rem;">اِنْتَهَت الجَوْلَة!</h2>
+        <button class="btn" onclick="startGame()">طالِب جَديد</button>
+    </div>
+
+    <audio id="instruction-audio" src="yonergekelime.mp3"></audio>
+
+<script>
+const allWords = [
+    // --- Temel Gıdalar & Market ---
+    { w: "سُكَّر", e: "🍬" },      // Şeker
+    { w: "مِلْح", e: "🧂" },      // Tuz
+    { w: "شاي", e: "☕" },       // Çay
+    { w: "حَليب", e: "🥛" },     // Süt
+    { w: "عَسَل", e: "🍯" },      // Bal
+    { w: "خُبْز", e: "🍞" },      // Ekmek
+    { w: "بَيْض", e: "🥚" },      // Yumurta
+    { w: "مَكَرونَة", e: "🍝" },   // Makarna
+    { w: "زَيْتون", e: "🫒" },    // Zeytin
+    { w: "بَقّالَة", e: "🛒" },    // Bakkal/Market
+
+    // --- Sebzeler (خَضْراوات) ---
+    { w: "بَصَل", e: "🧅" },      // Soğan
+    { w: "بَطاطا", e: "🥔" },     // Patates
+    { w: "طَماطِم", e: "🍅" },     // Domates
+    { w: "خِيار", e: "🥒" },      // Salatalık
+    { w: "جَزَر", e: "🥕" },      // Havuç
+    { w: "باذِنْجان", e: "🍆" },   // Patlıcan
+    { w: "فُلْفُل", e: "🫑" },      // Biber
+    { w: "فاصولْيا", e: "🫘" },    // Fasulye
+
+    // --- Meyveler (فَواكِه) ---
+    { w: "تُفّاح", e: "🍎" },      // Elma
+    { w: "بُرْتُقال", e: "🍊" },    // Portakal
+    { w: "مَوْز", e: "🍌" },       // Muz
+    { w: "عِنَب", e: "🍇" },       // Üzüm
+    { w: "كَرَز", e: "🍒" },       // Kiraz
+    { w: "مِشْمِش", e: "🍑" },     // Kayısı
+
+    // --- Miktarlar & Nesneler ---
+    { w: "كيلو", e: "⚖️" },       // Kilo
+    { w: "عُلْبَة", e: "📦" },     // Kutu/Paket
+    { w: "كيس", e: "🛍️" },       // Poşet/Kese
+    { w: "صُنْدوق", e: "🗳️" },     // Sandık/Kutu
+    { w: "ليرة", e: "₺" },       // Lira
+
+    // --- Sıfatlar & Karşılaştırmalar ---
+    { w: "طازَج", e: "✨" },      // Taze
+    { w: "غالٍ", e: "💰" },       // Pahalı
+    { w: "رَخيص", e: "🏷️" },      // Ucuz
+    { w: "كَبير", e: "🐘" },      // Büyük
+    { w: "صَغير", e: "🐭" },      // Küçük
+    { w: "ثَقيل", e: "🏋️" },      // Ağır
+    { w: "خَفيف", e: "🪶" },      // Hafif
+    { w: "أَكْبَر", e: "➕" },      // Daha büyük
+    { w: "أَصْغَر", e: "➖" },      // Daha küçük
+    { w: "أَغْلى", e: "📈" },      // Daha pahalı
+    { w: "أَرْخَص", e: "📉" }       // Daha ucuz
+];
+
+    let currentQuestion = 0;
+    const totalQuestions = 5;
+    let roundWords = [];
+    const emojiObjects = [];
+    let isGameRunning = false;
+
+function startGame() {
+    const audio = document.getElementById('instruction-audio');
+    const instruction = document.getElementById('instruction-text');
+    
+    // Ekranları ayarla
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('overlay').style.display = 'none';
+    document.getElementById('game-ui').style.display = 'block';
+    
+    // 1. Yazıyı göster
+    instruction.style.display = 'block';
+    
+    // 2. Sesi baştan başlat ve çal
+    audio.currentTime = 0;
+    audio.play();
+
+    // 3. Yazıyı tam 4 saniye sonra gizle (Ses bitişinden bağımsız)
+    setTimeout(function() {
+        instruction.style.display = 'none';
+    }, 4000); 
+    
+    isGameRunning = true;
+    initRound();
+}
+    function goBackToStart() {
+        isGameRunning = false;
+        clearEmojis();
+        document.getElementById('game-ui').style.display = 'none';
+        document.getElementById('start-screen').style.display = 'flex';
+    }
+
+    // Oyunun en başında, kelime takibi için boş bir dizi ekleyelim
+let usedWordsPool = []; 
+
+function initRound() {
+    currentQuestion = 0;
+    
+    // 1. Tüm kelimeler kullanıldıysa havuzu sıfırla
+    if (usedWordsPool.length >= allWords.length) {
+        usedWordsPool = [];
+    }
+
+    // 2. Kullanılmamış kelimeleri filtrele
+    let availableWords = allWords.filter(word => !usedWordsPool.includes(word.w));
+
+    // 3. Karıştır ve bu tur için 5 tane seç
+    let tempSelection = [...availableWords].sort(() => Math.random() - 0.5);
+    
+    roundWords = [];
+    for (let word of tempSelection) {
+        if (roundWords.length >= totalQuestions) break;
+
+        // Çay ve Kahve aynı turda olmasın kuralı
+        const isTeaOrCoffee = (word.w === "شاي" || word.w === "قَهْوَة");
+        const hasTeaOrCoffeeAlready = roundWords.some(w => w.w === "شاي" || w.w === "قَهْوَة");
+
+        if (isTeaOrCoffee && hasTeaOrCoffeeAlready) {
+            continue; // Eğer zaten biri varsa, diğerini bu tura ekleme, pas geç
+        }
+
+        roundWords.push(word);
+        usedWordsPool.push(word.w); // Bu kelimeyi "soruldu" havuzuna ekle
+    }
+
+    // Eğer çay/kahve elemesi yüzünden 5 kelimeye ulaşamazsak havuzdan rastgele tamamla
+    if (roundWords.length < totalQuestions) {
+        let backups = allWords.filter(w => !roundWords.includes(w));
+        roundWords.push(...backups.slice(0, totalQuestions - roundWords.length));
+    }
+
+    updateProgress();
+    nextQuestion();
+}
+
+    function updateProgress() {
+        const percent = (currentQuestion / totalQuestions) * 100;
+        document.getElementById('progress-bar').style.width = percent + "%";
+    }
+
+    function clearEmojis() {
+        emojiObjects.forEach(obj => obj.el.remove());
+        emojiObjects.length = 0;
+    }
+
+    function nextQuestion() {
+        if (currentQuestion >= totalQuestions) {
+            document.getElementById('overlay').style.display = 'flex';
+            isGameRunning = false;
+            return;
+        }
+
+        const target = roundWords[currentQuestion];
+        document.getElementById('word-display').innerText = target.w;
+
+        clearEmojis();
+
+        let pool = [target.e];
+        while(pool.length < 8) {
+            let rand = allWords[Math.floor(Math.random() * allWords.length)].e;
+            if(!pool.includes(rand)) pool.push(rand);
+        }
+
+        pool.sort(() => Math.random() - 0.5).forEach(char => {
+            createEmoji(char, char === target.e);
+        });
+    }
+
+    function createEmoji(char, isCorrect) {
+        const el = document.createElement('div');
+        el.className = 'emoji';
+        el.innerText = char;
+        document.body.appendChild(el);
+
+        const obj = {
+            el: el,
+            x: Math.random() * (window.innerWidth - 150),
+            y: Math.random() * (window.innerHeight - 350) + 150,
+            dx: (Math.random() - 0.5) * 4,
+            dy: (Math.random() - 0.5) * 4
+        };
+
+        el.onclick = () => {
+            if(isCorrect) {
+                currentQuestion++;
+                updateProgress();
+                nextQuestion();
+            } else {
+                el.style.opacity = "0.2";
+                setTimeout(() => el.style.opacity = "1", 500);
+            }
+        };
+        emojiObjects.push(obj);
+    }
+
+    function animate() {
+        if(isGameRunning) {
+            emojiObjects.forEach(obj => {
+                obj.x += obj.dx;
+                obj.y += obj.dy;
+
+                if (obj.x <= 0 || obj.x >= window.innerWidth - 120) obj.dx *= -1;
+                if (obj.y <= 100 || obj.y >= window.innerHeight - 150) obj.dy *= -1;
+
+                obj.el.style.left = obj.x + 'px';
+                obj.el.style.top = obj.y + 'px';
+            });
+        }
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    // Animasyon için spin tanımı
+    const styleSheet = document.styleSheets[0];
+    styleSheet.insertRule(`
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    `, styleSheet.cssRules.length);
+</script>
+</body>
+</html>

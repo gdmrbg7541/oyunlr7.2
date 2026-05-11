@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Arapça Yapboz - 16 Parça Full Screen</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #27ae60;
+            --bg: #f0f3f5;
+        }
+
+         @font-face {
+    font-family: 'Arakom';
+    src: url('arakom.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+        html, body {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; font-family: 'Arakom', sans-serif;
+            background-color: var(--bg);
+            height: 100vh;
+    width: 100vw;
+        }
+
+
+       /* Giriş sayfası için özel düzenleme */
+#start-page {
+    justify-content: center; /* Öğeleri dikeyde merkezler */
+    gap: 30px; /* Görsel ve buton arasındaki mesafeyi sabitler */
+}
+
+/* Genel sayfa yapısını bozmamak için oyun sayfasını yukarı yasla */
+#game-page {
+    justify-content: flex-start;
+}
+
+/* intro-text'in üst boşluğunu sıfırla (zaten start-page merkezliyor) */
+.intro-text {
+    margin-top: 0 !important;
+}
+ 
+        
+
+        .page {
+            display: none; width: 100vw; height: 100vh;
+            flex-direction: column; align-items: center;
+            justify-content: space-between; padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .active { display: flex; }
+
+        /* Navigasyon Butonları */
+        .nav-icon {
+            position: absolute; top: 15px; left: 15px;
+            font-size: 1.5rem; text-decoration: none;
+            background: white; width: 45px; height: 45px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            z-index: 1000; color: var(--primary); border: none; cursor: pointer;
+        }
+
+        /* Giriş Sayfası */
+        .intro-text {
+            text-align: center; direction: rtl;
+            background: white; padding: 15px;
+            border-radius: 12px; border-right: 6px solid var(--accent);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-top: 50px;
+        }
+
+        .btn-start { 
+            padding: 15px 60px; font-size: 1.5rem; 
+            background: var(--accent); color: white; 
+            border: none; border-radius: 40px; cursor: pointer;
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.3);
+        }
+
+        /* Oyun Alanı Tasarımı */
+        .header { width: 100%; display: flex; justify-content: center; align-items: center; height: 10%; }
+        #timer { font-size: 2rem; font-weight: bold; background: white; padding: 5px 25px; border-radius: 12px; border: 2px solid var(--primary); }
+
+        .game-main { 
+            display: flex; width: 100%; height: 88%; 
+           justify-content: center;
+            gap: 15px; padding: 0 10px; box-sizing: border-box;
+        }
+
+        .side-panel {
+    flex: 1; 
+    height: 90%; 
+    background: rgba(255,255,255,0.5); 
+    border: 2px dashed #bdc3c7; 
+    display: flex; 
+    flex-wrap: wrap;
+    align-content: flex-start; 
+    justify-content: center; 
+    gap: 8px; 
+    padding: 10px; 
+    overflow-y: auto; /* overflow: hidden yerine auto yapıldı */
+    border-radius: 15px;
+    min-width: 120px;
+}
+        
+        #puzzle-board { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            grid-template-rows: repeat(4, 1fr);
+            height: 75vh; aspect-ratio: 1 / 1; 
+            background: #fff; border: 4px solid var(--primary); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .slot { border: 1px solid #f0f0f0; display: flex; box-sizing: border-box; }
+        
+        .piece { 
+    width: 17vh; 
+    height: 17vh; 
+    background-image: url('S64_PAZARDA.jpg'); 
+    background-size: 400% 400%; 
+    cursor: grab; 
+    touch-action: none; 
+    border: 1px solid rgba(0,0,0,0.1); 
+    flex-shrink: 0;
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.15);
+    border-radius: 4px;
+}
+
+        .slot .piece { 
+    width: 100% !important; 
+    height: 100% !important; 
+    border: none; 
+    box-shadow: none; 
+}
+
+        /* Kazandınız Mesajı */
+        #win-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 2000;
+            flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center;
+        }
+        .veciz-soz { font-size: 3.5rem; color: #f1c40f; direction: rtl; margin-bottom: 10px; }
+        .win-info { font-size: 1.5rem; color: var(--accent); margin-bottom: 30px; }
+
+        /* Mobil için boyut ayarı */
+@media (max-width: 800px) {
+    .game-main { flex-direction: column; }
+    .side-panel { 
+        width: 100%; 
+        height: 12vh; /* Paneli daralttık */
+        flex-direction: row; 
+        flex: none; 
+        overflow-x: auto; 
+        white-space: nowrap;
+    }
+    #puzzle-board { height: 45vh; width: 45vh; }
+    .piece { width: 9vh; height: 9vh; }
+}
+        }
+    </style>
+</head>
+<body>
+<body ondragover="event.preventDefault()">
+<a href="index.html" id="home-btn" class="nav-icon">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+    </svg>
+</a>
+
+<button id="back-btn" class="nav-icon" style="display: none;" onclick="resetAndBack()">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+    </svg>
+</button>
+
+<div id="start-page" class="page active">
+    <div class="intro-text">
+        <h1 style="margin:0; font-weight: normal;"> لُعْبَة التَّرْكيب</h1>
+        <p style="font-size: 1.5rem; font-weight: normal;">هَيّا نُرَتِّب الصُّوَر لِنُكْمِل اللَّوْحَة‫.‬</p>
+    </div>
+    <img src="S64_PAZARDA.jpg" style="max-height: 45vh; border: 5px solid white; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.2);">
+    <button class="btn-start" onclick="startGame()">اِبْدَأْ</button>
+</div>
+
+<div id="game-page" class="page">
+    <div class="header-container" style="display: flex; justify-content: space-between; align-items: center; width: 100%; height: 12vh; padding: 0 20px; box-sizing: border-box;">
+        <div id="header-left" style="flex: 1; display: flex; justify-content: flex-start;"></div> 
+        
+        <div id="header-middle" style="flex: 3; text-align: center;">
+            <div class="game-instruction" style="direction: rtl; font-size: 2.8rem; color: var(--primary); margin: 0; font-weight: normal;"> هَيّا نُرَتِّب الصُّوَر لِنُكْمِل اللَّوْحَة!</div>
+        </div>
+
+        <div id="header-right" style="flex: 1; display: flex; justify-content: flex-end;">
+            <div id="timer" style="font-size: 1.8rem; font-weight: normal; background: white; padding: 5px 20px; border-radius: 12px; border: 2px solid var(--primary);">00:00</div>
+        </div>
+    </div>
+
+    <div class="game-main">
+        <div id="left-bank" class="side-panel"></div>
+        <div id="puzzle-board"></div>
+        <div id="right-bank" class="side-panel"></div>
+    </div>
+</div>
+
+<div id="win-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 3000; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-family: 'Arakom', sans-serif;">
+    
+    <div style="font-size: 7rem; color: #f1c40f; margin-bottom: 5px; font-weight: normal;">مُبارَك</div>
+    
+  
+
+    <div id="final-stats" style="font-size: 5rem; color: var(--accent); margin-bottom: 50px; font-weight: normal; direction: rtl;">
+        مُدَّةُ الإِكْمَال: <span id="timer-result">00:00</span>
+    </div>
+    
+    <button class="btn-start" style="padding: 25px 80px; font-tipe: Aragon; font-size: 3.5rem; border-radius: 80px; background: var(--accent); color: white; border: none; cursor: pointer; box-shadow: 0 10px 40px rgba(39, 174, 96, 0.4);" onclick="location.reload()">
+        اِلْعَبْ مَرَّةً أُخْرى
+    </button>
+</div>
+
+<audio id="instruction-audio" src="yonergeyapboz.mp3"></audio>
+
+    <script>
+ let seconds = 0;
+        let timerInterval;
+        const audio = document.getElementById('instruction-audio');
+
+        function startGame() {
+            audio.play().catch(() => {});
+            
+            // Buton Kontrolleri
+            document.getElementById('home-btn').style.display = 'none';
+            const backBtn = document.getElementById('back-btn');
+            backBtn.style.display = 'flex';
+            
+            // Geri butonunu oyun sayfasındaki sol boşluğa taşı
+            document.getElementById('header-left').appendChild(backBtn);
+            
+            document.getElementById('start-page').classList.remove('active');
+            document.getElementById('game-page').classList.add('active');
+            
+            resetTimer();
+            startTimer();
+            initPuzzle();
+        }
+
+        function initPuzzle() {
+            const board = document.getElementById('puzzle-board');
+            const banks = [document.getElementById('left-bank'), document.getElementById('right-bank')];
+            board.innerHTML = '';
+            banks[0].innerHTML = '';
+            banks[1].innerHTML = '';
+
+            let pieces = [];
+            for (let i = 0; i < 16; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'slot';
+                slot.dataset.index = i;
+                
+                // Sürükleme olaylarını dinle
+                slot.ondragover = e => e.preventDefault();
+                slot.ondrop = drop;
+                board.appendChild(slot);
+
+                const piece = document.createElement('div');
+                piece.className = 'piece';
+                piece.id = 'p' + i;
+                piece.draggable = true;
+                piece.dataset.correct = i;
+
+                const x = (i % 4) * (100 / 3);
+                const y = Math.floor(i / 4) * (100 / 3);
+                piece.style.backgroundPosition = `${x}% ${y}%`;
+                
+                piece.ondragstart = e => {
+                    e.dataTransfer.setData('text', e.target.id);
+                    e.target.style.opacity = "0.5";
+                };
+                piece.ondragend = e => e.target.style.opacity = "1";
+                
+                piece.ontouchstart = handleTouchStart;
+                piece.ontouchend = handleTouchEnd;
+                piece.ontouchmove = e => e.preventDefault(); // Kaydırmayı engelle
+
+                pieces.push(piece);
+            }
+
+            // Karıştır ve dağıt
+            let shuffled = [...pieces].sort(() => Math.random() - 0.5);
+            shuffled.forEach((p, idx) => {
+                banks[idx % 2].appendChild(p);
+            });
+        }
+
+        function returnToBank(piece) {
+            const leftBank = document.getElementById('left-bank');
+            const rightBank = document.getElementById('right-bank');
+            // Dengeleme yap
+            if (leftBank.children.length <= rightBank.children.length) {
+                leftBank.appendChild(piece);
+            } else {
+                rightBank.appendChild(piece);
+            }
+        }
+
+        // MASAÜSTÜ BIRAKMA (DRAG & DROP)
+        function drop(e) {
+            e.preventDefault();
+            const id = e.dataTransfer.getData('text');
+            const draggedPiece = document.getElementById(id);
+            const targetSlot = e.target.closest('.slot');
+
+            if (targetSlot) {
+                if (targetSlot.hasChildNodes() && targetSlot.firstChild !== draggedPiece) {
+                    returnToBank(targetSlot.firstChild);
+                }
+                targetSlot.appendChild(draggedPiece);
+            } else {
+                // Eğer bir slota bırakılmadıysa (boşluğa veya panele bırakıldıysa)
+                returnToBank(draggedPiece);
+            }
+            checkWin();
+        }
+
+        // MOBİL DOKUNMATİK (TOUCH)
+        let selectedPiece = null;
+        function handleTouchStart(e) {
+            selectedPiece = e.target;
+            selectedPiece.style.opacity = "0.7";
+            selectedPiece.style.zIndex = "1000";
+        }
+
+        function handleTouchEnd(e) {
+            if (!selectedPiece) return;
+            selectedPiece.style.opacity = "1";
+            selectedPiece.style.zIndex = "10";
+            
+            let touch = e.changedTouches[0];
+            // Dokunulan noktanın altındaki elemanı bul
+            let targetElement = document.elementFromPoint(touch.clientX, touch.clientY);
+            
+            // En yakın slotu bulmaya çalış
+            const dropSlot = targetElement ? targetElement.closest('.slot') : null;
+
+            if (dropSlot) {
+                if (dropSlot.hasChildNodes() && dropSlot.firstChild !== selectedPiece) {
+                    returnToBank(dropSlot.firstChild);
+                }
+                dropSlot.appendChild(selectedPiece);
+            } else {
+                // Slot dışındaki her yer (yan paneller dahil) bankaya geri gönderir
+                returnToBank(selectedPiece);
+            }
+            
+            checkWin();
+            selectedPiece = null;
+        }
+
+        function checkWin() {
+            const slots = document.querySelectorAll('.slot');
+            let correct = 0;
+            slots.forEach(slot => {
+                const p = slot.firstChild;
+                if (p && p.dataset.correct == slot.dataset.index) correct++;
+            });
+            if (correct === 16) {
+                clearInterval(timerInterval);
+                const finalTime = document.getElementById('timer').innerText;
+                document.getElementById('final-stats').innerText = "مُدَّة الإِكْمال: " + finalTime;
+                setTimeout(() => document.getElementById('win-overlay').style.display = 'flex', 500);
+            }
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                seconds++;
+                let mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+                let secs = (seconds % 60).toString().padStart(2, '0');
+                document.getElementById('timer').innerText = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            seconds = 0;
+            document.getElementById('timer').innerText = "00:00";
+        }
+
+        function resetAndBack() {
+            resetTimer();
+            const backBtn = document.getElementById('back-btn');
+            backBtn.style.display = 'none';
+            document.body.appendChild(backBtn);
+            document.getElementById('home-btn').style.display = 'flex';
+            document.getElementById('game-page').classList.remove('active');
+            document.getElementById('start-page').classList.add('active');
+        }
+
+        // ÖNEMLİ: Masaüstünde dışarı bırakmayı aktif etmek için 
+        // body üzerinde ondragover="event.preventDefault()" olmalı.
+        document.body.addEventListener('dragover', e => e.preventDefault());
+        document.body.addEventListener('drop', drop);
+    </script>
+</body>
+</html>

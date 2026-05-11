@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Arapça Hız Yarışı - Lightning Edition</title>
+    <!-- Font Awesome İkon Kütüphanesi -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @font-face {
+    font-family: 'Arakom';
+    src: url('arakom.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+        :root {
+            --p1-color: #e0f2fe;
+            --p2-color: #f0fdf4;
+            --bg-dark: #f8fafc;
+            --accent-gold: #fbbf24;
+           --font-main: 'Arakom', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --text-main: #1e293b;
+        }
+
+ body, html, .option-btn, h1 {
+    font-family: var(--font-main) !important;
+}
+
+       /* Ana Ekran Header Yapısı[cite: 1] */
+header {
+    background: white;
+    padding: 10px 70px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60px;
+}
+
+.home-btn {
+    position: absolute;
+    
+    top: 50%;
+    transform: translateY(-50%);
+    width: 45px; height: 45px;
+    border-radius: 50%;
+    background-color: #fff;
+    color: var(--primary-color);
+    border: 2px solid #e9ecef;
+    display: flex; align-items: center; justify-content: center;
+    text-decoration: none;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; font-family: var(--font-main);
+            background: var(--bg-dark); color: var(--text-main);
+        }
+
+        .back-btn {
+            position: absolute; top: 20px; left: 20px; z-index: 1000;
+            background: #f87171; color: white; padding: 12px 20px;
+            border-radius: 15px; text-decoration: none; font-size: 1.5rem;
+        }
+
+        #game-container { display: flex; width: 100vw; height: 100vh; }
+
+        .player-zone {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: space-between;
+            padding: 40px 0; position: relative; border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        #p1-zone { background: var(--p1-color); }
+        #p2-zone { background: var(--p2-color); }
+
+        .header-panel {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 15px; width: 100%;
+        }
+
+        .score-board {
+            font-size: 5vh; color: var(--text-main); background: rgba(255,255,255,0.8);
+            padding: 10px 30px; border-radius: 60px; font-weight: normal;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .progress-container {
+            width: 80%; height: 20px; background: rgba(0,0,0,0.05);
+            border-radius: 10px; display: flex; overflow: hidden;
+        }
+
+        .progress-segment {
+            flex: 1; border-right: 1px solid rgba(0,0,0,0.05);
+            transition: background 0.3s;
+        }
+
+        .options-container {
+            display: flex; flex-direction: column; gap: 3vh;
+            width: 85%; max-width: 400px; margin-bottom: 20px;
+        }
+
+        .option-btn {
+            padding: 4vh 2vh; font-size: 5vh; border: 1px solid #e2e8f0;
+            border-radius: 25px; cursor: pointer; background: #ffffff;
+            box-shadow: 0 6px 0 #cbd5e1; font-family: var(--font-main); font-weight: normal;
+        }
+
+        .option-btn:disabled { opacity: 0.8; }
+
+        .floating-score {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 8vh; font-weight: bold; pointer-events: none; z-index: 500;
+            white-space: nowrap; animation: floatUpSlow 3s ease-out forwards;
+        }
+
+        @keyframes floatUpSlow {
+            0% { transform: translate(-50%, -50%); opacity: 0; }
+            20% { opacity: 1; }
+            100% { transform: translate(-50%, -400%); opacity: 0; }
+        }
+
+        /* Modernize Edilmiş Ses Butonu */
+        #audio-trigger {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px; height: 120px; border-radius: 50%;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            border: 5px solid white; color: white;
+            font-size: 50px; cursor: pointer; z-index: 100;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.4);
+            animation: pulse-glow 2s infinite;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #audio-trigger:hover { transform: translate(-50%, -50%) scale(1.1); }
+        #audio-trigger:active { transform: translate(-50%, -50%) scale(0.95); }
+
+        @keyframes pulse-glow {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.4); }
+            50% { transform: translate(-50%, -50%) scale(1.08); box-shadow: 0 15px 35px -5px rgba(245, 158, 11, 0.6); }
+        }
+
+        .lightning {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; opacity: 0; pointer-events: none; z-index: 400;
+        }
+
+        @keyframes flash {
+            0%, 100% { opacity: 0; }
+            10%, 30% { opacity: 0.4; }
+            20% { opacity: 0.8; }
+        }
+
+        #round-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95); color: var(--text-main);
+            display: none; flex-direction: column; align-items: center;
+            justify-content: center; z-index: 2000;
+        }
+       
+       
+@keyframes highlight-pulse {
+    0% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 0px rgba(251, 191, 36, 0.7); }
+    70% { transform: translate(-50%, -50%) scale(1.2); box-shadow: 0 0 0 30px rgba(251, 191, 36, 0); }
+    100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 0px rgba(251, 191, 36, 0); }
+}
+
+.button-highlight {
+    animation: highlight-pulse 1.5s infinite !important;
+    border: 6px solid #fff !important;
+    background: #f59e0b !important;
+}        
+
+    </style>
+</head>
+<body>
+<div id="start-screen" dir="rtl" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #2c3e50; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5000; color: white; font-family: var(--font-main);">
+    <h1 style="font-size: 3.5rem; margin-bottom: 20px;">مُسابَقَة السُّرْعَة لِلُّغَة الْعَرَبِيَّة</h1>
+    
+    <button id="real-start-btn" onclick="startGameWithAudio()" dir="ltr" style="padding: 20px 60px; font-size: 2.5rem; border-radius: 50px; cursor: pointer; background: #27ae60; color: white; border: none; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 20px;">
+        <i class="fas fa-play"></i> 
+        <span dir="rtl">اِبْدَأْ</span>
+    </button>
+</div>
+<!-- Sol Tarafa Alınmış Home Butonu ve Header Yapısı[cite: 1] -->
+<header style="background: white; padding: 10px 70px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: relative; display: flex; justify-content: center; align-items: center; min-height: 60px; z-index: 1000;">
+    
+    <!-- Home Butonu SOL tarafa yerleştirildi[cite: 1] -->
+    <a href="index.html" class="home-btn" title="Ana Sayfaya Dön" style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); width: 45px; height: 45px; border-radius: 50%; background-color: #fff; color: #2c3e50; border: 2px solid #e9ecef; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        </svg>
+    </a>
+
+    <div class="header-text">
+        <h1 style="color: #2c3e50; margin: 0; font-size: 2.5rem; font-family: sans-serif;">   اِسْتَمِعْ وَاخْتَرْ‫.‬</h1>
+    </div>
+</header>
+
+<div id="round-overlay" style="background: rgba(44, 62, 80, 0.95); color: white;">
+    <h1 id="winner-text" style="font-size: 4rem;">Tur Bitti!</h1>
+    <p id="final-scores" style="font-size: 2.5rem; margin-bottom: 30px;"></p>
+    <button onclick="resetGame()" style="padding: 15px 40px; font-size: 24px; border-radius: 15px; cursor: pointer; background: #27ae60; color: white; border: none; transition: 0.3s;"> لاعِب آخَر</button>
+</div>
+
+<div id="lightning-fx" class="lightning"></div>
+
+<!-- Modernize Edilmiş Ses Butonu[cite: 2] -->
+<button id="audio-trigger" onclick="playCurrentAudio()" style="box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4); border: 4px solid white;">
+    <i class="fas fa-volume-high"></i>
+</button>
+
+<div id="game-container" style="height: calc(100vh - 80px);">
+    <div id="p1-zone" class="player-zone" style="background: #f0f8ff; border-right: 1px solid rgba(0,0,0,0.05);">
+        <div class="header-panel">
+            <div class="score-board" style="box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-radius: 20px; background: white; color: #2c3e50;">P1: <span id="p1-score">0</span></div>
+            <div class="progress-container" id="p1-progress" style="background: rgba(0,0,0,0.05);"></div>
+        </div>
+        <div class="options-container" id="p1-options"></div>
+    </div>
+
+    <div id="p2-zone" class="player-zone" style="background: #fdf2f2;">
+        <div class="header-panel">
+            <div class="score-board" style="box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-radius: 20px; background: white; color: #2c3e50;">P2: <span id="p2-score">0</span></div>
+            <div class="progress-container" id="p2-progress" style="background: rgba(0,0,0,0.05);"></div>
+        </div>
+        <div class="options-container" id="p2-options"></div>
+    </div>
+</div>
+
+<script>
+const words = [
+    // Fiiller ve İfadeler
+    { tr: 'istiyorum', ar: 'أُريدُ' },
+    { tr: 'ihtiyacım var', ar: 'أَنا بِحاجَة إِلى' },
+    { tr: 'istiyorum (talep ediyorum)', ar: 'أَطْلُبُ' },
+    { tr: 'satın alıyorum', ar: 'أَشْتَري' },
+    { tr: 'gideceğim', ar: 'سَأَذْهَبُ' },
+    { tr: 'kaça? / ne kadar?', ar: 'بِكَم؟' },
+    { tr: 'var / bulunuyor', ar: 'يوجَدُ' },
+    { tr: 'yeterli', ar: 'كافٍ' },
+
+    // Sebzeler (خَضْراوات)
+    { tr: 'soğan', ar: 'بَصَل' },
+    { tr: 'patates', ar: 'بَطاطا' },
+    { tr: 'domates', ar: 'طَماطِم' },
+    { tr: 'salatalık', ar: 'خِيار' },
+    { tr: 'havuç', ar: 'جَزَر' },
+    { tr: 'patlıcan', ar: 'باذِنْجان' },
+    { tr: 'biber', ar: 'فُلْفُل' },
+    { tr: 'taze fasulye', ar: 'فاصولْيا' },
+
+    // Meyveler (فَواكِه)
+    { tr: 'elma', ar: 'تُفّاح' },
+    { tr: 'portakal', ar: 'بُرْتُقال' },
+    { tr: 'muz', ar: 'مَوْز' },
+    { tr: 'üzüm', ar: 'عِنَب' },
+    { tr: 'kiraz', ar: 'كَرَز' },
+    { tr: 'kayısı', ar: 'مِشْمِش' },
+
+    // Market Ürünleri
+    { tr: 'şeker', ar: 'سُكَّر' },
+    { tr: 'tuz', ar: 'مِلْح' },
+    { tr: 'çay', ar: 'شّاي' },
+    { tr: 'ekmek', ar: 'خُبْز' },
+    { tr: 'yumurta', ar: 'بَيْض' },
+    { tr: 'makarna', ar: 'مَكَرونَة' },
+    { tr: 'süt', ar: 'حَليب' },
+    { tr: 'bal', ar: 'عَسَل' },
+
+    // Miktar ve Ölçü
+    { tr: 'kilo', ar: 'كيلو' },
+    { tr: 'kilogram', ar: 'كيلوغْرام' },
+    { tr: 'paket/kutu', ar: 'عُلْبَة' },
+    { tr: 'poşet/kese', ar: 'كيس' },
+    { tr: 'sandık', ar: 'صُنْدوق' },
+    { tr: 'tane/bir adet', ar: 'واحِدَة' },
+
+    // Sıfatlar ve Karşılaştırma
+    { tr: 'taze', ar: 'طازَج' },
+    { tr: 'pahalı', ar: 'غالٍ' },
+    { tr: 'ucuz', ar: 'رَخيص' },
+    { tr: 'büyük', ar: 'كَبير' },
+    { tr: 'küçük', ar: 'صَغير' },
+    { tr: 'ağır', ar: 'ثَقيل' },
+    { tr: 'hafif', ar: 'خَفيف' },
+    { tr: 'daha pahalı', ar: 'أَغْلى' },
+    { tr: 'daha ucuz', ar: 'أَرْخَص' },
+    { tr: 'daha büyük', ar: 'أَكْبَر' },
+    { tr: 'daha küçük', ar: 'أَصْغَر' }
+];
+
+let scores = { p1: 0, p2: 0 };
+let roundStep = 0, maxRounds = 5, roundActive = false;
+let currentWord = null, usedWordsInRound = [];
+let playerResponses = {};
+let roundStartTime = 0;
+let isFirstRoundOfGame = true; // İlk tur takibi için
+
+function initProgressBars() {
+    ['p1', 'p2'].forEach(p => {
+        const container = document.getElementById(`${p}-progress`);
+        container.innerHTML = '';
+        for(let i=0; i<maxRounds; i++) {
+            const seg = document.createElement('div');
+            seg.className = 'progress-segment';
+            seg.id = `${p}-seg-${i}`;
+            container.appendChild(seg);
+        }
+    });
+}
+
+// Oyunu başlatan ana fonksiyon
+function startGameWithAudio() {
+    const introAudio = new Audio('yonergesestesti.mp3');
+    document.getElementById('start-screen').style.display = 'none';
+
+    // Yönerge sesi bittiğinde ilk tur akışını başlat
+    introAudio.onended = () => {
+        startFirstRoundFlow();
+    };
+
+    introAudio.play().catch(e => {
+        console.log("Ses dosyası hatası, direkt başlatılıyor.");
+        startFirstRoundFlow();
+    });
+}
+
+function startFirstRoundFlow() {
+    // Ses butonunu vurgula (Sarı buton parlamaya başlar)
+    const audioBtn = document.getElementById('audio-trigger');
+    audioBtn.classList.add('button-highlight'); 
+    
+    // İlk turu hazırla
+    isFirstRoundOfGame = true;
+    initRound();
+}
+
+function initRound() {
+    if (roundStep >= maxRounds) { showEndScreen(); return; }
+    roundActive = true;
+    playerResponses = {};
+    
+    let availableWords = words.filter(w => !usedWordsInRound.includes(w.tr));
+    currentWord = availableWords[Math.floor(Math.random() * availableWords.length)];
+    usedWordsInRound.push(currentWord.tr);
+    
+    setupOptions('p1');
+    setupOptions('p2');
+    
+    // İlk tura özel gecikmeli ve vurgulu başlangıç
+    if (isFirstRoundOfGame) {
+        setTimeout(() => {
+            playCurrentAudio();
+            document.getElementById('audio-trigger').classList.remove('button-highlight');
+            roundStartTime = Date.now();
+            isFirstRoundOfGame = false;
+        }, 1500);
+    } else {
+        // Diğer turlar normal hızda
+        setTimeout(() => { 
+            playCurrentAudio(); 
+            roundStartTime = Date.now();
+        }, 800);
+    }
+}
+
+function playCurrentAudio() {
+    if(currentWord) {
+        const icon = document.querySelector('#audio-trigger i');
+        icon.classList.replace('fa-volume-high', 'fa-volume-low');
+        
+        const audio = new Audio(`https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(currentWord.ar)}&tl=ar&client=tw-ob`);
+        audio.play();
+        
+        audio.onended = () => {
+            icon.classList.replace('fa-volume-low', 'fa-volume-high');
+        };
+    }
+}
+
+function setupOptions(player) {
+    const container = document.getElementById(`${player}-options`);
+    container.innerHTML = '';
+    let choices = [currentWord];
+    while(choices.length < 3) {
+        let rand = words[Math.floor(Math.random() * words.length)];
+        if(!choices.find(c => c.tr === rand.tr)) choices.push(rand);
+    }
+    choices.sort(() => 0.5 - Math.random());
+
+    choices.forEach(choice => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerText = choice.ar;
+        btn.onclick = () => handleInput(player, choice, btn);
+        container.appendChild(btn);
+    });
+}
+
+function handleInput(player, choice, btn) {
+    if (!roundActive || playerResponses[player]) return;
+    
+    const responseTime = Date.now() - roundStartTime;
+    playerResponses[player] = {
+        isCorrect: choice.tr === currentWord.tr,
+        time: responseTime,
+        btn: btn
+    };
+
+    btn.style.background = "#94a3b8"; 
+    btn.style.color = "white";
+    document.querySelectorAll(`#${player}-options .option-btn`).forEach(b => b.disabled = true);
+
+    if (Object.keys(playerResponses).length === 2) {
+        roundActive = false;
+        processResults();
+    }
+}
+
+function processResults() {
+    const p1 = playerResponses.p1;
+    const p2 = playerResponses.p2;
+
+    const calculatePoints = (res) => {
+        if (!res.isCorrect) return -50;
+        let speedBonus = Math.max(0, 50 - (res.time / 100)); 
+        return Math.round(150 + speedBonus);
+    };
+
+    const p1Points = calculatePoints(p1);
+    const p2Points = calculatePoints(p2);
+
+    ['p1', 'p2'].forEach(p => {
+        const res = playerResponses[p];
+        const pts = (p === 'p1') ? p1Points : p2Points;
+        const seg = document.getElementById(`${p}-seg-${roundStep}`);
+        
+        res.btn.style.background = res.isCorrect ? "#22c55e" : "#ef4444";
+        seg.style.background = res.isCorrect ? "#22c55e" : "#ef4444";
+        
+        scores[p] = Math.max(0, scores[p] + pts);
+        showFloatingScore(p, pts);
+    });
+
+    if (p1.isCorrect && p2.isCorrect) {
+        const faster = p1.time < p2.time ? 'p1' : 'p2';
+        triggerLightning(faster);
+    } else if (p1.isCorrect && !p2.isCorrect) {
+        triggerLightning('p1');
+    } else if (p2.isCorrect && !p1.isCorrect) {
+        triggerLightning('p2');
+    }
+
+    setTimeout(() => {
+        updateScores();
+        roundStep++;
+        setTimeout(initRound, 1500);
+    }, 1000);
+}
+
+function showFloatingScore(player, pts) {
+    const zone = document.getElementById(`${player}-zone`);
+    const el = document.createElement('div');
+    el.className = 'floating-score';
+    el.innerText = pts >= 0 ? `+${pts}` : pts;
+    el.style.color = pts >= 0 ? "#16a34a" : "#dc2626";
+    zone.appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+}
+
+function triggerLightning(player) {
+    const fx = document.getElementById('lightning-fx');
+    fx.style.animation = 'none';
+    void fx.offsetWidth;
+    fx.style.animation = 'flash 0.5s ease-out';
+    
+    const zone = document.getElementById(`${player}-zone`);
+    const bolt = document.createElement('div');
+    bolt.innerHTML = "⚡ !أَسْرَع";
+    bolt.style.cssText = `
+        position: absolute;
+        font-size: 5rem;
+        color: #fbbf24;
+        top: 50%; 
+        left: 50%;
+        transform: translate(-50%, -50%); 
+        z-index: 600;
+        font-weight: 900;
+        text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000, 0px 0px 20px rgba(251, 191, 36, 0.8);
+        pointer-events: none;
+        white-space: nowrap;
+        font-family: var(--font-main);
+    `;
+    zone.appendChild(bolt);
+    
+    setTimeout(() => {
+        bolt.style.transition = "all 0.4s ease-in";
+        bolt.style.opacity = "0";
+        bolt.style.transform = "translate(-50%, -70%) scale(1.2)";
+        setTimeout(() => bolt.remove(), 400);
+    }, 800);
+}
+
+function updateScores() {
+    document.getElementById('p1-score').innerText = scores.p1;
+    document.getElementById('p2-score').innerText = scores.p2;
+}
+
+function showEndScreen() {
+    const overlay = document.getElementById('round-overlay');
+    overlay.style.display = 'flex';
+    const winTxt = document.getElementById('winner-text');
+    if(scores.p1 > scores.p2) winTxt.innerText = "🏆 👤1";
+    else if(scores.p2 > scores.p1) winTxt.innerText = "🏆 👤2";
+    else winTxt.innerText = "🤝 DOSTLUK KAZANDI!";
+    document.getElementById('final-scores').innerText = `P1: ${scores.p1} - P2: ${scores.p2}`;
+}
+
+function resetGame() {
+    scores = { p1: 0, p2: 0 };
+    roundStep = 0; usedWordsInRound = [];
+    isFirstRoundOfGame = true;
+    document.getElementById('round-overlay').style.display = 'none';
+    updateScores(); initProgressBars(); initRound();
+}
+
+// Sayfa yüklendiğinde hazırlık yap
+window.onload = () => {
+    initProgressBars();
+};
+
+
+</script>
+</body>
+</html>

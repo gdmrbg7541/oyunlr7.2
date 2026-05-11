@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>مِنَصَّة الأَلْعاب التَّعْليمِيَّة</title>
+    <style>
+        @font-face { 
+            font-family: 'AraKom'; 
+            src: url('arakom.ttf') format('truetype'); 
+        }
+        
+        :root {
+            --bg: #f8fafc; 
+            --card-bg: #ffffff; 
+            --accent: #3b82f6;
+            --text-main: #1e293b; 
+            --text-muted: #64748b; 
+            --border: #e2e8f0;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            transition: all 0.2s ease; 
+        }
+
+        body {
+            font-family: 'AraKom', sans-serif; 
+            background-color: var(--bg);
+            color: var(--text-main); 
+            margin: 0; 
+            display: flex;
+            flex-direction: column; 
+            align-items: center; 
+            min-height: 100vh; 
+            padding: 20px;
+        }
+
+        .header { 
+            text-align: center; 
+            margin-bottom: 30px; 
+            margin-top: 20px;
+        }
+
+        .header h1 { 
+            font-size: clamp(2rem, 8vw, 3.5rem); 
+            color: var(--accent); 
+            margin: 0; 
+        }
+
+        .header p { 
+            color: var(--text-muted); 
+            font-size: clamp(1.2rem, 5vw, 2rem); 
+            margin-top: 5px; 
+        }
+
+   /* Ana konteyner: Masaüstünde varsayılan 2 sütun */
+.grid-container {
+    display: grid;
+    width: 100%;
+    max-width: 800px;
+    gap: 20px;
+    grid-template-columns: repeat(2, 1fr); 
+    padding: 10px;
+}
+
+/* Kart yapılandırması: Karmaşık span değerleri silindi */
+.game-card {
+    background: var(--card-bg); 
+    border: 1px solid var(--border);
+    border-radius: 20px; 
+    padding: 20px; 
+    text-align: center;
+    text-decoration: none; 
+    color: inherit; 
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.03);
+    /* grid-column: span 2;  <-- Bu satırı sildik, otomatik yerleşecek */
+}
+
+/* Özel yerleşim komutları temizlendi (Hizalamayı bozan kısımlar) */
+/* .game-card:nth-child(4) ve :nth-child(5) bloklarını tamamen silebilirsiniz */
+
+/* MOBİL AYARLARI */
+@media (max-width: 768px) {
+    .grid-container {
+        grid-template-columns: repeat(2, 1fr); /* Mobilde de 2 sütun korundu */
+        gap: 12px;
+    }
+}
+
+/* ÇOK KÜÇÜK EKRANLAR */
+@media (max-width: 480px) {
+    .grid-container {
+        grid-template-columns: 1fr; /* Dar telefonlarda üst üste biner */
+    }
+}
+
+        .game-card:hover { 
+            transform: translateY(-5px); 
+            border-color: var(--accent);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.05);
+        }
+
+        .icon-circle {
+            width: clamp(60px, 15vw, 80px); 
+            height: clamp(60px, 15vw, 80px); 
+            background: #eff6ff;
+            border-radius: 18px; 
+            display: flex; 
+            align-items: center;
+            justify-content: center; 
+            margin-bottom: 12px; 
+            font-size: clamp(2rem, 10vw, 2.8rem);
+        }
+
+        .game-card h2 { 
+            margin: 0; 
+            font-size: clamp(1.1rem, 4vw, 1.5rem);
+            font-weight: bold;
+        }
+
+        /* MOBİL AYARLARI (768px altı) */
+        @media (max-width: 768px) {
+            .grid-container {
+                /* Mobil: 2 Sütun */
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .header { margin-bottom: 20px; }
+            
+            .game-card { padding: 15px; }
+        }
+
+        /* ÇOK KÜÇÜK EKRANLAR */
+        @media (max-width: 350px) {
+            .grid-container {
+                grid-template-columns: 1fr; /* Çok küçükse tek sütun */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>الوَحْدَة الثّانِيَة</h1>
+        <p> أَلْعاب اللُّغَة العَرَبِيَّة </p>
+    </div>
+
+    <div class="grid-container">
+        <a href="kelime.html" class="game-card">
+            <div class="icon-circle">🎯</div>
+            <h2>صَيْد الرُّموز</h2>
+        </a>
+
+       <a href="yapboz.html" class="game-card">
+    <div class="icon-circle">🧩</div>
+    <h2>تَرْكيب الكَلِمات</h2>
+</a>
+
+        
+
+      
+
+        <a href="sestesti.html" class="game-card">
+            <div class="icon-circle">🎧</div>
+            <h2>اخْتِبار الاِسْتِماع</h2>
+        </a>
+
+        <a href="hafizakarti.html" class="game-card">
+            <div class="icon-circle">🧠</div>
+            <h2>لُعْبَة الذّاكِرَة</h2>
+        </a>
+    </div>
+
+</body>
+</html>
