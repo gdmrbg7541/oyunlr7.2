@@ -555,21 +555,23 @@ initStartScreenListeners() {
     this.dom.startGameBtn.onclick = () => {
       this.playSound('menuClick');
       const mode = this.state.selectedPlayers;
-      const allWords = Data.pdfUnit.words.unit1.lessons.lesson1.words; // Tüm 16 kelime
+      const words = Data.pdfUnit.words.unit1.lessons.lesson1.words;
 
-      if(mode === 3) {
-          WordCardGame.start(allWords);
-          this.playInstruction('yonergekart.mp3'); 
+      if (mode === 3) {
+        // --- KARTLAR (BİTAGAT) MODU ---
+        WordCardGame.start(words);
+        this.playInstruction('yonergekart.mp3'); 
       } else {
-          // Hafıza oyununu başlatırken havuz mantığı devreye girer
-          MemoryGame.start(allWords, mode); 
-          setTimeout(() => {
-            this.playInstruction('yonergehafiza.mp3');
-          }, 300);
+        // --- HAFIZA KARTLARI MODU (1 veya 2 Kişilik) ---
+        MemoryGame.start(words, mode);
+        // Hafıza kartları seçildiğinde bu ses çalacak:
+        setTimeout(() => {
+          this.playInstruction('yonergehafiza.mp3');
+        }, 300);
       }
       this.showScreen('game-screen');
-    };
-},
+    }; // onclick bitişi
+  }, // initStartScreenListeners bitişi
 
   checkStartButtonState() {
     this.dom.startGameBtn.disabled = !this.state.selectedPlayers;
