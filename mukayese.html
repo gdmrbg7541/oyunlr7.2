@@ -327,6 +327,13 @@ body {
     </svg>
 </a>
 
+<button id="back-icon" class="nav-btn hidden" onclick="showStartScreen()" title="Geri">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+    </svg>
+</button>
+
 <div id="start-screen" class="screen">
     <h1>⚖️ أَيُّهُما؟</h1>
     <div class="sub">لُعْبَة المُقارَنَة</div>
@@ -501,7 +508,10 @@ function showStartScreen() {
     document.getElementById('start-screen').classList.remove('hidden');
     document.getElementById('game-screen').classList.add('hidden');
     document.getElementById('result-screen').classList.add('hidden');
-    document.getElementById('home-icon').classList.remove('hidden');
+    
+    // BUTON GÖRÜNÜRLÜK AYARI
+    document.getElementById('home-icon').classList.remove('hidden'); // Anasayfa tuşunu göster
+    document.getElementById('back-icon').classList.add('hidden');    // Geri tuşunu gizle
 }
 
 function startGame() {
@@ -513,7 +523,10 @@ function startGame() {
     document.getElementById('start-screen').classList.add('hidden');
     document.getElementById('game-screen').classList.remove('hidden');
     document.getElementById('result-screen').classList.add('hidden');
-    document.getElementById('home-icon').classList.add('hidden');
+    
+    // BUTON GÖRÜNÜRLÜK AYARI
+    document.getElementById('home-icon').classList.add('hidden');    // Anasayfa tuşunu gizle
+    document.getElementById('back-icon').classList.remove('hidden'); // Geri tuşunu göster
     
     currentRoundIndex = 0;
     sc = 0;
