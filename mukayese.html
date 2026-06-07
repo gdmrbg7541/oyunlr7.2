@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>أيّهُما — المُقارَنَة</title>
+<style>
+@font-face { 
+    font-family: 'Arakom'; 
+    src: url('arakom.ttf') format('truetype'); 
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Arakom', 'Segoe UI', Tahoma, sans-serif;
+    font-weight: 400; 
+    background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+    min-height: 100vh;
+    color: #2c3e50;
+    padding: 20px;
+    font-size: clamp(18px, 2.2vw, 24px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    user-select: none; 
+}
+
+.screen {
+    width: 100%;
+    max-width: 900px; 
+    margin: 0 auto;
+}
+
+/* Navigasyon Butonu */
+.nav-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    width: 64px; 
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #6A1B9A;
+    text-decoration: none;
+    z-index: 10;
+}
+.nav-btn svg { width: 32px; height: 32px; }
+
+/* Başlangıç Ekranı */
+#start-screen h1 { text-align: center; color: #6A1B9A; font-size: 4em; margin-bottom: 10px; font-weight: bold; }
+#start-screen .sub { text-align: center; color: #4A148C; margin-bottom: 30px; font-size: 2em; font-weight: bold; }
+
+.start-btn {
+    background: linear-gradient(135deg, #9C27B0, #673AB7);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 20px 60px;
+    font-size: 2.2em;
+    font-family: inherit;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(103, 58, 183, 0.3);
+    margin-top: 20px;
+    transition: transform 0.2s;
+}
+.start-btn:active { transform: scale(0.95); }
+
+/* Yönerge */
+.instruction {
+    text-align: center;
+    color: #555;
+    font-size: 1.4em;
+    font-weight: bold; 
+    margin-bottom: 30px;
+    background: rgba(255,255,255,0.4);
+    backdrop-filter: blur(5px);
+    padding: 10px 20px;
+    border-radius: 12px;
+    display: inline-block;
+    width: 100%;
+}
+
+/* İlerleme Çubuğu Alanı */
+.bar { 
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    margin-bottom: 40px; 
+    width: 100%;
+}
+
+.progress-container {
+    display: flex;
+    gap: 20px;
+    width: 80%;
+    max-width: 600px;
+}
+.progress-step {
+    height: 30px; 
+    flex: 1;
+    background: rgba(255, 255, 255, 0.4);
+    border: 3px solid rgba(255, 255, 255, 0.7);
+    border-radius: 15px;
+    transition: background 0.4s ease, box-shadow 0.4s ease, transform 0.2s;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+}
+.progress-step.correct { 
+    background: #4CAF50; 
+    border-color: #388E3C;
+    box-shadow: 0 0 20px rgba(76, 175, 80, 0.9), inset 0 2px 5px rgba(0,0,0,0.1); 
+    transform: scale(1.05);
+}
+.progress-step.wrong { 
+    background: #F44336; 
+    border-color: #D32F2F;
+    box-shadow: 0 0 20px rgba(244, 67, 54, 0.9), inset 0 2px 5px rgba(0,0,0,0.1); 
+    transform: scale(1.05);
+}
+
+/* Oyun Alanı */
+.q-card { text-align: center; margin-bottom: 25px; }
+
+.q-card .quest { 
+    margin-bottom: 40px; 
+    font-size: 3.5em;
+    color: #4A148C; 
+    font-weight: bold; 
+}
+
+/* Şıklar Konteynerı */
+.q-card .items { 
+    display: flex; 
+    justify-content: space-around; 
+    align-items: center; 
+    gap: 30px; 
+    flex-wrap: wrap; 
+}
+
+/* Bekleme (Dalga) Animasyonu */
+@keyframes idle-pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.6); }
+    50% { transform: scale(1.02); box-shadow: 0 0 0 25px rgba(255, 255, 255, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+/* Kutu Tasarımı */
+.q-card .item { 
+    width: clamp(280px, 42vw, 360px); 
+    min-height: 380px; 
+    height: auto; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer; 
+    padding: 25px 15px; 
+    border-radius: 30px;
+    background: rgba(255, 255, 255, 0.3);
+    border: 4px solid rgba(255, 255, 255, 0.5); 
+    backdrop-filter: blur(8px);
+    animation: idle-pulse 2s infinite ease-in-out;
+    transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+/* Çoklu/Normal Emoji İçin Konteyner */
+.em-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    min-height: 240px; 
+    margin-bottom: 10px;
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+.em-container > span {
+    font-size: 6.5em; 
+    line-height: 1;
+    display: inline-block;
+}
+
+/* Dinamik Boyutlar (Büyük / Küçük) */
+.size-big > span { transform: scale(1.3); } 
+.size-small > span { transform: scale(0.8); }
+
+/* --- ŞEFFAF POŞET (BAG) TASARIMI --- */
+.bag-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+/* AĞIR OLAN POŞET - Daha geniş ve daha uzun */
+.bag-wrapper.is-heavy {
+    width: 200px;
+    height: 240px;
+}
+
+/* HAFİF OLAN POŞET - Standart, daha küçük */
+.bag-wrapper.is-light {
+    width: 200px;
+    height: 240px;
+}
+
+.bag-back, .bag-front {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; 
+}
+.bag-front { z-index: 2; }
+
+/* --- YAMA KOD: POŞET İÇİ DOĞAL DİZİLİM (Ağır ve Hafif Aynı) --- */
+.bag-emojis {
+    position: absolute;
+    z-index: 1; 
+    bottom: 14%; /* Poşetin dibine tam oturması için */
+    left: 10%; 
+    width: 80%; /* Yanlardan taşmayı engeller, ortaya toplar */
+    max-height: 85%; 
+    display: flex;
+    flex-wrap: wrap-reverse; /* Ürünleri alttan üste doğru otomatik dizer */
+    justify-content: center; /* Ürünleri sağa-sola değil, merkeze hizalar */
+    align-content: flex-start; /* Ürünleri havada bırakmaz, dibe yaslar */
+}
+
+.bag-emojis span {
+    line-height: 0.9;
+    display: inline-block;
+    filter: drop-shadow(0 3px 4px rgba(0,0,0,0.25));
+}
+
+/* Her iki poşetteki ürünler için ortak boyut ve iç içe geçme payı */
+.weight-heavy .bag-emojis span,
+.weight-light .bag-emojis span {
+    font-size: 1.2em; /* 10 ürünün de 5 ürünün de sığacağı ideal ortak boyut */
+    margin: -3px -3px; /* Hafifçe birbirlerine değerek poşet doluluğu verir */
+}
+
+/* Pahalı Animasyonu (Altın Işıltı) */
+@keyframes gold-glow {
+    0% { filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.6)); }
+    50% { filter: drop-shadow(0 0 35px rgba(255, 215, 0, 1)) brightness(1.1); }
+    100% { filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.6)); }
+}
+.is-expensive { animation: gold-glow 2s infinite ease-in-out; }
+
+.q-card .item .ar { font-size: 2.2em; color: #2c3e50; font-weight: 400; line-height: 1.2; } 
+
+/* Rakam ve Lira sembolü ayarı (LTR) */
+.q-card .item .price { 
+    font-size: 1.8em; 
+    color: #E65100; 
+    margin-top: 8px; 
+    display: block; 
+    font-weight: bold; 
+    direction: ltr; 
+    text-align: center;
+}
+
+.q-card .item.disabled { pointer-events: none; animation: none; }
+
+/* SIK VE KÜÇÜK TİTREME (Hızlı ve dar açılı sallanma) */
+@keyframes tight-shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-3px) rotate(-2deg); }
+    20%, 40%, 60%, 80% { transform: translateX(3px) rotate(2deg); }
+}
+
+/* Belirgin Renk Vurguları */
+.q-card .item.correct { 
+    background: rgba(76, 175, 80, 0.4) !important; 
+    border-color: #388E3C !important; 
+}
+.q-card .item.correct .em-container { filter: drop-shadow(0 0 35px #4CAF50) !important; transform: scale(1.1); }
+.q-card .item.correct .ar, .q-card .item.correct .price { color: #1B5E20; font-weight: bold; }
+
+.q-card .item.wrong { 
+    background: rgba(244, 67, 54, 0.4) !important; 
+    border-color: #D32F2F !important; 
+}
+.q-card .item.wrong .em-container { 
+    animation: tight-shake 0.4s ease-in-out; 
+    filter: drop-shadow(0 0 30px #F44336) grayscale(60%) !important; 
+}
+.q-card .item.wrong .ar, .q-card .item.wrong .price { color: #B71C1C; font-weight: bold; }
+
+/* Sonuç Ekranları */
+.result, #round-transition { text-align: center; }
+.result .stars { font-size: 6em; margin: 20px 0; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1)); }
+
+.hidden { display: none !important; }
+
+.btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #9C27B0, #673AB7);
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    padding: 18px 40px;
+    font-family: inherit;
+    font-size: 1.5em;
+    cursor: pointer;
+    margin: 10px 10px;
+    font-weight: 400; 
+}
+</style>
+</head>
+<body>
+
+<a href="./index.html" id="home-icon" class="nav-btn" title="Anasayfa">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+    </svg>
+</a>
+
+<div id="start-screen" class="screen">
+    <h1>⚖️ أَيُّهُما؟</h1>
+    <div class="sub">لُعْبَة المُقارَنَة</div>
+    <div style="text-align: center;">
+        <button class="start-btn" onclick="startGame()">اِبْدَأْ ▶</button>
+    </div>
+</div>
+
+<div id="game-screen" class="screen hidden">
+    <div class="instruction">قارِنْ بَيْنَ الشَّيْئَيْن، ثُمَّ اخْتَر الجَواب الصَّحيح‫.‬</div>
+    
+    <div class="bar">
+        <div class="progress-container">
+            <div class="progress-step" id="step-0"></div>
+            <div class="progress-step" id="step-1"></div>
+            <div class="progress-step" id="step-2"></div>
+        </div>
+    </div>
+
+    <div class="q-card" id="quest-area">
+        <div class="quest" id="quest"></div>
+        
+        <div class="items" id="items-container">
+            <div class="item" id="itemA">
+                <div class="em-container" id="em1"></div>
+                <span class="ar" id="ar1"></span>
+                <span class="price" id="price1"></span>
+            </div>
+            <div class="item" id="itemB">
+                <div class="em-container" id="em2"></div>
+                <span class="ar" id="ar2"></span>
+                <span class="price" id="price2"></span>
+            </div>
+        </div>
+    </div>
+
+    <div id="round-transition" class="hidden">
+        <h2 style="color: #6A1B9A; font-size: 4.5em; margin-bottom: 40px; margin-top: 50px;">اِنْتَهَت الجَوْلَة!</h2>
+        <button class="start-btn" onclick="startRound()">الجَوْلَة التّالِيَة ▶</button>
+    </div>
+</div>
+
+<div id="result-screen" class="screen result hidden">
+    <h2 style="color:#6A1B9A; font-size: 5em; font-weight: bold;">🎉 أَحْسَنْت!</h2>
+    <div class="stars" id="stars"></div>
+    <div id="msg" style="color:#4A148C; margin-bottom:40px; font-size: 3em; font-weight: bold;"></div>
+    <button class="btn" onclick="startGame()">إعادَة 🔄</button>
+</div>
+
+<script>
+// --- SES SİSTEMİ (Web Audio API) ---
+let audioCtx;
+function playSound(type) {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    
+    const now = audioCtx.currentTime;
+    
+    if (type === 'correct') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(600, now);
+        osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.linearRampToValueAtTime(0, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+    } else if (type === 'wrong') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.linearRampToValueAtTime(100, now + 0.2);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.linearRampToValueAtTime(0, now + 0.2);
+        osc.start(now);
+        osc.stop(now + 0.2);
+    } else if (type === 'round') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, now);
+        osc.frequency.setValueAtTime(600, now + 0.15);
+        osc.frequency.setValueAtTime(800, now + 0.3);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.linearRampToValueAtTime(0, now + 0.5);
+        osc.start(now);
+        osc.stop(now + 0.5);
+    }
+}
+
+const instructionAudio = new Audio('yonergekarsilastirma.mp3');
+
+// Rakamları Arapça rakamlara çevirme
+const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+function toArabicNum(num) {
+    if (num === undefined || num === null) return '';
+    return num.toString().replace(/[0-9]/g, function(w) {
+        return arabicNumbers[w];
+    });
+}
+
+// Şeffaf poşetin SVG kodları (Ön ve Arka ayrı çizim - Sandviç Metodu)
+const SVG_BAG_BACK = `
+<svg class="bag-back" viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg">
+    <path d="M 70 65 C 70 10, 130 10, 130 65" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="8" stroke-linecap="round"/>
+    <path d="M 40 65 C 100 75, 100 75, 160 65 L 175 210 C 175 230, 140 240, 100 240 C 60 240, 25 230, 25 210 Z" fill="rgba(255,255,255,0.15)"/>
+</svg>`;
+
+const SVG_BAG_FRONT = `
+<svg class="bag-front" viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg">
+    <path d="M 50 70 C 50 0, 150 0, 150 70" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="8" stroke-linecap="round"/>
+    <path d="M 30 70 C 100 90, 100 90, 170 70 L 180 215 C 180 235, 140 240, 100 240 C 60 240, 20 235, 20 215 Z" fill="rgba(255,255,255,0.3)" stroke="rgba(255,255,255,0.8)" stroke-width="3"/>
+    <path d="M 45 90 Q 55 150 40 200" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 155 85 Q 140 150 160 195" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round"/>
+</svg>`;
+
+// --- TUR VE SORU MANTIĞI ---
+var ROUNDS = [
+    // 1. Tur: "En Fazla/Büyük/Ağır" Konsepti
+    [
+        { a:{em:'🍑',ar:'مِشْمِش',v:8,vU:'₺'}, b:{em:'🧅',ar:'بَصَل',v:4,vU:'₺'}, q:'أَيُّهُما أَغْلى؟' },
+        { a:{em:'🍊',ar:'بُرْتُقالَة',v:'كَبير',vU:''}, b:{em:'🍒',ar:'كَرَزَة',v:'صَغير',vU:''}, q:'أَيُّهُما أَكْبَر؟' },
+        { a:{em:'🍎',ar:'تُفّاح',v:'ثَقيل',vU:''}, b:{em:'🍎',ar:'تُفّاح',v:'خَفيف',vU:''}, q:'أَيُّهُما أَثْقَل؟' }
+    ],
+    // 2. Tur: "En Az/Küçük/Hafif" Konsepti
+    [
+        { a:{em:'🥛',ar:'عُلْبَة حَليب',v:10,vU:'₺'}, b:{em:'🧂',ar:'عُلْبَة مِلْح',v:3,vU:'₺'}, q:'أَيُّهُما أَرْخَص؟' },
+        { a:{em:'📦',ar:'صُنْدوق',v:'كَبير',vU:''}, b:{em:'🎁',ar:'صُنْدوق',v:'صَغير',vU:''}, q:'أَيُّهُما أَصْغَر؟' },
+        { a:{em:'🥔',ar:'بَطاطا',v:'ثَقيل',vU:''}, b:{em:'🥔',ar:'بَطاطا',v:'خَفيف',vU:''}, q:'أَيُّهُما أَخَفّ؟' }
+    ],
+    // 3. Tur: Karma 1 (Pahalı, Büyük, Ağır)
+    [
+        { a:{em:'🍌',ar:'مَوْز',v:10,vU:'₺'}, b:{em:'🍎',ar:'تُفّاح',v:7,vU:'₺'}, q:'أَيُّهُما أَغْلى؟' },
+        { a:{em:'🏘️',ar:'بَيْت',v:'كَبير',vU:''}, b:{em:'🏡',ar:'بَيْت',v:'صَغير',vU:''}, q:'أَيُّهُما أَكْبَر؟' },
+        { a:{em:'🍊',ar:'بُرْتُقال',v:'ثَقيل',vU:''}, b:{em:'🍊',ar:'بُرْتُقال',v:'خَفيف',vU:''}, q:'أَيُّهُما أَثْقَل؟' }
+    ],
+    // 4. Tur: Karma 2 (Ucuz, Küçük, Hafif)
+    [
+        { a:{em:'🫘',ar:'فاصولْيا',v:9,vU:'₺'}, b:{em:'🥔',ar:'بَطاطا',v:5,vU:'₺'}, q:'أَيُّهُما أَرْخَص؟' },
+        { a:{em:'🍅',ar:'طَماطِم',v:'كَبير',vU:''}, b:{em:'🫒',ar:'زَيْتون',v:'صَغير',vU:''}, q:'أَيُّهُما أَصْغَر؟' },
+        { a:{em:'🧅',ar:'بَصَل',v:'ثَقيل',vU:''}, b:{em:'🧅',ar:'بَصَل',v:'خَفيف',vU:''}, q:'أَيُّهُما أَخَفّ؟' }
+    ]
+];
+
+function shuf(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+
+function correctAnswer(q){
+  var t=q.q;
+  var aV=q.a.v, bV=q.b.v;
+  if(typeof aV === 'number' && typeof bV === 'number'){
+    if(/أَرْخَص|أَخَفّ|أَصْغَر|أَقْصَر|أَبْطَأ/.test(t)) return aV<bV?'a':'b';
+    return aV>bV?'a':'b';
+  }
+  var map={'كَبير':'big','صَغير':'small','ثَقيل':'heavy','خَفيف':'light'};
+  var pickHigh=/أَكْبَر|أَثْقَل/.test(t);
+  var aClass=map[q.a.v];
+  var highClasses=['big','heavy'];
+  if(pickHigh) return highClasses.indexOf(aClass)>=0?'a':'b';
+  return highClasses.indexOf(aClass)>=0?'b':'a';
+}
+
+var currentRoundIndex = 0;
+var currentQuestions = [];
+var qInRound = 0; 
+var sc = 0;
+
+function showStartScreen() {
+    instructionAudio.pause();
+    instructionAudio.currentTime = 0;
+    
+    document.getElementById('start-screen').classList.remove('hidden');
+    document.getElementById('game-screen').classList.add('hidden');
+    document.getElementById('result-screen').classList.add('hidden');
+    document.getElementById('home-icon').classList.remove('hidden');
+}
+
+function startGame() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+
+    instructionAudio.play().catch(e => console.log("Ses engellendi"));
+    
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('game-screen').classList.remove('hidden');
+    document.getElementById('result-screen').classList.add('hidden');
+    document.getElementById('home-icon').classList.add('hidden');
+    
+    currentRoundIndex = 0;
+    sc = 0;
+    startRound();
+}
+
+function startRound() {
+    qInRound = 0;
+    currentQuestions = shuf([...ROUNDS[currentRoundIndex]]);
+    
+    for(let i=0; i<3; i++) {
+        document.getElementById('step-' + i).className = 'progress-step';
+    }
+    
+    document.getElementById('round-transition').classList.add('hidden');
+    document.getElementById('quest-area').classList.remove('hidden');
+    
+    loadQ();
+}
+
+function setEmoji(elId, emoji, val) {
+    var el = document.getElementById(elId);
+    el.innerHTML = '';
+    el.className = 'em-container'; 
+    
+    // Ağır / Hafif (Şeffaf Poşet Mekanizması)
+    if (val === 'ثَقيل' || val === 'خَفيف') {
+        let isHeavy = (val === 'ثَقيل');
+        let count = isHeavy ? 21 : 11; // Ağır poşette 5, hafif poşette 1 emoji var
+        let bagClass = isHeavy ? 'is-heavy' : 'is-light';
+        
+        el.classList.add(isHeavy ? 'weight-heavy' : 'weight-light');
+        
+        let emojisHtml = '';
+        for(let i=0; i<count; i++) {
+            emojisHtml += `<span>${emoji}</span>`;
+        }
+        
+        // Sandviç (Bag) Yapısını Oluştur ve Boyut Sınıfını Ekle
+        el.innerHTML = `
+            <div class="bag-wrapper ${bagClass}">
+                ${SVG_BAG_BACK}
+                <div class="bag-emojis">${emojisHtml}</div>
+                ${SVG_BAG_FRONT}
+            </div>
+        `;
+        return; 
+    }
+
+    // Normal boyutlandırma (Boyut vs.)
+    let count = 1;
+    if (val === 'كَبير') {
+        el.classList.add('size-big');
+    } else if (val === 'صَغير') {
+        el.classList.add('size-small');
+    }
+
+    for(let i=0; i<count; i++) {
+        let s = document.createElement('span');
+        s.textContent = emoji;
+        el.appendChild(s);
+    }
+}
+
+function loadQ() {
+    var q = currentQuestions[qInRound];
+    var itemA = document.getElementById('itemA');
+    var itemB = document.getElementById('itemB');
+    
+    itemA.className = 'item';
+    itemB.className = 'item';
+    document.getElementById('em1').classList.remove('is-expensive');
+    document.getElementById('em2').classList.remove('is-expensive');
+    
+    var swap = Math.random() > 0.5;
+    var dataA = swap ? q.b : q.a;
+    var dataB = swap ? q.a : q.b;
+    var keyA = swap ? 'b' : 'a';
+    var keyB = swap ? 'a' : 'b';
+
+    setEmoji('em1', dataA.em, dataA.v);
+    document.getElementById('ar1').textContent = dataA.ar;
+    document.getElementById('price1').textContent = toArabicNum(dataA.v) + (dataA.vU ? ' ' + dataA.vU : '');
+    
+    setEmoji('em2', dataB.em, dataB.v);
+    document.getElementById('ar2').textContent = dataB.ar;
+    document.getElementById('price2').textContent = toArabicNum(dataB.v) + (dataB.vU ? ' ' + dataB.vU : '');
+
+    document.getElementById('price1').style.display = (typeof dataA.v === 'number') ? 'block' : 'none';
+    document.getElementById('price2').style.display = (typeof dataB.v === 'number') ? 'block' : 'none';
+
+    // Pahalı Altın Efekti
+    if(typeof dataA.v === 'number' && typeof dataB.v === 'number') {
+        if(dataA.v > dataB.v) document.getElementById('em1').classList.add('is-expensive');
+        else document.getElementById('em2').classList.add('is-expensive');
+    }
+
+    itemA.onclick = function() { answer(keyA, itemA, itemB, q); };
+    itemB.onclick = function() { answer(keyB, itemB, itemA, q); };
+
+    document.getElementById('quest').textContent = q.q;
+    q._correct = correctAnswer(q);
+}
+
+function answer(choiceKey, clickedItem, otherItem, q) {
+    clickedItem.classList.add('disabled');
+    otherItem.classList.add('disabled');
+    
+    var stepEl = document.getElementById('step-' + qInRound);
+
+    if(choiceKey === q._correct) {
+        playSound('correct'); 
+        clickedItem.classList.add('correct');
+        stepEl.classList.add('correct');
+        sc++;
+    } else {
+        playSound('wrong'); 
+        clickedItem.classList.add('wrong');
+        otherItem.classList.add('correct'); 
+        stepEl.classList.add('wrong');
+    }
+    
+    qInRound++;
+
+    setTimeout(function() {
+        if(qInRound >= 3) {
+            currentRoundIndex++;
+            document.getElementById('quest-area').classList.add('hidden');
+            
+            if (currentRoundIndex >= ROUNDS.length) {
+                end(); 
+            } else {
+                playSound('round'); 
+                document.getElementById('round-transition').classList.remove('hidden'); 
+            }
+        } else {
+            loadQ(); 
+        }
+    }, 1800); 
+}
+
+function end() {
+    var fs = Math.round(sc / 12 * 100);
+    document.getElementById('game-screen').classList.add('hidden');
+    document.getElementById('result-screen').classList.remove('hidden');
+    document.getElementById('stars').textContent = fs >= 90 ? '⭐⭐⭐' : fs >= 70 ? '⭐⭐' : '⭐';
+    document.getElementById('msg').textContent = fs >= 90 ? 'مُمْتازٌ!' : fs >= 70 ? 'جَيِّدٌ جِدًّا!' : 'حاوِلْ مَرَّةً أُخْرى!';
+}
+</script>
+</body>
+</html>
