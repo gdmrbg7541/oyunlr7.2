@@ -75,16 +75,13 @@ body {
 .start-btn:active { transform: scale(0.95); }
 
 /* Yönerge */
+/* Yönerge */
 .instruction {
     text-align: center;
     color: #555;
-    font-size: 1.4em;
+    font-size: 2em;
     font-weight: bold; 
-    margin-bottom: 30px;
-    background: rgba(255,255,255,0.4);
-    backdrop-filter: blur(5px);
-    padding: 10px 20px;
-    border-radius: 12px;
+    margin-bottom: 15px;
     display: inline-block;
     width: 100%;
 }
@@ -94,13 +91,13 @@ body {
     display: flex; 
     justify-content: center; 
     align-items: center;
-    margin-bottom: 40px; 
+    margin-bottom: 25px; 
     width: 100%;
 }
 
 .progress-container {
     display: flex;
-    gap: 20px;
+    gap: 25px;
     width: 80%;
     max-width: 600px;
 }
@@ -178,7 +175,7 @@ body {
     align-items: center;
     flex-wrap: wrap;
     gap: 5px;
-    min-height: 240px; 
+    min-height: 180px; 
     margin-bottom: 10px;
     transition: transform 0.3s ease, filter 0.3s ease;
 }
@@ -343,7 +340,7 @@ body {
 </div>
 
 <div id="game-screen" class="screen hidden">
-    <div class="instruction">قارِنْ بَيْنَ الشَّيْئَيْن، ثُمَّ اخْتَر الجَواب الصَّحيح‫.‬</div>
+    <div class="instruction">قارِنْ وَاخْتَر الجَواب الصَّحيح‫.‬</div>
     
     <div class="bar">
         <div class="progress-container">
@@ -385,6 +382,7 @@ body {
 
 <script>
 // --- SES SİSTEMİ (Web Audio API) ---
+// --- SES SİSTEMİ (Web Audio API) ---
 let audioCtx;
 function playSound(type) {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -398,30 +396,30 @@ function playSound(type) {
     const now = audioCtx.currentTime;
     
     if (type === 'correct') {
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(600, now);
-        osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
-        gain.gain.setValueAtTime(0.3, now);
+        osc.type = 'sine'; // triangle yerine en yumuşak dalga tipi olan sine
+        osc.frequency.setValueAtTime(400, now); // Frekansı biraz daha düşürdük
+        osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+        gain.gain.setValueAtTime(0.15, now); // Ses seviyesi 0.3'ten 0.15'e düştü
+        gain.gain.linearRampToValueAtTime(0, now + 0.4); // Daha yavaş sönümlenme
+        osc.start(now);
+        osc.stop(now + 0.4);
+    } else if (type === 'wrong') {
+        osc.type = 'sine'; // Tiz ve rahatsız edici sawtooth yerine sine
+        osc.frequency.setValueAtTime(200, now);
+        osc.frequency.linearRampToValueAtTime(150, now + 0.3);
+        gain.gain.setValueAtTime(0.15, now); // Ses seviyesi düşürüldü
         gain.gain.linearRampToValueAtTime(0, now + 0.3);
         osc.start(now);
         osc.stop(now + 0.3);
-    } else if (type === 'wrong') {
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(150, now);
-        osc.frequency.linearRampToValueAtTime(100, now + 0.2);
-        gain.gain.setValueAtTime(0.3, now);
-        gain.gain.linearRampToValueAtTime(0, now + 0.2);
-        osc.start(now);
-        osc.stop(now + 0.2);
     } else if (type === 'round') {
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(400, now);
-        osc.frequency.setValueAtTime(600, now + 0.15);
-        osc.frequency.setValueAtTime(800, now + 0.3);
-        gain.gain.setValueAtTime(0.3, now);
-        gain.gain.linearRampToValueAtTime(0, now + 0.5);
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.setValueAtTime(500, now + 0.15);
+        osc.frequency.setValueAtTime(700, now + 0.3);
+        gain.gain.setValueAtTime(0.15, now); // Ses seviyesi düşürüldü
+        gain.gain.linearRampToValueAtTime(0, now + 0.6); // Daha uzun ve yumuşak kapanış
         osc.start(now);
-        osc.stop(now + 0.5);
+        osc.stop(now + 0.6);
     }
 }
 
