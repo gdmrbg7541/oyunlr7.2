@@ -2,175 +2,269 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>مِنَصَّة الأَلْعاب التَّعْليمِيَّة</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>وَقْت التَّسَوُّق - أَلْعاب</title>
     <style>
         @font-face { 
-            font-family: 'AraKom'; 
+            font-family: 'Arakom'; 
             src: url('arakom.ttf') format('truetype'); 
         }
         
         :root {
-            --bg: #f8fafc; 
-            --card-bg: #ffffff; 
-            --accent: #3b82f6;
-            --text-main: #1e293b; 
-            --text-muted: #64748b; 
-            --border: #e2e8f0;
+            --primary: #0f4c5c; /* Şık butik/koyu zümrüt yeşili */
+            --secondary: #e27d60; /* Canlı vitrin/kiremit rengi */
+            --accent: #e8a87c;
+            --text-main: #2d3748;
         }
 
         * { 
             box-sizing: border-box; 
-            transition: all 0.2s ease; 
+            margin: 0;
+            padding: 0;
         }
 
+        /* ALIŞVERİŞ KONSEPTİ: Nane Yeşili, Şeftali, Altın ve Soft Mavi Pastel Tonları */
         body {
-            font-family: 'AraKom', sans-serif; 
-            background-color: var(--bg);
+            font-family: 'Arakom', 'Segoe UI', Tahoma, sans-serif; 
+            background-color: #fdfbfb;
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(167, 243, 208, 0.7) 0%, transparent 50%), /* Nane Yeşili */
+                radial-gradient(circle at 85% 75%, rgba(253, 230, 138, 0.6) 0%, transparent 50%), /* Altın/Sarı */
+                radial-gradient(circle at 80% 20%, rgba(254, 204, 213, 0.6) 0%, transparent 50%), /* Yumuşak Pembe/Şeftali */
+                radial-gradient(circle at 20% 80%, rgba(191, 219, 254, 0.7) 0%, transparent 50%); /* Soft Mavi */
+            background-attachment: fixed;
             color: var(--text-main); 
-            margin: 0; 
+            min-height: 100vh; 
             display: flex;
             flex-direction: column; 
             align-items: center; 
-            min-height: 100vh; 
-            padding: 20px;
+            justify-content: center; 
+            padding: 3vh 3vw;
+            overflow-x: hidden; 
         }
 
+        .main-container {
+            width: 100%;
+            max-width: 850px; /* 4 kart olduğu için 2x2 grid görünümü için daraltıldı */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(25px, 5vh, 45px); 
+        }
+
+        /* Başlık Alanı */
         .header { 
             text-align: center; 
-            margin-bottom: 30px; 
-            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: clamp(20px, 4vw, 35px) clamp(25px, 6vw, 60px);
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+            width: 100%;
+            max-width: 700px;
+            position: relative;
+        }
+
+        /* Alışveriş Etiketi Tarzı Rozet */
+        .unit-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #0ba360 0%, #3cbab2 100%);
+            color: white;
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(11, 163, 96, 0.3);
+            letter-spacing: 0.5px;
         }
 
         .header h1 { 
-            font-size: clamp(2rem, 8vw, 3.5rem); 
-            color: var(--accent); 
-            margin: 0; 
+            font-size: clamp(2.5rem, 6vw, 4.5rem); 
+            color: var(--primary); 
+            line-height: 1.2;
+            margin-bottom: 5px;
         }
 
         .header p { 
-            color: var(--text-muted); 
-            font-size: clamp(1.2rem, 5vw, 2rem); 
-            margin-top: 5px; 
+            color: var(--text-main); 
+            font-size: clamp(1.1rem, 3vw, 1.6rem); 
+            opacity: 0.8;
         }
 
-   /* Ana konteyner: Masaüstünde varsayılan 2 sütun */
-.grid-container {
-    display: grid;
-    width: 100%;
-    max-width: 800px;
-    gap: 20px;
-    grid-template-columns: repeat(2, 1fr); 
-    padding: 10px;
-}
+        /* Kartlar İçin Güvenli Esnek Izgara (4 Kart İçin Optimize Edildi) */
+        .grid-container {
+            display: flex;
+            flex-wrap: wrap; 
+            justify-content: center; 
+            align-items: stretch;
+            width: 100%;
+            gap: clamp(15px, 2.5vw, 30px);
+        }
 
-/* Kart yapılandırması: Karmaşık span değerleri silindi */
-.game-card {
-    background: var(--card-bg); 
-    border: 1px solid var(--border);
-    border-radius: 20px; 
-    padding: 20px; 
-    text-align: center;
-    text-decoration: none; 
-    color: inherit; 
-    display: flex;
-    flex-direction: column; 
-    align-items: center;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.03);
-    /* grid-column: span 2;  <-- Bu satırı sildik, otomatik yerleşecek */
-}
+        /* Oyun Kartı */
+        .game-card {
+            position: relative;
+            overflow: hidden; 
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 1);
+            border-radius: 30px; 
+            padding: clamp(15px, 3vw, 25px); 
+            text-align: center;
+            text-decoration: none; 
+            color: var(--primary); 
+            display: flex;
+            flex-direction: column; 
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.03);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            
+            /* 4 Kart için 2x2 dizilim: Yüzdeyi biraz artırdık */
+            flex: 1 1 calc(45% - 30px);
+            max-width: 380px;
+            min-width: clamp(150px, 40%, 260px);
+            min-height: clamp(160px, 22vh, 200px);
+            z-index: 1;
+        }
 
-/* Özel yerleşim komutları temizlendi (Hizalamayı bozan kısımlar) */
-/* .game-card:nth-child(4) ve :nth-child(5) bloklarını tamamen silebilirsiniz */
-
-/* MOBİL AYARLARI */
-@media (max-width: 768px) {
-    .grid-container {
-        grid-template-columns: repeat(2, 1fr); /* Mobilde de 2 sütun korundu */
-        gap: 12px;
-    }
-}
-
-/* ÇOK KÜÇÜK EKRANLAR */
-@media (max-width: 480px) {
-    .grid-container {
-        grid-template-columns: 1fr; /* Dar telefonlarda üst üste biner */
-    }
-}
+        /* ZARİF BÜYÜK RAKAMLAR (Suikast / Watermark) */
+        .game-card::before {
+            content: attr(data-num);
+            position: absolute;
+            bottom: -5%;
+            left: 3%; 
+            font-size: clamp(6rem, 15vw, 11rem); 
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-style: italic;
+            font-weight: 900;
+            background: linear-gradient(135deg, rgba(15, 76, 92, 0.1), rgba(15, 76, 92, 0.01));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            z-index: -1; 
+            line-height: 0.8;
+            pointer-events: none;
+            transition: all 0.5s ease;
+        }
 
         .game-card:hover { 
-            transform: translateY(-5px); 
-            border-color: var(--accent);
-            box-shadow: 0 10px 15px rgba(0,0,0,0.05);
+            transform: translateY(-10px) scale(1.02); 
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 15px 40px rgba(11, 163, 96, 0.15);
+            border-color: rgba(11, 163, 96, 0.4);
+        }
+
+        .game-card:hover::before {
+            transform: translateY(-15px) scale(1.05) rotate(-5deg);
+            background: linear-gradient(135deg, rgba(11, 163, 96, 0.2), rgba(11, 163, 96, 0.05));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .icon-circle {
-            width: clamp(60px, 15vw, 80px); 
-            height: clamp(60px, 15vw, 80px); 
-            background: #eff6ff;
-            border-radius: 18px; 
+            width: clamp(65px, 12vw, 90px); 
+            height: clamp(65px, 12vw, 90px); 
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.5));
+            border: 2px solid rgba(255,255,255,1);
+            border-radius: 24px; 
             display: flex; 
             align-items: center;
             justify-content: center; 
-            margin-bottom: 12px; 
-            font-size: clamp(2rem, 10vw, 2.8rem);
+            margin-bottom: 15px; 
+            font-size: clamp(2.4rem, 6vw, 3.5rem);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.06);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .game-card:hover .icon-circle {
+            transform: scale(1.15) rotate(8deg);
+            background: rgba(255, 255, 255, 1);
+            border-color: #3cbab2;
         }
 
         .game-card h2 { 
-            margin: 0; 
-            font-size: clamp(1.1rem, 4vw, 1.5rem);
+            font-size: clamp(1.2rem, 4vw, 1.6rem);
             font-weight: bold;
+            line-height: 1.3;
         }
 
-        /* MOBİL AYARLARI (768px altı) */
+        /* MOBİL EKRANLAR */
         @media (max-width: 768px) {
-            .grid-container {
-                /* Mobil: 2 Sütun */
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
+            .game-card { 
+                flex-basis: calc(50% - 15px);
+                border-radius: 25px;
             }
-            
-            .header { margin-bottom: 20px; }
-            
-            .game-card { padding: 15px; }
+            .game-card::before {
+                font-size: clamp(5.5rem, 18vw, 9rem); 
+                bottom: -8%;
+            }
         }
 
-        /* ÇOK KÜÇÜK EKRANLAR */
-        @media (max-width: 350px) {
-            .grid-container {
-                grid-template-columns: 1fr; /* Çok küçükse tek sütun */
+        /* ÇOK DAR EKRANLAR (400px altı) */
+        @media (max-width: 400px) {
+            .game-card {
+                flex-basis: 100%;
+                max-width: 100%;
+                min-height: 100px;
+                flex-direction: row; 
+                gap: 15px;
+                padding: 15px 20px;
+                justify-content: flex-start;
+                text-align: right;
+            }
+            .icon-circle {
+                margin-bottom: 0;
+                flex-shrink: 0;
+                width: 55px;
+                height: 55px;
+                font-size: 1.8rem;
+                border-radius: 18px;
+            }
+            .game-card h2 {
+                margin-top: 0;
+                font-size: 1.25rem;
+            }
+            .game-card::before {
+                left: 5%;
+                bottom: -20%;
+                font-size: 6rem;
             }
         }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>الوَحْدَة الثّانِيَة</h1>
-        <p> أَلْعاب اللُّغَة العَرَبِيَّة </p>
-    </div>
+    <div class="main-container">
+        <div class="header">
+            <span class="unit-badge">الوَحْدَة الثّانِيَة</span>
+            <h1>وَقْت التَّسَوُّق</h1>
+            <p>أَلْعاب اللُّغَة العَرَبِيَّة لِمَوْضوعِ التَّسَوُّق</p>
+        </div>
 
-    <div class="grid-container">
-        <a href="kelime.html" class="game-card">
-            <div class="icon-circle">🎯</div>
-            <h2>صَيْد الرُّموز</h2>
-        </a>
+        <div class="grid-container">
+            <a href="kelime.html" class="game-card" data-num="1">
+                <div class="icon-circle">🎯</div>
+                <h2>صَيْد الرُّموز</h2>
+            </a>
 
-       <a href="mukayese.html" class="game-card">
-    <div class="icon-circle">⚖️</div>
-    <h2>أَيُّهُما؟</h2>
-       </a>
+            <a href="mukayese.html" class="game-card" data-num="2">
+                <div class="icon-circle">⚖️</div>
+                <h2>أَيُّهُما؟</h2>
+            </a>
 
-        <a href="alisveris.html" class="game-card">
-            <div class="icon-circle">🛒</div>
-            <h2>سوق المُفْرَدات</h2>
-        </a>
+            <a href="alisveris.html" class="game-card" data-num="3">
+                <div class="icon-circle">🛒</div>
+                <h2>سوق المُفْرَدات</h2>
+            </a>
 
-
-        <a href="hafizakarti.html" class="game-card">
-            <div class="icon-circle">🧠</div>
-            <h2>لُعْبَة الذّاكِرَة</h2>
-        </a>
+            <a href="hafizakarti.html" class="game-card" data-num="4">
+                <div class="icon-circle">🧠</div>
+                <h2>لُعْبَة الذّاكِرَة</h2>
+            </a>
+        </div>
     </div>
 
 </body>
