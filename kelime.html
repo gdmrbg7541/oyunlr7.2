@@ -355,12 +355,12 @@ function initRound() {
         document.body.appendChild(el);
 
         const obj = {
-            el: el,
-            x: Math.random() * (window.innerWidth - 150),
-            y: Math.random() * (window.innerHeight - 350) + 150,
-            dx: (Math.random() - 0.5) * 4,
-            dy: (Math.random() - 0.5) * 4
-        };
+    el: el,
+    x: Math.random() * (window.innerWidth - 150),
+    y: Math.random() * (window.innerHeight - 350) + 150,
+    dx: (Math.random() - 0.5) * 1.5, // 4 yerine 1.5 veya 2 yazarak hızı düşürdük
+    dy: (Math.random() - 0.5) * 1.5
+};
 
         el.onclick = () => {
             if(isCorrect) {

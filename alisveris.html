@@ -306,10 +306,10 @@
                 <div class="grid" id="shelf"></div>
                 
                 <div id="status-bar" style="text-align: center; padding-top: 15px; z-index: 2;">
-                    <div id="total-container" class="total-display" onclick="checkAndOpenCheckout()">
-                        ₺ <span id="total-val">٠</span>
-                    </div>
-                </div>
+    <div id="total-container" class="total-display" onclick="checkAndOpenCheckout()">
+        <span dir="ltr"><span id="total-val">٠</span> ₺</span>
+    </div>
+</div>
             </div>
 
             <div id="mom-paper">
@@ -324,7 +324,7 @@
         <div class="receipt-paper">
             <h2 style="margin:0;">الفاتورَة النِّهائِيَّة</h2>
             <div id="receipt-details"></div>
-            <div class="receipt-total" id="num-display"></div>
+            <div class="receipt-total" id="num-display" dir="ltr"></div>
             <div id="options-grid"></div>
         </div>
     </div>
@@ -431,7 +431,7 @@
             
             const totalContainer = document.getElementById('total-container');
             totalContainer.classList.remove('ready-to-pay');
-            totalContainer.innerHTML = `₺ <span id="total-val">${toAr(0)}</span>`;
+            totalContainer.innerHTML = `<span dir="ltr"><span id="total-val">${toAr(0)}</span> ₺</span>`;
 
             document.getElementById('target-list').innerHTML = targetList.map((p, i) => `<li id="task-${i}">${p.name}</li>`).join('');
             
@@ -444,7 +444,7 @@
             shelfProducts.forEach((p) => {
                 const div = document.createElement('div');
                 div.className = 'product-card';
-                div.innerHTML = `<span class="emoji-big">${p.icon}</span><span class="price-ar">${toAr(p.price)} ₺</span>`;
+                div.innerHTML = `<span class="emoji-big">${p.icon}</span><span class="price-ar" dir="ltr">${toAr(p.price)} ₺</span>`;
                 div.onclick = () => handleSelection(p, div);
                 shelf.appendChild(div);
             });
@@ -486,39 +486,44 @@
         }
 
         function openCheckout() {
-            document.getElementById('modal').style.display = 'flex';
-            document.getElementById('num-display').innerText = toAr(total) + " ₺";
-            
-            let choices = [
-                { t: (numWords[total] || toAr(total)) + " ₺", c: true },
-                { t: (numWords[total+2] || toAr(total+2)) + " ₺", c: false },
-                { t: (numWords[Math.abs(total-1) || 7]) + " ₺", c: false }
-            ].sort(() => 0.5 - Math.random());
+    document.getElementById('modal').style.display = 'flex';
+    document.getElementById('num-display').innerText = toAr(total) + " ₺";
+    
+    
+    // Fatura ekranında alttaki yazılı şıklar (TL simgesi solda olacak şekilde)
+let choices = [
+    { t: `<span dir="ltr">₺ ${numWords[total] || toAr(total)}</span>`, c: true },
+    { t: `<span dir="ltr">₺ ${numWords[total+2] || toAr(total+2)}</span>`, c: false },
+    { t: `<span dir="ltr">₺ ${numWords[Math.abs(total-1) || 7]}</span>`, c: false }
+].sort(() => 0.5 - Math.random());
 
-            const optGrid = document.getElementById('options-grid');
-            optGrid.innerHTML = '';
-            choices.forEach(ch => {
-                const b = document.createElement('button');
-                b.className = 'opt';
-                b.innerText = ch.t;
-                b.onclick = () => {
-                    if(ch.c) {
-                        playSineWave(523, 0.1); 
-                        setTimeout(() => playSineWave(659, 0.1), 100);
-                        setTimeout(() => playSineWave(783, 0.3), 200);
+    const optGrid = document.getElementById('options-grid');
+    optGrid.innerHTML = '';
+    choices.forEach(ch => {
+        const b = document.createElement('button');
+        b.className = 'opt';
+        
+        // DİKKAT: innerText yerine innerHTML kullanıyoruz ki span etiketi çalışsın
+        b.innerHTML = ch.t; 
+        
+        b.onclick = () => {
+            if(ch.c) {
+                playSineWave(523, 0.1); 
+                setTimeout(() => playSineWave(659, 0.1), 100);
+                setTimeout(() => playSineWave(783, 0.3), 200);
 
-                        showMessage("أَحْسَنْت! ✅", () => {
-                            document.getElementById('modal').style.display = 'none'; 
-                            initGame(); 
-                        });
-                    } else {
-                        playSineWave(200, 0.4); 
-                        showMessage("حاوِلْ مَرَّة أُخْرى ❌"); 
-                    }
-                };
-                optGrid.appendChild(b);
-            });
-        }
+                showMessage("أَحْسَنْت! ✅", () => {
+                    document.getElementById('modal').style.display = 'none'; 
+                    initGame(); 
+                });
+            } else {
+                playSineWave(200, 0.4); 
+                showMessage("حاوِلْ مَرَّة أُخْرى ❌"); 
+            }
+        };
+        optGrid.appendChild(b);
+    });
+}
 
         function updateHighlight() {
             targetList.forEach((_, i) => {

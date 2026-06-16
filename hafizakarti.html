@@ -432,7 +432,7 @@ body, button, div, span {
         <h1 class="start-title">لُعْبَة الذّاكِرَة</h1>
 
         <p style="font-size: 2.5rem; color: var(--primary-color); margin-top: -10px; margin-bottom: 20px; font-family: 'Arakom', sans-serif !important;">
-            .اِخْتَر اللُّعْبَة، ثُمّ جِد الكَلِمات وَالصُّوَر المُتَطابِقَة
+            .اِخْتَر اللُّعْبَة، ثُمَّ جِد الكَلِمات وَالصُّوَر المُتَطابِقَة
         </p>
 
         <div class="start-options">
@@ -754,7 +754,7 @@ const MemoryGame = {
       el.className = 'card'; el.dataset.id = cd.id;
       let contentHtml = cd.content.endsWith('.jpeg') 
         ? `<img src="${cd.content}" style="width:100%;height:100%;object-fit:contain;">` 
-        : `<span style="${cd.lang==='ar'?"font-family:'Arakom',sans-serif;":""}">${cd.content}</span>`;
+        : `<span style="${cd.lang==='ar'?"font-family:'Arakom',sans-serif; font-size: clamp(2.5rem, 20cqw, 4.5rem);":""}">${cd.content}</span>`;
 
       el.innerHTML = `
         <div class="card-inner">
@@ -841,7 +841,7 @@ const WordCardGame = {
                 </button>
             </div>
             <div id="game-container-inner" style="display: flex; flex-direction: column; width: 100%; height: 100%; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box;">
-                <h2 class="game-instruction-title" style="margin: 0 0 10px 0; flex-shrink: 0; font-size: 2.5rem;">اُنْظُرْ إِلى الصّورَة، خَمِّن المَعْنى، ثُمَّ اِضْغَطْ‫.‬</h2>
+                <h2 class="game-instruction-title" style="margin: 0 0 10px 0; flex-shrink: 0; font-size: 2.5rem;">اُنْظُرْ إِلى الصّورَة، خَمِّن المَعْنى، ثُمَّ اضْغَطْ‫.‬</h2>
                 <div id="game-board" style="display: grid; width: 100%; height: 100%; max-height: 75vh; gap: 12px; justify-content: center; align-content: center;"></div>
                
         `;
