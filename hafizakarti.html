@@ -835,15 +835,19 @@ const WordCardGame = {
         gameScreen.classList.add('single-player-mode'); 
         
         gameScreen.innerHTML = `
-            <div class="header-navigation">
-                <button class="back-btn" title="Geri">
-                    <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path></svg>
-                </button>
-            </div>
-            <div id="game-container-inner" style="display: flex; flex-direction: column; width: 100%; height: 100%; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box;">
-                <h2 class="game-instruction-title" style="margin: 0 0 10px 0; flex-shrink: 0; font-size: 2.5rem;">اُنْظُرْ إِلى الصّورَة، خَمِّن المَعْنى، ثُمَّ اضْغَطْ‫.‬</h2>
+            <div id="game-container-inner" style="display: flex; flex-direction: column; width: 100%; height: 100%; align-items: center; padding: 10px; box-sizing: border-box;">
+                
+                <div class="game-header" style="width: 100%; position: relative; margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
+                    <div style="position: absolute; left: 10px; z-index: 200;">
+                        <button class="back-btn" title="Geri">
+                            <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path></svg>
+                        </button>
+                    </div>
+                    <h2 class="game-instruction-title" style="margin: 0; font-size: clamp(2.5rem, 5vw, 4rem); text-align: center; color: var(--primary-color);">اُنْظُرْ إِلى الصّورَة، خَمِّن المَعْنى، ثُمَّ اضْغَطْ‫.‬</h2>
+                </div>
+
                 <div id="game-board" style="display: grid; width: 100%; height: 100%; max-height: 75vh; gap: 12px; justify-content: center; align-content: center;"></div>
-               
+            </div>
         `;
 
         const board = document.getElementById('game-board');
@@ -864,13 +868,11 @@ const WordCardGame = {
             
             card.innerHTML = `
                 <div class="card-inner">
-                    <!-- Kelime (Arka yüz) - font-size clamp ile dinamik büyük tutuldu -->
                     <div class="card-face card-back" style="background: var(--primary-color); padding: 5px;">
-                        <span style="font-family:'Arakom',sans-serif; font-size: clamp(2rem, 18cqw, 5rem); line-height: 1.1; word-break: break-word;">
+                        <span style="font-family:'Arakom',sans-serif; font-size: clamp(2rem, 14cqw, 5rem); line-height: 1.1; word-break: break-word;">
                             ${w.arabic}
                         </span>
                     </div>
-                    <!-- Görsel (Ön yüz) -->
                     <div class="card-face card-front" style="padding:0; overflow:hidden; background: #fff;">
                         <img src="${w.turkish}" style="width:100%; height:100%; object-fit:contain; display:block;">
                     </div>
