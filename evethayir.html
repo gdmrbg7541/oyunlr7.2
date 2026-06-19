@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مسابقة نعم أو لا</title>
+    <style>
+        /* Arakom Fontu Tanımlaması */
+        @font-face {
+            font-family: 'Arakom';
+            src: url('arakom.ttf') format('truetype');
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arakom', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #f8f9fa;
+        }
+
+        /* Ortak Dinamik SVG Butonu (Anasayfa / Geri) - SOL TARAFA ALINDI */
+        .nav-svg {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            z-index: 1000;
+            transition: transform 0.2s;
+        }
+
+        .nav-svg:hover {
+            transform: scale(1.1);
+        }
+
+        /* Başlangıç Ekranı */
+        #start-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background-color: #e3f2fd;
+        }
+
+        h1 {
+            font-size: 5rem;
+            color: #1565c0;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .main-btn {
+            font-family: 'Arakom', sans-serif;
+            font-size: 3.5rem;
+            padding: 20px 80px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+            transition: background-color 0.3s;
+        }
+
+        .main-btn:hover {
+            background-color: #2980b9;
+        }
+
+         .start-buttons {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+        }
+
+        /* Oyun Ekranı Ana Kapsayıcı */
+        #game-screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+        }
+
+        /* Oyun Ekranı Üst Yönerge ve Sinüs Dalgası Çubuğu */
+        #game-header {
+            width: 100%;
+            height: 100px;
+            background-color: #ffffff;
+            border-bottom: 3px solid #bdc3c7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+
+        .instruction-text {
+            font-size: 3.5rem;
+            color: #2980b9;
+            font-weight: normal;
+        }
+
+        /* Sinüs Dalgası Animasyon CSS */
+        .sine-wave-container {
+            width: 120px;
+            height: 40px;
+            overflow: hidden;
+            opacity: 0.2;
+            transition: opacity 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .sine-wave-container.active {
+            opacity: 1;
+        }
+
+        .sine-wave-container svg {
+            width: 200%;
+            height: 100%;
+        }
+
+        .sine-wave-container.active svg {
+            animation: moveWave 1.5s linear infinite;
+        }
+
+        @keyframes moveWave {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(50%); }
+        }
+
+        /* Oyuncuların Olduğu Alt Alan */
+        #players-container {
+            display: flex;
+            flex: 1;
+            width: 100%;
+        }
+
+        .player-side {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            padding-bottom: 100px; /* Butonlar ile çubuk arası boşluk için güncellendi */
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        #p1-side {
+            border-left: 4px dashed #bdc3c7;
+            background-color: #ffffff;
+        }
+
+        #p2-side {
+            background-color: #fdfefe;
+        }
+        
+        #p1-content, #p2-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* Emoji Gösterimi */
+        .emoji-display {
+            font-size: 10rem;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 160px;
+        }
+
+        /* Fiyat Karşılaştırma Tasarımı */
+        .price-display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .price-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f1f2f6;
+            padding: 10px 25px;
+            border-radius: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border: 2px solid #ecf0f1;
+        }
+
+        .price-item .emoji {
+            font-size: 5rem;
+            line-height: 1;
+        }
+
+        .price-item .price {
+            font-size: 2.5rem;
+            color: #e74c3c;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .price-vs {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* Soru Cümlesi */
+        .question-text {
+            font-size: 5rem;
+            text-align: center;
+            font-weight: normal;
+            color: #2c3e50;
+            margin-bottom: 50px;
+            height: 250px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            line-height: 1.3;
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 30px;
+            height: 90px;
+            align-items: center;
+            margin-bottom: 40px; /* İlerleme çubuğuna çok yaklaşmasını engeller */
+        }
+
+        .btn {
+            font-family: 'Arakom', sans-serif;
+            font-size: 3rem;
+            padding: 20px 50px;
+            cursor: pointer;
+            border: none;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            color: white;
+            box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+            transition: transform 0.1s;
+        }
+        
+        .btn:active {
+            transform: translateY(5px);
+        }
+
+        .btn-yes { background-color: #2ecc71; }
+        .btn-no { background-color: #e74c3c; }
+
+        /* İlerleme Çubuğu */
+        .progress-bar {
+            display: flex;
+            gap: 15px;
+            position: absolute;
+            bottom: 30px;
+        }
+
+        .progress-step {
+            width: 60px;
+            height: 20px;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            border: 2px solid #bdc3c7;
+        }
+
+        .progress-step.correct { background-color: #2ecc71; border-color: #27ae60; }
+        .progress-step.wrong { background-color: #e74c3c; border-color: #c0392b; }
+
+        /* Bitiş Ekranı */
+        #end-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            z-index: 10;
+        }
+
+        .bitti-mesaj {
+            font-size: 5rem;
+            color: #2980b9;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="yonergeAudio" src="yonergeevethayir.mp3" preload="auto"></audio>
+
+    <svg id="nav-btn" class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="#1565c0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" onclick="handleNav()">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+    </svg>
+
+  <div id="start-screen">
+        <h1>مُسابَقَة نَعَم أَو لا</h1>
+        <div class="start-buttons">
+            <button class="main-btn" onclick="startGame(1)">👤 لاعِب واحِد</button>
+            <button class="main-btn" onclick="startGame(2)">👥 لاعِبان</button>
+        </div>
+    </div>
+
+    <div id="game-screen">
+        
+        <div id="game-header">
+            <div class="instruction-text">اِنْتَبِهْ إِلى الدَّليل وَالجُمْلَة ثُمَّ أَجِبْ‫.‬</div> <div class="sine-wave-container" id="sineWave">
+                <svg viewBox="0 0 200 20" preserveAspectRatio="none">
+                    <path d="M 0 10 Q 12.5 0 25 10 T 50 10 T 75 10 T 100 10 T 125 10 T 150 10 T 175 10 T 200 10" fill="none" stroke="#e74c3c" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+            </div>
+        </div>
+
+        <div id="players-container">
+            <div id="p1-side" class="player-side">
+                <div id="p1-content">
+                    <div id="p1-emoji" class="emoji-display">❓</div>
+                    <div id="p1-text" class="question-text">جاري التحميل...</div>
+                    <div id="p1-btn-container" class="btn-container">
+                        <button class="btn btn-yes" onclick="checkAnswer('p1', true)">نَعَم 👍</button>
+                        <button class="btn btn-no" onclick="checkAnswer('p1', false)">لا 👎</button>
+                    </div>
+                </div>
+                <div class="progress-bar" id="p1-progress">
+                    <div class="progress-step" id="p1-step-0"></div>
+                    <div class="progress-step" id="p1-step-1"></div>
+                    <div class="progress-step" id="p1-step-2"></div>
+                </div>
+            </div>
+
+            <div id="p2-side" class="player-side">
+                <div id="p2-content">
+                    <div id="p2-emoji" class="emoji-display">❓</div>
+                    <div id="p2-text" class="question-text">جاري التحميل...</div>
+                    <div id="p2-btn-container" class="btn-container">
+                        <button class="btn btn-yes" onclick="checkAnswer('p2', true)">نَعَم 👍</button>
+                        <button class="btn btn-no" onclick="checkAnswer('p2', false)">لا 👎</button>
+                    </div>
+                </div>
+                <div class="progress-bar" id="p2-progress">
+                    <div class="progress-step" id="p2-step-0"></div>
+                    <div class="progress-step" id="p2-step-1"></div>
+                    <div class="progress-step" id="p2-step-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="end-screen">
+        <div class="bitti-mesaj">دَوْر الطُّلّاب الجُدُد</div>
+        <button class="main-btn" onclick="resetGame()">اِبْدَأْ جَوْلَة جَديدَة</button>
+    </div>
+
+    <script>
+        const allQuestions = [
+            // --- NORMAL (EMOJİ EŞLEŞTİRME) SORULARI (2. Ünite) ---
+            { text: "هَلْ تُريدُ خُبْزًا طازَجًا؟", trueEmoji: "🍞", falseEmoji: "🥩", isFixed: false },
+            { text: "أَنا بِحاجَة إِلى خَضْراوات طازَجَة.", trueEmoji: "🥬", falseEmoji: "🍬", isFixed: false },
+            { text: "هَلْ عِنْدَكَ فَواكِه أَيْضًا؟", trueEmoji: "🍎", falseEmoji: "🥦", isFixed: false },
+
+            // --- FİYAT KARŞILAŞTIRMALI SABİT CEVAPLI SORULAR ---
+            
+            // Kiraz elmadan daha mı pahalıdır? -> EVET (9₺ > 7₺)
+            { 
+                text: "هَل الكَرَز أَغْلى مِن التُّفّاح؟", 
+                isFixed: true, 
+                fixedAnswer: true, 
+                isPrice: true,
+                item1: { emoji: "🍒", price: "٩ ₺" },
+                item2: { emoji: "🍎", price: "٧ ₺" }
+            },
+            // Kayısı muzdan daha mı pahalıdır? -> HAYIR (8₺ < 12₺)
+            { 
+                text: "هَل المِشْمِش أَغْلى مِن المَوْز؟", 
+                isFixed: true, 
+                fixedAnswer: false, 
+                isPrice: true,
+                item1: { emoji: "🍑", price: "٨ ₺" },
+                item2: { emoji: "🍌", price: "١٢ ₺" }
+            },
+            // Üzüm elmadan daha mı ucuzdur? -> EVET (5₺ < 7₺)
+            { 
+                text: "هَل العِنَب أَرْخَص مِن التُّفّاح؟", 
+                isFixed: true, 
+                fixedAnswer: true, 
+                isPrice: true,
+                item1: { emoji: "🍇", price: "٥ ₺" },
+                item2: { emoji: "🍎", price: "٧ ₺" }
+            },
+            // Elma muzdan daha mı pahalıdır? -> HAYIR (7₺ < 12₺)
+            { 
+                text: "هَل التُّفّاح أَغْلى مِن المَوْز؟", 
+                isFixed: true, 
+                fixedAnswer: false, 
+                isPrice: true,
+                item1: { emoji: "🍎", price: "٧ ₺" },
+                item2: { emoji: "🍌", price: "١٢ ₺" }
+            },
+            // Bir yumurta iki lira mıdır? -> EVET (Tekli gösterim)
+            { 
+                text: "هَل البَيْضَة الواحِدَة بِليرَتَيْن؟", 
+                isFixed: true, 
+                fixedAnswer: true, 
+                isPrice: true,
+                singleItem: true,
+                item1: { emoji: "🥚", price: "٢ ₺" }
+            }
+        ];
+
+        let p1State = { index: 0, questions: [], currentAnswer: null };
+        let p2State = { index: 0, questions: [], currentAnswer: null };
+        let currentScreenMode = 'home'; 
+        let currentGameMode = 2;
+        
+        let audio = document.getElementById('yonergeAudio');
+        let sineWave = document.getElementById('sineWave');
+
+        audio.addEventListener('playing', () => {
+            sineWave.classList.add('active');
+        });
+
+        audio.addEventListener('pause', () => {
+            sineWave.classList.remove('active');
+        });
+        
+        audio.addEventListener('ended', () => {
+            sineWave.classList.remove('active');
+        });
+
+        function playAudio() {
+            if(audio) {
+                audio.currentTime = 0; 
+                let playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.log("Tarayıcı sesi engelledi: ", error);
+                    });
+                }
+            }
+        }
+
+        function handleNav() {
+            if (currentScreenMode === 'home') {
+                window.location.href = 'index.html'; 
+            } else {
+                goBackToHome(); 
+            }
+        }
+
+        function updateNavIcon(mode) {
+            const svg = document.getElementById('nav-btn');
+            if (mode === 'home') {
+                svg.innerHTML = `
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>`;
+                currentScreenMode = 'home';
+            } else if (mode === 'back') {
+                svg.innerHTML = `
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>`;
+                currentScreenMode = 'game';
+            }
+        }
+
+        function goBackToHome() {
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('end-screen').style.display = 'none';
+            document.getElementById('start-screen').style.display = 'flex';
+            
+            if(audio) {
+                audio.pause();
+                audio.currentTime = 0;
+            }
+
+            updateNavIcon('home');
+        }
+
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function startGame(mode) {
+            if (mode) currentGameMode = mode; 
+
+            playAudio(); 
+
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('end-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'flex';
+            
+            updateNavIcon('back'); 
+
+            const p1Side = document.getElementById('p1-side');
+            const p2Side = document.getElementById('p2-side');
+
+            if (currentGameMode === 1) {
+                p2Side.style.display = 'none'; 
+                p1Side.style.borderLeft = 'none'; 
+            } else {
+                p2Side.style.display = 'flex'; 
+                p1Side.style.borderLeft = '4px dashed #bdc3c7'; 
+            }
+
+            let shuffledAll = shuffle([...allQuestions]);
+            let roundQuestions = shuffledAll.slice(0, 3);
+            
+            let c0 = Math.random() > 0.5;
+            let c1 = Math.random() > 0.5;
+            let c2 = Math.random() > 0.5;
+
+            p1State.questions = [
+                { ...roundQuestions[0], expectedAnswer: roundQuestions[0].isFixed ? roundQuestions[0].fixedAnswer : c0 }, 
+                { ...roundQuestions[1], expectedAnswer: roundQuestions[1].isFixed ? roundQuestions[1].fixedAnswer : c1 }, 
+                { ...roundQuestions[2], expectedAnswer: roundQuestions[2].isFixed ? roundQuestions[2].fixedAnswer : c2 }
+            ];
+            p1State.index = 0;
+            document.getElementById('p1-text').style.color = '#2c3e50';
+            document.getElementById('p1-btn-container').style.visibility = 'visible';
+            for(let i=0; i<3; i++){
+                document.getElementById(`p1-step-${i}`).className = 'progress-step';
+            }
+            loadQuestion('p1');
+
+            if (currentGameMode === 2) {
+                p2State.questions = [
+                    { ...roundQuestions[2], expectedAnswer: roundQuestions[2].isFixed ? roundQuestions[2].fixedAnswer : !c2 }, 
+                    { ...roundQuestions[0], expectedAnswer: roundQuestions[0].isFixed ? roundQuestions[0].fixedAnswer : !c0 }, 
+                    { ...roundQuestions[1], expectedAnswer: roundQuestions[1].isFixed ? roundQuestions[1].fixedAnswer : !c1 }
+                ];
+                p2State.index = 0;
+                document.getElementById('p2-text').style.color = '#2c3e50';
+                document.getElementById('p2-btn-container').style.visibility = 'visible';
+                for(let i=0; i<3; i++){
+                    document.getElementById(`p2-step-${i}`).className = 'progress-step';
+                }
+                loadQuestion('p2');
+            }
+        }
+
+        function loadQuestion(playerStr) {
+            let state = playerStr === 'p1' ? p1State : p2State;
+            let emojiContainer = document.getElementById(`${playerStr}-emoji`);
+            
+            if (state.index >= 3) {
+                emojiContainer.innerHTML = "⏳";
+                emojiContainer.style.fontSize = "10rem";
+                document.getElementById(`${playerStr}-text`).innerText = "في الاِنْتِظار...";
+                document.getElementById(`${playerStr}-text`).style.color = "#27ae60";
+                document.getElementById(`${playerStr}-btn-container`).style.visibility = "hidden";
+                
+                checkRoundEnd();
+                return;
+            }
+
+            let q = state.questions[state.index];
+            state.currentAnswer = q.expectedAnswer;
+
+            if (q.isPrice) {
+                emojiContainer.style.fontSize = "initial";
+                
+                if (q.singleItem) {
+                    emojiContainer.innerHTML = `
+                        <div class="price-display">
+                            <div class="price-item">
+                                <span class="emoji">${q.item1.emoji}</span>
+                                <span class="price">${q.item1.price}</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    emojiContainer.innerHTML = `
+                        <div class="price-display">
+                            <div class="price-item">
+                                <span class="emoji">${q.item1.emoji}</span>
+                                <span class="price">${q.item1.price}</span>
+                            </div>
+                            
+                            <div class="price-vs">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+                                    <defs>
+                                        <linearGradient id="vsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" style="stop-color:#e74c3c; stop-opacity:1" />
+                                            <stop offset="100%" style="stop-color:#3498db; stop-opacity:1" />
+                                        </linearGradient>
+                                        <filter id="vsShadow" x="-20%" y="-20%" width="140%" height="140%">
+                                            <feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity="0.25"/>
+                                        </filter>
+                                    </defs>
+                                    <circle cx="50" cy="50" r="45" fill="url(#vsGradient)" filter="url(#vsShadow)" />
+                                    <circle cx="50" cy="50" r="38" fill="none" stroke="#ffffff" stroke-width="2.5" opacity="0.4" stroke-dasharray="6 4" />
+                                    <text x="52" y="59" font-family="'Segoe UI', Roboto, Helvetica, sans-serif" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle" font-style="italic" letter-spacing="0.5">VS</text>
+                                </svg>
+                            </div>
+                            
+                            <div class="price-item">
+                                <span class="emoji">${q.item2.emoji}</span>
+                                <span class="price">${q.item2.price}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            } 
+            else if (q.isFixed) {
+                emojiContainer.style.fontSize = "10rem";
+                emojiContainer.innerHTML = q.emoji;
+            } 
+            else {
+                emojiContainer.style.fontSize = "10rem";
+                emojiContainer.innerHTML = q.expectedAnswer ? q.trueEmoji : q.falseEmoji;
+            }
+            
+            document.getElementById(`${playerStr}-text`).innerText = q.text;
+        }
+
+        function checkAnswer(playerStr, userSelection) {
+            let state = playerStr === 'p1' ? p1State : p2State;
+            let stepDiv = document.getElementById(`${playerStr}-step-${state.index}`);
+            
+            if (userSelection === state.currentAnswer) {
+                stepDiv.classList.add('correct');
+            } else {
+                stepDiv.classList.add('wrong');
+            }
+
+            state.index++;
+            loadQuestion(playerStr);
+        }
+
+        function checkRoundEnd() {
+            let isRoundOver = false;
+            
+            if (currentGameMode === 1) {
+                isRoundOver = p1State.index >= 3;
+            } else {
+                isRoundOver = (p1State.index >= 3 && p2State.index >= 3);
+            }
+
+            if (isRoundOver) {
+                setTimeout(() => {
+                    document.getElementById('game-screen').style.display = 'none';
+                    document.getElementById('end-screen').style.display = 'flex';
+                    updateNavIcon('home');
+                }, 800);
+            }
+        }
+
+        function resetGame() {
+            startGame(); 
+        }
+    </script>
+</body>
+</html>
