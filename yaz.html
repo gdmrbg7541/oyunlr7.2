@@ -63,7 +63,7 @@
             justify-content: space-between;
             align-items: center;
             width: 100%;
-            padding: 10px 0; /* Boşlukları düzenledik */
+            padding: 2px 0;
             border-bottom: 3px solid #bdc3c7;
         }
 
@@ -91,19 +91,45 @@
         }
 
         .instruction-text {
-            font-size: 2.2rem;
+            font-size: 3.2rem;
             font-weight: normal;
             text-align: center;
             flex-grow: 1;
             color: var(--primary-color);
+            margin: 5px 0;
         }
 
-        .timer-container {
-            font-size: 4rem;
-            font-weight: normal;
-            color: var(--error-color);
-            min-width: 120px;
-            text-align: center;
+        .timer-modern {
+            position: absolute;
+            left: 30px;
+            top: 220px;
+            width: 120px;
+            height: 120px;
+            background: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(231, 76, 60, 0.2), inset 0 0 0 8px #f1c40f;
+            border: 4px solid #fff;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        
+        .timer-modern .timer-text {
+            font-size: 3.5rem;
+            color: #e74c3c;
+            margin-top: 5px;
+        }
+
+        @keyframes timerPulse {
+            0% { transform: scale(1); box-shadow: 0 10px 25px rgba(231, 76, 60, 0.2), inset 0 0 0 8px #f1c40f; }
+            50% { transform: scale(1.05); box-shadow: 0 15px 35px rgba(231, 76, 60, 0.4), inset 0 0 0 8px #e74c3c; }
+            100% { transform: scale(1); box-shadow: 0 10px 25px rgba(231, 76, 60, 0.2), inset 0 0 0 8px #f1c40f; }
+        }
+        
+        .timer-modern.danger {
+            animation: timerPulse 1s infinite;
         }
 
         /* --- شريط التقدم (Progress Bar) - Çizgi Görünümü İçin İnceldi --- */
@@ -112,7 +138,7 @@
             justify-content: space-between;
             gap: 15px;
             width: 100%;
-            height: 15px; /* Kalınlık azaltılarak çizgi görünümü verildi */
+            height: 25px;
             margin-top: 15px;
         }
 
@@ -198,20 +224,35 @@
         }
 
         .score-board {
+            position: absolute;
+            right: 30px;
+            top: 90px;
             font-size: 2.5rem;
             font-weight: normal;
             color: var(--primary-color);
-            align-self: flex-start;
             background: white;
             padding: 10px 30px;
             border-radius: 15px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+        
+        .game-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            flex-grow: 1;
+            width: 100%;
+            position: relative;
+            padding-bottom: 20px;
         }
 
         .emoji {
-            font-size: 8rem;
+            font-size: 12rem;
             line-height: 1;
             animation: bounce 2s infinite;
+            margin: auto 0;
         }
 
         .word-box {
@@ -228,6 +269,7 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
         }
 
         .letters-container {
@@ -240,13 +282,13 @@
         }
 
         .letter-btn {
-            font-size: 5rem;
+            font-size: 4.5rem;
             font-weight: normal;
             background: var(--card-bg);
             border: 3px solid #bdc3c7;
             border-radius: 20px;
-            min-width: 110px;
-            height: 110px;
+            min-width: 130px;
+            height: 130px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -344,6 +386,60 @@
             20%, 60% { transform: translateX(-8px); }
             40%, 80% { transform: translateX(8px); }
         }
+    /* --- استجابة الجوال (Mobil Uyum - Responsive Design) --- */
+        @media (max-width: 768px) {
+            .instruction-text { font-size: 1.8rem; margin: 2px 0; }
+            .start-content h1 { font-size: 2.5rem; }
+            .start-content p { font-size: 1.2rem; }
+            .main-btn { font-size: 1.5rem; padding: 10px 30px; }
+            .icon-btn svg { width: 35px; height: 35px; }
+
+            .timer-modern {
+                top: 50px; left: 10px;
+                width: 60px; height: 60px;
+                border-width: 2px;
+            }
+            .timer-modern .timer-text { font-size: 1.8rem; margin-top: 0; }
+            
+            .score-board {
+                top: 50px; right: 10px;
+                font-size: 1.2rem;
+                padding: 5px 15px;
+            }
+
+            .emoji { font-size: 6rem; margin: 40px 0 auto 0; }
+            
+            .word-box {
+                font-size: 3rem;
+                min-height: 4.5rem;
+                width: 95%;
+                padding: 5px 20px;
+                margin-bottom: 15px;
+            }
+            
+            .letters-container { gap: 10px; width: 100%; }
+            
+            .letter-btn {
+                font-size: 2.5rem;
+                min-width: 60px;
+                height: 60px;
+                border-radius: 12px;
+                border-width: 2px;
+            }
+
+            .result-card { padding: 30px; min-width: 90%; }
+            .result-card h1 { font-size: 3rem; }
+            .result-card .final-score { font-size: 3.5rem; }
+        }
+
+        @media (max-width: 480px) {
+            .timer-modern { top: 45px; left: 5px; width: 50px; height: 50px; }
+            .timer-modern .timer-text { font-size: 1.4rem; }
+            .score-board { top: 45px; right: 5px; font-size: 1rem; padding: 5px 10px; }
+            .emoji { font-size: 5rem; margin: 30px 0 auto 0; }
+            .letter-btn { min-width: 50px; height: 50px; font-size: 2rem; }
+        }
+    
     </style>
 </head>
 <body>
@@ -368,7 +464,6 @@
 
     <div id="game-screen">
         <header>
-            <div id="timer" class="timer-container">60</div>
             <div class="instruction-text">
                 اِضْغَطْ عَلى الحُروف بِالتَّرْتيب الصَّحيح لِتَكْوين الكَلِمَة!
             </div>
@@ -380,6 +475,10 @@
         </header>
 
         <div class="progress-bar" id="progress-bar"></div>
+        
+        <div class="timer-modern" id="timer-modern">
+            <div id="timer" class="timer-text">60</div>
+        </div>
         
         <div class="game-content">
             <div class="score-board">النِّقاط: <span id="score-display">100</span></div>
@@ -398,7 +497,7 @@
     </div>
 
     <script>
-        const allWords = [
+       const allWords = [
     { cleanWord: "ملح", displayWord: "مِلْح", emoji: "🧂" },
     { cleanWord: "شاي", displayWord: "شاي", emoji: "☕" },
     { cleanWord: "خبز", displayWord: "خُبْز", emoji: "🍞" },
@@ -480,10 +579,23 @@ function playErrorSound() {
     playBeep(200, 0.3); // Hata: Daha uzun, kalın bir ses
 }
 
+const successMp3Files = ['ahsent_female.mp3', 'ahsent_male.mp3', 'mumtaz_female.mp3', 'mumtaz_male.mp3', 'rai_female.mp3', 'rai_male.mp3'];
 function playSuccessSound() {
-    // Kelime tamamlama: İki notalı bir başarı sesi (Örn: 400Hz ve ardından 600Hz)
-    playBeep(400, 0.15);
-    setTimeout(() => playBeep(600, 0.3), 150);
+    if (Math.random() < 0.4) {
+        let randomMp3 = successMp3Files[Math.floor(Math.random() * successMp3Files.length)];
+        let audio = new Audio(randomMp3);
+        audio.play().catch(e => {
+            if (typeof playBeep === "function") {
+                playBeep(400, 0.15);
+                setTimeout(() => playBeep(600, 0.3), 150);
+            }
+        });
+    } else {
+        if (typeof playBeep === "function") {
+            playBeep(400, 0.15);
+            setTimeout(() => playBeep(600, 0.3), 150);
+        }
+    }
 }
 
         const startScreen = document.getElementById('start-screen');
