@@ -37,7 +37,7 @@
         .back-btn {
             position: absolute; top: 10px; left: 10px;
             background: #606c38; color: white; padding: 8px 15px;
-            border-radius: 12px; text-decoration: none; font-weight: bold;
+            border-radius: 12px; text-decoration: none; font-weight: normal;
             font-size: 1.2rem; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
 
@@ -101,7 +101,7 @@
             font-size: 3.5vh; 
             margin: 5px auto 15px auto; 
             color: #fff;
-            font-weight: bold;
+            font-weight: normal;
             background: var(--wood-dark);
             display: inline-block;
             align-self: center;
@@ -152,7 +152,7 @@
 
         .product-card.selected { opacity: 0.1; pointer-events: none; transform: scale(0.9); }
         .emoji-big { font-size: 7vh; display: block; margin-bottom: 5px; }
-        .price-ar { font-size: 5vh; color: var(--lira-color); font-weight: bold; }
+        .price-ar { font-size: 5vh; color: var(--lira-color); font-weight: normal; }
 
         /* --- ALIŞVERİŞ LİSTESİ: BAĞIMSIZ, DÜZ KAĞIT --- */
         #mom-paper {
@@ -192,7 +192,7 @@
         }
 
         .shopping-list li.active {
-            color: #bc6c25 !important; font-weight: 900 !important;
+            color: #bc6c25 !important; font-weight: 500 !important;
             opacity: 1 !important; display: inline-block; 
             animation: breathing-text 2s ease-in-out infinite;
         }
@@ -202,7 +202,7 @@
         }
 
         .total-display {
-            font-size: 4.5vh; font-weight: 800; color: var(--lira-color);
+            font-size: 4.5vh; font-weight: 400; color: var(--lira-color);
             margin: 5px 0 0 0; padding: 10px 30px;
             border-radius: 12px; transition: all 0.3s ease;
             display: inline-block; cursor: default;
@@ -232,14 +232,14 @@
             background: #fff; border-radius: 15px !important; text-align: center;
         }
 
-        #modal h2 { font-size: 6.5vh !important; margin: 10px 0 20px 0 !important; font-weight: 900; color: #000; }
-        #receipt-details { font-size: 5vh !important; font-weight: bold; color: #444; margin: 15px 0; }
+        #modal h2 { font-size: 6.5vh !important; margin: 10px 0 20px 0 !important; font-weight: 500; color: #000; }
+        #receipt-details { font-size: 5vh !important; font-weight: normal; color: #444; margin: 15px 0; }
         
         .receipt-total {
             font-size: 11vh !important; /* Yazı devasa yapıldı */
             border-top: 6px dashed #000 !important;
             border-bottom: 6px dashed #000 !important; padding: 20px 0 !important;
-            margin: 20px 0 !important; width: 100%; color: #c0392b; font-weight: 900;
+            margin: 20px 0 !important; width: 100%; color: #c0392b; font-weight: 400;
         }
 
         #options-grid { width: 100%; display: flex; flex-direction: column; gap: 15px; }
@@ -248,7 +248,7 @@
             font-size: 5.5vh !important; /* Şıklar çok daha büyük */
             padding: 15px 0 !important;
             border-bottom: 5px dashed #606c38 !important; background: #f9f9f9 !important;
-            font-weight: 900 !important; width: 100%; border: 4px solid #606c38; 
+            font-weight: 400 !important; width: 100%; border: 4px solid #606c38; 
             border-radius: 15px; cursor: pointer; font-family: 'Arakom';
             animation: pulse-btn 1.5s infinite; 
         }
@@ -260,18 +260,70 @@
         .welcome-card { background: white; padding: 50px; border-radius: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); max-width: 500px; width: 90%; }
         .welcome-card h1 { color: #283618; font-size: 8vh; margin: 20px 0; }
         .welcome-card .main-icon { font-size: 12vh; }
-        .start-btn { display: inline-block; padding: 15px 50px; background: #606c38; color: white; border: none; font-size: 4vh; border-radius: 15px; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: 0 6px 0 #283618; font-family: 'Arakom', 'Tahoma', sans-serif; }
+        .start-btn { display: inline-block; padding: 15px 50px; background: #606c38; color: white; border: none; font-size: 4vh; border-radius: 15px; font-weight: normal; cursor: pointer; transition: 0.3s; box-shadow: 0 6px 0 #283618; font-family: 'Arakom', 'Tahoma', sans-serif; }
         .start-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #283618; }
         #instruction-header { background: #606c38; color: white; padding: 10px; border-radius: 15px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 15px; width: 100%; box-sizing: border-box; box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: relative;}
-        .inst-text { font-size: 3.2vh; font-weight: bold; }
+        .inst-text { font-size: 3.2vh; font-weight: normal; }
         
         .custom-alert { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); background: var(--paper); border: 5px solid var(--ink); padding: 25px; border-radius: 15px; z-index: 2000; text-align: center; box-shadow: 0 0 0 1000px rgba(0,0,0,0.7); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); min-width: 280px; }
         .custom-alert.show { transform: translate(-50%, -50%) scale(1); }
         .custom-alert h2 { font-size: 3.5vh; margin: 0 0 15px 0; color: var(--ink); }
         .custom-alert button { background: var(--highlight); color: white; border: none; padding: 12px 30px; font-size: 2.8vh; border-radius: 8px; cursor: pointer; font-family: 'Arakom'; box-shadow: 0 4px 0 #8d521d; }
+    
+        /* --- CİHAZ DÖNDÜRME UYARISI VE MOBİL YATAY KLAVYE DESTEĞİ --- */
+        #rotate-message {
+            display: none; 
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #2c3e50; 
+            z-index: 99999; 
+            flex-direction: column;
+            align-items: center; justify-content: center;
+            color: white; text-align: center;
+        }
+        .phone-animation {
+            width: 60px; height: 100px;
+            border: 4px solid white; border-radius: 10px;
+            animation: rotate-phone 2s infinite ease-in-out;
+            margin-bottom: 20px; position: relative;
+        }
+        .phone-animation::before {
+            content: ''; position: absolute;
+            top: 10px; left: 50%; transform: translateX(-50%);
+            width: 20%; height: 4px; background: white; border-radius: 2px;
+        }
+        @keyframes rotate-phone {
+            0% { transform: rotate(0deg); opacity: 1; }
+            25% { transform: rotate(90deg); opacity: 1; }
+            70% { transform: rotate(90deg); opacity: 1; }
+            100% { transform: rotate(90deg); opacity: 0; }
+        }
+        .rotate-text { font-size: 2.5rem; font-family: 'Arakom', Tahoma, sans-serif; }
+
+        @media only screen and (max-width: 900px) and (orientation: portrait) {
+            #rotate-message { display: flex !important; }
+        }
+
+        @media screen and (max-height: 500px) {
+            body {
+                overflow-y: auto !important;
+                height: auto !important;
+                min-height: 100vh;
+                align-items: flex-start;
+                padding-top: 15px; padding-bottom: 15px;
+            }
+        }
+
     </style>
 </head>
 <body>
+
+    <!-- CİHAZ DÖNDÜRME UYARISI (TÜM OYUNLAR ORTAK) -->
+    <div id="rotate-message">
+        <div class="phone-animation"></div>
+        <div class="rotate-text">يُرْجى تَدْوير الجِهاز</div> 
+    </div>
+
 
     <div id="landing-page">
         <a href="index.html" id="home-link-top" style="position: absolute; top: 15px; left: 15px; background: #bc6c25; color: white; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%; text-decoration: none; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: 0.3s;">
@@ -313,7 +365,7 @@
             </div>
 
             <div id="mom-paper">
-                <div style="font-size: 6.5vh; color: #bc6c25; border-bottom: 3px dashed #bc6c25; text-align: center; margin-bottom: 10px; font-weight: bold; flex-shrink: 0; padding-bottom: 8px;"> قائِمَة التَّسَوُّق </div>
+                <div style="font-size: 6.5vh; color: #bc6c25; border-bottom: 3px dashed #bc6c25; text-align: center; margin-bottom: 10px; font-weight: normal; flex-shrink: 0; padding-bottom: 8px;"> قائِمَة التَّسَوُّق </div>
                 <ul class="shopping-list" id="target-list"></ul>
             </div>
             
