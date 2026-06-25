@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport"/>
-<title> لُعْبَة الذَّاكِرَة</title>
+<title> لُعْبَة الذّاكِرَة</title>
 
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
@@ -34,7 +34,7 @@ body, button, div, span {
 } 
 
   *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  html,body{ width:100%; height:100%; margin:0; padding:0; overflow:hidden; }
+  html,body{ width:100%; height:100dvh; margin:0; padding:0; overflow:hidden; }
   body{ font-family:'Arakom',sans-serif; background:linear-gradient(180deg,var(--bg-start),var(--bg-end)); color:var(--text-color); text-align:center; }
   button,input,select{ font-family:inherit; }
 
@@ -54,10 +54,10 @@ body, button, div, span {
 
   /* Start */
   #start-screen{ gap:10px; }
-  .start-title{ font-size:clamp(2.2rem,4vw,3rem); margin:10px 0; }
+  .start-title{ font-size:clamp(2.5rem,5vw,3.5rem); margin:10px 0; }
   .start-options{ display:flex; flex-direction:column; gap:15px; width:80%; max-width:700px; }
   .option-group{ display:flex; flex-direction:column; gap:10px; }
-  .option-group label{ font-size:1.1rem; font-weight:400; color:var(--primary-color); text-align:left; }
+  .option-group label{ font-size:1.4rem; font-weight:500; color:var(--primary-color); text-align:left; }
   .player-buttons{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 
   .player-button, #lesson-select, #start-game-btn{
@@ -68,17 +68,17 @@ body, button, div, span {
   .player-button:hover, #lesson-select:hover{ background:var(--button-hover-bg); transform:translateY(-1px); box-shadow:0 4px #cdd3db; }
   #start-game-btn:not(:disabled):hover{ background:var(--correct-color); color:#fff; transform:translateY(-1px); box-shadow:0 4px #cdd3db; }
   .player-button:active, #start-game-btn:not(:disabled):active{ transform:translateY(1px); box-shadow:0 2px #d8dee9; }
-  .player-button.selected{ background:var(--button-selected-bg); color:var(--button-selected-color); font-weight:500; box-shadow:var(--button-selected-shadow); }
+  .player-button.selected{ background:var(--button-selected-bg); color:var(--button-selected-color); font-weight:400; box-shadow:var(--button-selected-shadow); }
   #lesson-select{ width:100%; appearance:none; -webkit-appearance:none;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235E81AC'%3E%3Cpath d='M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z'/%3E%3C/svg%3E");
     background-repeat:no-repeat; background-position:right 10px center; background-size:24px; padding-right:40px; text-align-last:center; }
-  #start-game-btn{ margin-top:6px; font-size:1.25rem; font-weight:500; }
+  #start-game-btn{ margin:10px auto 0 auto; font-size:1rem; padding: 10px 25px; width:auto; max-width: 250px; font-weight:500; }
   #start-game-btn:disabled{ background:#bdc3c7; color:#7f8c8d; opacity:.7; box-shadow:none; cursor:not-allowed; }
   #start-game-btn:not(:disabled){ background:var(--correct-color); color:#fff; }
 
   /* Game */
   #game-screen{ flex-direction:row; justify-content:space-between; align-items:stretch; gap:15px; padding:15px; overflow:hidden; }
-  #game-screen.single-player-mode #player2-display{ display:none; }
+  #game-screen.single-player-mode .score-display { display:none !important; }
   .score-display{
     flex:0 0 clamp(100px, 15%, 150px); max-width:150px; height:100%;
     display:flex; flex-direction:column; justify-content:center; align-items:center; gap:clamp(10px,3vh,20px);
@@ -92,7 +92,7 @@ body, button, div, span {
   #game-board{ flex-grow:1; width:auto; margin:0; padding:0; display:grid; gap:clamp(6px,1vw,12px);
                perspective:1200px; grid-template-columns:repeat(5,1fr); grid-template-rows:repeat(4,1fr); height:100%; }
   .card{ background:transparent; cursor:pointer; container-type:inline-size; }
-  .card-inner{ position:relative; width:100%; height:100%; transition:transform .6s; transform-style:preserve-3d; }
+  .card-inner{ position:relative; width:100%; height:100%; transition:transform .6s cubic-bezier(0.34, 1.56, 0.64, 1); transform-style:preserve-3d; }
   .card.flipped .card-inner{ transform:rotateY(180deg); }
   .card-face{ position:absolute; inset:0; display:flex; justify-content:center; align-items:center;
               -webkit-backface-visibility:hidden; backface-visibility:hidden; border-radius:var(--border-radius-md);
@@ -120,8 +120,8 @@ body, button, div, span {
     .start-title{ margin-bottom:12px; }
     .start-options{ gap:18px; }
     #game-screen{ flex-direction:column; padding:10px; gap:10px; }
-    .score-display{ flex-direction:row; height:auto; width:100%; max-width:none; font-size:2rem; padding:6px 10px; gap:10px; order:-1; }
-    .score-display svg{ width:30px; height:30px; }
+    .score-display{ flex-direction:row; height:40px; width:100%; max-width:none; font-size:1.4rem; padding:4px 10px; gap:8px; order:-1; }
+    .score-display svg{ width:22px; height:22px; }
     #game-board{ grid-template-columns:repeat(4,1fr); grid-template-rows:repeat(5,1fr); gap:6px; width:100%; }
     .card-face{ font-size:clamp(1rem,12cqw,1.8rem); padding:4px; border-radius:var(--border-radius-sm); }
     .game-over-overlay{ padding:20px 30px; width:90%; }
@@ -140,8 +140,6 @@ body, button, div, span {
     z-index: 10;
 }
 
-
-
 .score-display {
     flex: 0 0 clamp(70px, 10%, 110px);
     height: 85vh; /* Boyu biraz kısalttık (85vh idi) */
@@ -154,7 +152,7 @@ body, button, div, span {
     align-items: center;
     gap: 20px;
     font-size: clamp(1.8rem, 4vw, 3rem);
-    font-weight: 500;
+    font-weight: 400;
     color: #fff;
     border-radius: 50px;
     transition: all 0.4s ease-in-out;
@@ -299,16 +297,34 @@ body, button, div, span {
 }
 
 .game-instruction-title {
-    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    position: fixed !important;
+    top: 50vh !important;
+    left: 50vw !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 9999 !important;
+    width: 90%;
+    max-width: 800px;
+    font-size: clamp(2.5rem, 6vw, 4.5rem) !important;
     color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     margin: 0;
     font-weight: 400; /* 800 yerine 400 yaparak bold özelliğini kaldırdık */
     text-align: center;
+    line-height: 1.2;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+.game-instruction-title.hide {
+    opacity: 0 !important;
+    transform: translate(-50%, -60%) !important;
 }
 
 @media (max-width:800px) {
     .game-header { margin-bottom: 5px; }
-    .game-instruction-title { font-size: 1.6rem; }
 }
 
 /* Tek kişilik modda Player 1 panelini her zaman aktif ve renkli yap */
@@ -335,8 +351,6 @@ body, button, div, span {
     display: block;
     border-radius: var(--border-radius-md);
 }
-
-
 
 /* Kartın arka yüzündeki hizalamayı temizleyelim */
 .card-back {
@@ -449,20 +463,86 @@ body, button, div, span {
         .rotate-text { font-size: 2.5rem; font-family: 'Arakom', Tahoma, sans-serif; }
 
         @media only screen and (max-width: 900px) and (orientation: portrait) {
-            #rotate-message { display: flex !important; }
+            #rotate-message { display: none !important; }
+            #game-screen { flex-direction: column !important; padding: 5px !important; gap: 5px !important; }
+            .score-display { 
+                flex-direction: row !important; 
+                width: 100% !important; 
+                max-width: none !important;
+                height: 40px !important; 
+                padding: 2px 10px !important; 
+                gap: 10px !important; 
+                font-size: 1.5rem !important; 
+                margin: 0 !important;
+            }
+            .score-display svg { width: 22px !important; height: 22px !important; }
+            #game-container-inner { flex-grow: 1 !important; justify-content: center !important; }
+            #game-board { gap: 8px !important; }
         }
 
         @media screen and (max-height: 500px) {
-            body {
-                overflow-y: auto !important;
+            body { overflow: hidden !important; } /* Esnek grid olduğu için taşmaz */
+            #rotate-message { display: none !important; }
+            #game-screen { padding: 5px !important; gap: 5px !important; }
+            .score-display { 
+                width: 45px !important;
                 height: auto !important;
-                min-height: 100vh;
-                align-items: flex-start;
-                padding-top: 15px; padding-bottom: 15px;
+                padding: 3px !important;
+                font-size: 1.2rem !important;
+                gap: 5px !important;
             }
+            .score-display svg { width: 20px !important; height: 20px !important; }
+            #game-board { gap: 6px !important; }
         }
 
-    </style>
+  /* Mobilde Dikey Mod (Portrait) Ergonomisi */
+@media (max-width:800px) and (orientation: portrait) {
+    #game-screen {
+        flex-direction: column !important;
+        gap: 10px;
+    }
+    .score-display {
+        flex: 0 0 auto !important;
+        width: 100% !important;
+        height: clamp(50px, 8vh, 70px) !important;
+        max-width: none !important;
+        flex-direction: row !important;
+        justify-content: center !important;
+        gap: 15px !important;
+        margin: 5px 0 !important;
+        padding: 5px !important;
+    }
+    .score-display svg {
+        width: clamp(25px, 5vh, 40px) !important;
+        height: clamp(25px, 5vh, 40px) !important;
+    }
+}
+
+/* Mobilde Yatay Mod (Landscape) Ekrana Sığdırma */
+@media (max-height:600px) and (orientation: landscape) {
+    #game-screen {
+        gap: 5px !important;
+        padding: 5px !important;
+    }
+    .score-display {
+        flex: 0 0 clamp(50px, 10vw, 80px) !important;
+        max-width: 80px !important;
+        gap: 5px !important;
+        font-size: clamp(1.2rem, 4vh, 1.8rem) !important;
+    }
+    .score-display svg {
+        width: clamp(20px, 6vh, 35px) !important;
+        height: clamp(20px, 6vh, 35px) !important;
+    }
+    #game-board {
+        gap: clamp(3px, 1vh, 6px) !important;
+    }
+    .card-face {
+        padding: 2px !important;
+        font-size: clamp(0.9rem, 10vh, 1.5rem) !important;
+    }
+}
+  </style>
 </head>
 <body>
 
@@ -517,7 +597,7 @@ const Data = {
   pdfUnit: {
     title: "١. الوَحْدَة", 
     words: {
-      unit1: {
+      unit2: {
         title: { tr: "1. Ünite" },
         description: { tr: "Günlük Hayat" },
         lessons: {
@@ -607,7 +687,7 @@ initStartScreenListeners() {
     this.dom.startGameBtn.onclick = () => {
       this.playSound('menuClick');
       const mode = this.state.selectedPlayers;
-      const words = Data.pdfUnit.words.unit1.lessons.lesson1.words;
+      const words = Data.pdfUnit.words.unit2.lessons.lesson1.words;
 
       if (mode === 3) {
         // --- KARTLAR (BİTAGAT) MODU ---
@@ -628,6 +708,7 @@ initStartScreenListeners() {
   checkStartButtonState() {
     this.dom.startGameBtn.disabled = !this.state.selectedPlayers;
   },
+
 
   showScreen(screenId, opts={push:true}) {
     this.dom.screens.forEach(s => s.classList.remove('active'));
@@ -690,44 +771,19 @@ initStartScreenListeners() {
 };
 
 /* =========================
-   MEMORY GAME (GÜNCEL TAM KOD)
+   MEMORY GAME
 ========================= */
 const MemoryGame = {
-  state: { 
-    playerMode: 1, f: [], l: false, c: 1, s1: 0, s2: 0, w: [], p: 0, 
-    flipTimeout: null, 
-    wordsPool: [] 
-  },
-  dom: {},
-
-  init() {
-    // Genel ilklendirme gerekirse buraya
-  },
-
-  start(words, playerMode = 1) {
-    // 1. Havuz Kontrolü: 16 kelimeyi 8+8 bölmek için havuz oluştur
-    if (!this.state.wordsPool || this.state.wordsPool.length < 2) {
-      this.state.wordsPool = Utils.shuffleArray(words);
-    }
-
-    // 2. Havuzdan 8 kelime seç ve havuzdan çıkar (splice)
-    const wordPairsNeeded = 8;
-    this.state.w = this.state.wordsPool.splice(0, wordPairsNeeded);
-
-    // 3. Oyun durumunu sıfırla
-    this.state.playerMode = playerMode;
-    this.state.f = [];
-    this.state.l = false;
-    this.state.c = 1;
-    this.state.s1 = 0;
-    this.state.s2 = 0;
-    this.state.p = 0;
-    this.state.flipTimeout = null;
+  state:{ playerMode:1, f:[], l:false, c:1, s1:0, s2:0, w:[], p:0, flipTimeout:null },
+  dom:{},
+  init(){},
+start(words, playerMode=1){
+    this.state = { playerMode, f:[], l:false, c:1, s1:0, s2:0, w:[], p:0, flipTimeout:null };
 
     const gameScreen = document.getElementById('game-screen');
     gameScreen.innerHTML = `
       <div class="header-navigation">
-        <button class="back-btn" title="Geri">
+        <button class="back-btn" title="Geri" aria-label="Geri">
           <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path></svg>
         </button>
       </div>
@@ -737,9 +793,10 @@ const MemoryGame = {
         <span id="score1">0</span>
       </div>
 
-      <div id="game-container-inner" style="display: flex; flex-direction: column; flex-grow: 1; align-items: center; justify-content: center;">
+<div id="game-container-inner" style="display: flex; flex-direction: column; flex-grow: 1; align-items: center;">
          <h2 class="game-instruction-title">طابِق البِطاقات</h2>
-         <div id="game-board" style="width: 100%;"></div>
+         <div id="game-board" style="width: 100%; flex-grow: 1;"></div>
+      </div>
       </div>
 
       <div class="score-display" id="player2-display">
@@ -747,123 +804,206 @@ const MemoryGame = {
         <span id="score2">0</span>
       </div>
 
-     <div class="game-over-overlay hidden" id="memory-game-over">
-        <div style="font-size: 8rem; margin-bottom: 5px;">🎉</div>
-        <h2 id="memory-win-text" style="font-size: 3rem; color: var(--primary-color); margin: 0;"></h2>
-        
+      <div class="game-over-overlay hidden" id="memory-game-over">
+        <div id="winner-icon-container"></div>
+        <h2 id="memory-win-text"></h2>
         <div class="win-buttons">
-            <button class="icon-btn" id="play-again-memory-btn" title="Yenile / Diğer Kelimeler">
-                <svg viewBox="0 0 24 24"><path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"></path></svg>
-            </button>
-
-            <button class="icon-btn" id="back-to-start-memory-btn" title="Ana Menü">
-                <svg viewBox="0 0 24 24"><path d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z"></path></svg>
-            </button>
+          <button class="icon-btn" id="play-again-memory-btn" title="Tekrar Oyna">
+            <svg viewBox="0 0 24 24"><path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"></path></svg>
+          </button>
+          <button class="icon-btn" id="back-to-start-memory-btn" title="Ana Menü">
+            <svg viewBox="0 0 24 24"><path d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z"></path></svg>
+          </button>
         </div>
-    </div>
-`;
-
-    // DOM referanslarını bağla
+      </div>
+    `;
+    // DOM refs
     this.dom.board = document.getElementById('game-board');
-    this.dom.gameOver = document.getElementById('memory-game-over');
-    this.dom.winText = document.getElementById('memory-win-text');
+    this.dom.p1Display = document.getElementById('player1-display');
+    this.dom.p2Display = document.getElementById('player2-display');
     this.dom.score1 = document.getElementById('score1');
     this.dom.score2 = document.getElementById('score2');
+    this.dom.gameOver = document.getElementById('memory-game-over');
+    this.dom.winText = document.getElementById('memory-win-text');
+    this.dom.winnerIcon = document.getElementById('winner-icon-container');
 
-    gameScreen.classList.toggle('single-player-mode', this.state.playerMode === 1);
+    // Geri butonlarını history.back ile yöneteceğiz (aşağıda global delegation var)
 
-    // Kart çiftlerini oluştur
-    const pairs = this.state.w.flatMap(w => [
-      { content: w.arabic, id: w.id, lang: 'ar' },
-      { content: w.turkish, id: w.id, lang: 'tr' }
+    // Player mode class
+    gameScreen.classList.toggle('single-player-mode', this.state.playerMode===1);
+
+    const wordPairsNeeded = Math.min(10, Math.floor(words.length));
+    if(wordPairsNeeded < 2){ alert('Bu ders için yeterli kelime çifti yok.'); App.showScreen('start-screen'); return; }
+
+    this.state.w = Utils.shuffleArray(words).slice(0, wordPairsNeeded);
+    const pairs = this.state.w.flatMap(w=>[
+      {content:w.arabic, id:w.id, lang:'ar'},
+      {content:w.turkish, id:w.id, lang:'tr'}
     ]);
-    
     this.populateBoard(Utils.shuffleArray(pairs));
+
+    const board = document.getElementById('game-board');
+    if(board) board.style.pointerEvents = 'none';
+
+    setTimeout(() => {
+        const title = gameScreen.querySelector('.game-instruction-title');
+        if (title) {
+            title.classList.add('hide');
+            setTimeout(() => title.style.display = 'none', 500);
+        }
+        
+        const allCards = gameScreen.querySelectorAll('.card.flipped');
+        allCards.forEach(c => {
+            const delay = Math.random() * 800; // 0 ile 800ms asimetrik gecikme
+            setTimeout(() => {
+                try { App.playSound('flip'); } catch(e){}
+                c.classList.remove('flipped');
+            }, delay);
+        });
+        
+        setTimeout(() => {
+            if(board) board.style.pointerEvents = 'auto';
+        }, 1000); // 800ms max delay + 200ms extra
+    }, 3000);
+
     this.updateActivePlayerUI();
+    this.dom.score1.textContent='0';
+    this.dom.score2.textContent='0';
+    this.dom.gameOver.classList.add('hidden');
 
-    // Buton Olayları
-    document.getElementById('play-again-memory-btn').onclick = () => {
+ // Tekrar oyna butonunu düzeltiyoruz
+    document.getElementById('play-again-memory-btn').onclick = ()=>{
       App.playSound('menuClick');
-      this.start(words, this.state.playerMode);
-    };
+      // Veriyi doğrudan mevcut Data objesinden çekiyoruz
+      const currentWords = Data.pdfUnit.words.unit2.lessons.lesson1.words;
+      this.start(currentWords, this.state.playerMode);
+    }; 
 
-    document.getElementById('back-to-start-memory-btn').onclick = () => {
+    // “Ana Menü” yerine bir önceki adıma dön (istenirse)
+    document.getElementById('back-to-start-memory-btn').onclick = ()=>{
       App.playSound('menuClick');
-      this.state.wordsPool = []; 
       history.back();
     };
   },
 
-  populateBoard(cards) {
+populateBoard(cards){
     const n = cards.length;
-    let cols = 4, rows = Math.ceil(n / cols);
-    this.dom.board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-    this.dom.board.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
     this.dom.board.innerHTML = '';
 
-    cards.forEach(cd => {
+    // Smart Grid Algorithm (Perfect Symmetry)
+    const updateGrid = () => {
+        const isLandscape = window.innerWidth > window.innerHeight;
+        let cols = 4, rows = 4;
+        if (n === 16) { cols = 4; rows = 4; }
+        else if (n === 20) { cols = isLandscape ? 5 : 4; rows = isLandscape ? 4 : 5; }
+        else if (n === 12) { cols = isLandscape ? 4 : 3; rows = isLandscape ? 3 : 4; }
+        else if (n === 18) { cols = isLandscape ? 6 : 3; rows = isLandscape ? 3 : 6; }
+        else if (n === 14) { cols = isLandscape ? 7 : 2; rows = isLandscape ? 2 : 7; }
+        else if (n === 10) { cols = isLandscape ? 5 : 2; rows = isLandscape ? 2 : 5; }
+        else if (n === 8) { cols = isLandscape ? 4 : 2; rows = isLandscape ? 2 : 4; }
+        else {
+            cols = Math.ceil(Math.sqrt(n));
+            rows = Math.ceil(n / cols);
+        }
+        this.dom.board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+        this.dom.board.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+    };
+    updateGrid();
+    window.currentGridUpdater = updateGrid; // Ekran çevrilince (resize) otomatik güncelle
+
+
+    cards.forEach(cd=>{
       const el = document.createElement('div');
-      el.className = 'card'; el.dataset.id = cd.id;
-      let contentHtml = cd.content.endsWith('.jpeg') 
-        ? `<img src="${cd.content}" style="width:100%;height:100%;object-fit:contain;">` 
-        : `<span style="${cd.lang==='ar'?"font-family:'Arakom',sans-serif; font-size: clamp(2.5rem, 20cqw, 4.5rem);":""}">${cd.content}</span>`;
+      el.className = 'card flipped';
+      el.dataset.id = cd.id;
+      
+      // Görsel ve metin ayrımı
+      let contentHtml;
+      if(cd.content.endsWith('.jpeg')) {
+        // img etiketi kartı tam kaplayacak şekilde ayarlandı
+       contentHtml = `<img src="${cd.content}">`;
+      } else {
+        // Sadece Arapça (ar) metinler için font-size eklendi
+        const fontStyle = cd.lang==='ar' 
+            ? "font-family:'Arakom',sans-serif; font-size: clamp(2.5rem, 20cqw, 4.5rem);" 
+            : "";
+        contentHtml = `<span style="${fontStyle}">${cd.content}</span>`;
+      }
 
       el.innerHTML = `
         <div class="card-inner">
           <div class="card-face card-front"></div>
-          <div class="card-face card-back" dir="${cd.lang==='tr'?'ltr':'rtl'}">${contentHtml}</div>
-        </div>`;
-      el.onclick = () => this.flipCard(el);
+          <div class="card-face card-back" dir="${cd.lang==='tr'?'ltr':'rtl'}" style="padding:0; overflow:hidden; display:flex; align-items:center; justify-content:center;">
+            ${contentHtml}
+          </div>
+        </div>
+      `;
+      el.onclick = ()=>this.flipCard(el);
       this.dom.board.appendChild(el);
     });
   },
 
-  flipCard(card) {
-    if (this.state.l || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+  flipCard(card){
+    if(this.state.l || card.classList.contains('flipped') || card.classList.contains('matched')) return;
     App.playSound('flip'); card.classList.add('flipped');
 
-    if (this.state.playerMode === 2) card.classList.add(this.state.c === 1 ? 'p1-turn' : 'p2-turn');
-    else card.classList.add('p1-turn');
+    // sıra göstergesi
+    if(this.state.playerMode===2){ card.classList.add(this.state.c===1?'p1-turn':'p2-turn'); }
+    else{ card.classList.add('p1-turn'); }
 
     this.state.f.push(card);
-    if (this.state.f.length === 2) {
+    if(this.state.f.length===2){
       this.state.l = true;
-      const [c1, c2] = this.state.f;
-      if (c1.dataset.id === c2.dataset.id) {
+      const [c1,c2] = this.state.f;
+      if(c1.dataset.id === c2.dataset.id){
         App.playSound('match');
-        let mCls = (this.state.playerMode === 2 ? (this.state.c === 1 ? 'p1-match' : 'p2-match') : 'p1-match');
-        if (this.state.playerMode === 1) this.dom.score1.textContent = ++this.state.s1;
-        else { if (this.state.c === 1) this.dom.score1.textContent = ++this.state.s1; else this.dom.score2.textContent = ++this.state.s2; }
-        this.state.f.forEach(c => { c.classList.remove('p1-turn', 'p2-turn'); c.classList.add('matched', mCls); });
-        this.state.p++; this.state.f = []; this.state.l = false;
-        if (this.state.p === this.state.w.length) setTimeout(() => this.showEndUI(), 600);
-      } else {
-        if (this.state.flipTimeout) clearTimeout(this.state.flipTimeout);
-        this.state.flipTimeout = setTimeout(() => {
-          this.state.f.forEach(c => c.classList.remove('flipped', 'p1-turn', 'p2-turn'));
-          this.state.f = []; this.state.l = false;
-          if (this.state.playerMode === 2) this.state.c = (this.state.c === 1 ? 2 : 1);
+        let matchClass = (this.state.playerMode===2 ? (this.state.c===1?'p1-match':'p2-match') : 'p1-match');
+        if(this.state.playerMode===1){ this.dom.score1.textContent = ++this.state.s1; }
+        else { if(this.state.c===1) this.dom.score1.textContent = ++this.state.s1; else this.dom.score2.textContent = ++this.state.s2; }
+        this.state.f.forEach(c=>{ c.classList.remove('p1-turn','p2-turn'); c.classList.add('matched', matchClass); });
+        this.state.p++; this.state.f=[]; this.state.l=false;
+
+        if(this.state.p === this.state.w.length){
+          setTimeout(()=>{ this.showEndUI(); App.unlockNextLesson(App.state.selectedLessonId); }, 600);
+        }
+      }else{
+        if(this.state.flipTimeout) clearTimeout(this.state.flipTimeout);
+        this.state.flipTimeout = setTimeout(()=>{
+          this.state.f.forEach(c=>c.classList.remove('flipped','p1-turn','p2-turn'));
+          this.state.f=[]; this.state.l=false;
+          if(this.state.playerMode===2){ this.state.c = (this.state.c===1?2:1); }
           this.updateActivePlayerUI();
-        }, 650);
+        }, 1800);
       }
     }
   },
 
-  updateActivePlayerUI() {
-    if (this.state.playerMode !== 2) return;
-    const p1 = document.getElementById('player1-display'), p2 = document.getElementById('player2-display');
-    if (!p1 || !p2) return;
-    if (this.state.c === 1) { p1.classList.add('active'); p2.classList.remove('active'); }
-    else { p1.classList.remove('active'); p2.classList.add('active'); }
+   updateActivePlayerUI() {
+    if (this.state.playerMode !== 2) return; // Tek kişilikse çalışma
+    
+    const p1 = document.getElementById('player1-display');
+    const p2 = document.getElementById('player2-display');
+    if(!p1 || !p2) return;
+
+    if (this.state.c === 1) {
+      p1.classList.add('active');
+      p2.classList.remove('active');
+    } else {
+      p1.classList.remove('active');
+      p2.classList.add('active');
+    }
   },
 
-  showEndUI() {
+
+  showEndUI(){
     const p1 = this.state.s1, p2 = this.state.s2;
-    const txt = p1 === p2 ? 'التَّعادُل' : (p1 > p2 ? 'فازَ المُتَسابِق الأَوَّل' : 'فازَ المُتَسابِق الثّاني');
+    const isDraw = p1===p2;
+    const txt = isDraw ? 'التَّعادُل' : (p1>p2 ? 'فازَ المُتَسابِق الأَوَّل' : 'فازَ المُتَسابِق الثّاني');
     this.dom.winText.textContent = txt;
     this.dom.gameOver.classList.remove('hidden');
   }
 };
+
 /* =========================
    GLOBAL BACK HANDLER (delegation)
 ========================= */
@@ -878,8 +1018,11 @@ document.addEventListener('click', (ev)=>{
 });
 
 /* =========================
-   BOOT
+   BOOT & SMART RESIZE
 ========================= */
+window.addEventListener('resize', () => {
+    if (window.currentGridUpdater) window.currentGridUpdater();
+});
 document.addEventListener('DOMContentLoaded', ()=>App.init());
 const WordCardGame = {
     start(words) {
@@ -889,16 +1032,16 @@ const WordCardGame = {
         gameScreen.innerHTML = `
             <div id="game-container-inner" style="display: flex; flex-direction: column; width: 100%; height: 100%; align-items: center; padding: 10px; box-sizing: border-box;">
                 
-                <div class="game-header" style="width: 100%; position: relative; margin-bottom: 20px; display: flex; align-items: center; justify-content: center;">
-                    <div style="position: absolute; left: 10px; z-index: 200;">
+                <div class="game-header" style="width: 100%; position: relative; margin-bottom: 0; height: 0; display: flex; align-items: center; justify-content: center;">
+                    <div style="position: absolute; top: 10px; left: 10px; z-index: 200;">
                         <button class="back-btn" title="Geri">
                             <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path></svg>
                         </button>
                     </div>
-                    <h2 class="game-instruction-title" style="margin: 0; font-size: clamp(2.5rem, 5vw, 4rem); text-align: center; color: var(--primary-color);">اُنْظُرْ إِلى الصّورَة، خَمِّن المَعْنى، ثُمَّ اضْغَطْ‫.‬</h2>
+                    <h2 class="game-instruction-title">اُنْظُرْ إِلى الصّورَة، خَمِّن المَعْنى، ثُمَّ اضْغَطْ‫.‬</h2>
                 </div>
 
-                <div id="game-board" style="display: grid; width: 100%; height: 100%; max-height: 75vh; gap: 12px; justify-content: center; align-content: center;"></div>
+                <div id="game-board" style="display: grid; width: 100%; height: 100%; gap: 12px; justify-content: center; align-content: center;"></div>
             </div>
         `;
 
@@ -906,15 +1049,30 @@ const WordCardGame = {
         const shuffled = Utils.shuffleArray(words);
         const count = shuffled.length;
 
-        // Masaüstünde her zaman 4 sütun, mobilde 2 sütun (okunabilirlik için)
-        let cols = window.innerWidth < 800 ? 2 : 4; 
-
-        board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-        board.style.gridTemplateRows = `repeat(${Math.ceil(count / cols)}, 1fr)`;
+        // Smart Grid Algorithm (Perfect Symmetry)
+        const updateGrid = () => {
+            const isLandscape = window.innerWidth > window.innerHeight;
+            let cols = 4, rows = 4;
+            if (count === 16) { cols = 4; rows = 4; }
+            else if (count === 20) { cols = isLandscape ? 5 : 4; rows = isLandscape ? 4 : 5; }
+            else if (count === 12) { cols = isLandscape ? 4 : 3; rows = isLandscape ? 3 : 4; }
+            else if (count === 18) { cols = isLandscape ? 6 : 3; rows = isLandscape ? 3 : 6; }
+            else if (count === 14) { cols = isLandscape ? 7 : 2; rows = isLandscape ? 2 : 7; }
+            else if (count === 10) { cols = isLandscape ? 5 : 2; rows = isLandscape ? 2 : 5; }
+            else if (count === 8) { cols = isLandscape ? 4 : 2; rows = isLandscape ? 2 : 4; }
+            else {
+                cols = Math.ceil(Math.sqrt(count));
+                rows = Math.ceil(count / cols);
+            }
+            board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            board.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+        };
+        updateGrid();
+        window.currentGridUpdater = updateGrid; // Ekran çevrilince otomatik güncelle
 
         shuffled.forEach(w => {
             const card = document.createElement('div');
-            card.className = 'card';
+            card.className = 'card flipped';
             card.style.width = "100%";
             card.style.height = "100%";
             
@@ -937,6 +1095,29 @@ const WordCardGame = {
             };
             board.appendChild(card);
         });
+
+        if(board) board.style.pointerEvents = 'none';
+
+        setTimeout(() => {
+            const title = gameScreen.querySelector('.game-instruction-title');
+            if (title) {
+                title.classList.add('hide');
+                setTimeout(() => title.style.display = 'none', 500);
+            }
+
+            const allCards = gameScreen.querySelectorAll('.card.flipped');
+            allCards.forEach(c => {
+                const delay = Math.random() * 800; // 0 ile 800ms asimetrik gecikme
+                setTimeout(() => {
+                    try { App.playSound('flip'); } catch(e){}
+                    c.classList.remove('flipped');
+                }, delay);
+            });
+            
+            setTimeout(() => {
+                if(board) board.style.pointerEvents = 'auto';
+            }, 1000);
+        }, 3000);
     }
 };
 </script>

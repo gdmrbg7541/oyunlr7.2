@@ -30,7 +30,7 @@
             font-family: 'Arakom', 'Tahoma', sans-serif;
             background: #ccd5ae;
             display: flex; justify-content: center; align-items: center; 
-            height: 100vh; margin: 0; padding: 0;
+            height: 100dvh; margin: 0; padding: 0;
             overflow: hidden;
         }
 
@@ -262,8 +262,7 @@
         .welcome-card .main-icon { font-size: 12vh; }
         .start-btn { display: inline-block; padding: 15px 50px; background: #606c38; color: white; border: none; font-size: 4vh; border-radius: 15px; font-weight: normal; cursor: pointer; transition: 0.3s; box-shadow: 0 6px 0 #283618; font-family: 'Arakom', 'Tahoma', sans-serif; }
         .start-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #283618; }
-        #instruction-header { background: #606c38; color: white; padding: 10px; border-radius: 15px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 15px; width: 100%; box-sizing: border-box; box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: relative;}
-        .inst-text { font-size: 3.2vh; font-weight: normal; }
+        /* #instruction-header CSS moved to inline for popup */
         
         .custom-alert { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); background: var(--paper); border: 5px solid var(--ink); padding: 25px; border-radius: 15px; z-index: 2000; text-align: center; box-shadow: 0 0 0 1000px rgba(0,0,0,0.7); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); min-width: 280px; }
         .custom-alert.show { transform: translate(-50%, -50%) scale(1); }
@@ -300,21 +299,51 @@
         }
         .rotate-text { font-size: 2.5rem; font-family: 'Arakom', Tahoma, sans-serif; }
 
-        @media only screen and (max-width: 900px) and (orientation: portrait) {
-            #rotate-message { display: flex !important; }
-        }
+        /* Rotate mesajı kaldırıldı */
 
         @media screen and (max-height: 500px) {
             body {
                 overflow-y: auto !important;
                 height: auto !important;
-                min-height: 100vh;
+                min-height: 100dvh;
                 align-items: flex-start;
                 padding-top: 15px; padding-bottom: 15px;
             }
         }
 
-    </style>
+    /* Mobil (800px altı) Kapsamlı Düzenlemeler */
+@media (max-width: 800px) {
+    /* Genel oyun konteyneri */
+    .main-game-area { flex-direction: column !important; gap: 5px !important; padding: 5px !important; justify-content: flex-start !important; }
+    
+    /* Raf Bölümü */
+    #shelf-section { width: 100% !important; margin: 0 !important; padding: 5px !important; }
+    .awning { min-height: 20px !important; background-size: 30px 100% !important; margin-bottom: 5px !important; }
+    .market-title { font-size: 2vh !important; padding: 5px 20px !important; margin: 0 auto 5px auto !important; }
+    .market-title::before, .market-title::after { top: -15px !important; height: 15px !important; }
+    
+    /* Ürün Izgarası ve Kartlar */
+    .grid { gap: 5px !important; grid-template-rows: repeat(2, minmax(60px, 1fr)) !important; }
+    .product-card { padding: 2px !important; border-width: 1px !important; }
+    .emoji-big { font-size: 4.5vh !important; margin-bottom: 2px !important; }
+    .price-ar { font-size: 3vh !important; }
+    
+    /* Fiş / Hesap Alanı */
+    #status-bar { padding-top: 5px !important; }
+    .total-display { font-size: 3.5vh !important; padding: 5px 20px !important; }
+    
+    /* Alışveriş Listesi (Annemin Listesi) */
+    #mom-paper { flex: none !important; max-width: 100% !important; width: 100% !important; height: auto !important; min-height: 150px !important; margin: 5px 0 !important; padding: 10px !important; }
+    #mom-paper > div { font-size: 4vh !important; padding-bottom: 5px !important; margin-bottom: 5px !important; }
+    .shopping-list { flex-direction: row !important; flex-wrap: wrap !important; gap: 10px !important; justify-content: center !important; }
+    .shopping-list li { width: auto !important; padding: 5px 10px !important; font-size: 3.5vh !important; margin-bottom: 0 !important; }
+    
+    /* Başlangıç Ekranı */
+    #landing-page h1 { font-size: clamp(3rem, 10vw, 5rem) !important; margin-bottom: 10px !important; }
+    #landing-page p { font-size: clamp(1.5rem, 5vw, 2.5rem) !important; }
+    .start-btn { width: 90% !important; max-width: 350px !important; margin: 0 auto !important; padding: 15px !important; font-size: clamp(2.5rem, 8vw, 4rem) !important; }
+}
+</style>
 </head>
 <body>
 
@@ -337,16 +366,17 @@
     </div>
 
     <div id="game-wrapper">
-        <div id="instruction-header">
-            <button onclick="location.reload()" style="position: absolute; left: 10px; background: transparent; color: rgba(255, 255, 255, 0.8); border: none; font-size: 3vh; cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; outline: none;">
-                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="19" y1="12" x2="5" y2="12"></line>
-                    <polyline points="12 19 5 12 12 5"></polyline>
-                </svg>
-            </button>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span class="inst-text" style="opacity: 0.9;">اِقْرَأ القائِمَة ثُم اخْتَر المُنْتَج الصَّحيح‫.‬</span>
-            </div>
+        <!-- Geri Dön Butonu Sabit -->
+        <button onclick="location.reload()" style="position: fixed; top: 15px; left: 15px; z-index: 10000; background: #bc6c25; color: white; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); cursor: pointer; transition: all 0.3s ease; outline: none;">
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+        </button>
+
+        <!-- Ortada Çıkıp Kaybolan Yönerge -->
+        <div id="instruction-header" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; background: rgba(255, 255, 255, 0.95); padding: 30px 40px; border-radius: 20px; text-align: center; color: #bc6c25; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: opacity 1s; pointer-events: none; border: 4px solid #bc6c25; display: none; width: auto; max-width: 95vw; white-space: normal;">
+            <span class="inst-text" style="font-size: clamp(3rem, 6vw, 5rem); line-height: 1.2;">اِقْرَأ القائِمَة ثُم اخْتَر المُنْتَج الصَّحيح‫.‬</span>
         </div>
     
         <div class="main-game-area" style="display: flex; gap: 20px; flex: 1; width: 100%; overflow: hidden; padding-bottom: 5px;">
@@ -418,6 +448,14 @@
             }
             document.getElementById('landing-page').style.display = 'none';
             document.getElementById('game-wrapper').style.display = 'flex';
+            
+            // Yönergeyi ortada göster ve 3 sn sonra kaybet
+            const inst = document.getElementById('instruction-header');
+            if(inst) {
+                inst.style.display = 'block';
+                inst.style.opacity = '1';
+                setTimeout(() => { inst.style.opacity = '0'; }, 3000);
+            }
             playYonerge();
         }
 

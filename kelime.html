@@ -43,12 +43,12 @@
         #start-screen { background: var(--primary); }
         #overlay { background: rgba(0, 0, 0, 0.9); display: none; }
 
-        h1 { font-size: 6rem; margin-bottom: 20px; }
+        h1 { font-size: clamp(3rem, 8vw, 6rem); margin-bottom: 20px; }
 
         /* Butonlar */
 .btn {
-    padding: 20px 60px; /* Butonun iç boşluğunu da biraz artırmak görselliği korur */
-    font-size: 3.5rem;   /* 2rem olan eski değeri 3.5rem veya ihtiyacınıza göre daha büyük yapın  */
+    padding: clamp(10px, 3vw, 20px) clamp(30px, 8vw, 60px);
+    font-size: clamp(1.8rem, 5vw, 3.5rem);
     background: var(--secondary);
     color: white;
     border: none;
@@ -88,18 +88,30 @@
 
         /* Oyun Öğeleri */
   #instruction-text {
-    position: absolute;
-    top: 100px; /* Sayfanın üst kısmında sabit durması için */
-    left: 50%;
-    transform: translateX(-50%);
+    position: fixed !important;
+    top: 50vh !important;
+    left: 50vw !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: 9999 !important;
     width: 90%;
-    font-size: 4.5rem; /* Oldukça büyük ve okunaklı */
-    color: #00796b;
-    font-weight: normal;
-    z-index: 200;
+    max-width: 800px;
+    font-size: clamp(2.5rem, 6vw, 4.5rem) !important;
+    color: var(--primary);
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    margin: 0;
+    font-weight: 400;
     text-align: center;
-    text-shadow: 0 4px 10px rgba(255,255,255,0.9);
+    line-height: 1.2;
     pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+#instruction-text.hide {
+    opacity: 0 !important;
+    transform: translate(-50%, -60%) !important;
 }
 
         #progress-container {
@@ -123,13 +135,13 @@
 
         #word-display {
             position: absolute;
-            bottom: 40px;
+            bottom: clamp(20px, 5vh, 40px);
             left: 50%;
             transform: translateX(-50%);
             background: white;
-            padding: 15px 60px;
-            border-radius: 40px;
-            font-size: 4rem;
+            padding: clamp(10px, 2vh, 15px) clamp(20px, 6vw, 60px);
+            border-radius: clamp(20px, 4vw, 40px);
+            font-size: clamp(2.5rem, 6vw, 4rem);
             font-weight: normal;
             color: #333;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
@@ -139,9 +151,9 @@
 
         .emoji {
             position: absolute;
-            font-size: 6rem;
+            font-size: clamp(4rem, 12vw, 7rem);
             cursor: pointer;
-            z-index: 10;
+            z-index: 150;
         }
 /* Kelime kutusu için burgu (sallanma) animasyonu */
 @keyframes twist {
@@ -188,20 +200,28 @@
         }
         .rotate-text { font-size: 2.5rem; font-family: 'Arakom', Tahoma, sans-serif; }
 
-        @media only screen and (max-width: 900px) and (orientation: portrait) {
+        /* Her iki yönde de oynamak serbest - Uyarı Devre Dışı */
+        /* @media only screen and (max-width: 900px) and (orientation: portrait) {
             #rotate-message { display: flex !important; }
-        }
+        } */
 
+        /* YATAY ve DAR YÜKSEKLİKLİ EKRANLAR İÇİN DAHA KÜÇÜK TASARIM */
         @media screen and (max-height: 500px) {
             body {
-                overflow-y: auto !important;
-                height: auto !important;
-                min-height: 100vh;
-                align-items: flex-start;
-                padding-top: 15px; padding-bottom: 15px;
+                overflow-y: hidden !important; /* Ekrana tam sığsın */
+                height: 100vh !important;
+                padding: 0;
             }
+            h1 { font-size: 2.5rem; margin-bottom: 10px; }
+            .btn { font-size: 1.5rem; padding: 10px 40px; margin: 5px; }
+            
+            #word-display { bottom: 15px; font-size: 2rem; padding: 5px 30px; border-width: 3px; border-radius: 20px; }
+            .emoji { font-size: 3rem; }
+            #progress-container { top: 15px; }
+            .back-icon-btn { width: 45px; height: 45px; font-size: 1.5rem; top: 10px; left: 10px; }
         }
 
+    
     </style>
 </head>
 <body>
@@ -409,7 +429,7 @@ function initRound() {
         const obj = {
     el: el,
     x: Math.random() * (window.innerWidth - 150),
-    y: Math.random() * (window.innerHeight - 350) + 150,
+    y: Math.random() * (window.innerHeight - 400) + 150,
     dx: (Math.random() - 0.5) * 1.5, // 4 yerine 1.5 veya 2 yazarak hızı düşürdük
     dy: (Math.random() - 0.5) * 1.5
 };
@@ -434,7 +454,7 @@ function initRound() {
                 obj.y += obj.dy;
 
                 if (obj.x <= 0 || obj.x >= window.innerWidth - 120) obj.dx *= -1;
-                if (obj.y <= 100 || obj.y >= window.innerHeight - 150) obj.dy *= -1;
+                if (obj.y <= 100 || obj.y >= window.innerHeight - 280) obj.dy *= -1;
 
                 obj.el.style.left = obj.x + 'px';
                 obj.el.style.top = obj.y + 'px';

@@ -16,7 +16,7 @@ body {
     font-family: 'Arakom', 'Segoe UI', Tahoma, sans-serif;
     font-weight: 400; 
     background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
-    min-height: 100vh;
+    min-height: 100dvh;
     color: #2c3e50;
     padding: 20px;
     font-size: clamp(18px, 2.2vw, 24px);
@@ -344,21 +344,50 @@ body {
         }
         .rotate-text { font-size: 2.5rem; font-family: 'Arakom', Tahoma, sans-serif; }
 
-        @media only screen and (max-width: 900px) and (orientation: portrait) {
-            #rotate-message { display: flex !important; }
-        }
+        /* Rotate mesajı kaldırıldı */
 
         @media screen and (max-height: 500px) {
             body {
                 overflow-y: auto !important;
                 height: auto !important;
-                min-height: 100vh;
+                min-height: 100dvh;
                 align-items: flex-start;
                 padding-top: 15px; padding-bottom: 15px;
             }
         }
 
-    </style>
+    /* Mobil (800px altı) Kapsamlı Düzenlemeler */
+@media (max-width: 800px) {
+    /* Genel oyun konteyneri */
+    #game-screen { justify-content: flex-start !important; padding-top: 10px !important; }
+    .instruction { font-size: clamp(1.2em, 5vw, 2em) !important; margin-bottom: 5px !important; }
+    .bar { margin-top: 5px !important; }
+    
+    /* Kartlar alt alta */
+    .items { flex-direction: column !important; gap: 25px !important; margin-top: 20px !important; }
+    .q-card .item { width: 95vw !important; min-height: 140px !important; height: auto !important; padding: 10px 15px !important; flex-direction: row !important; justify-content: space-around !important; }
+    
+    /* İçerikler ufalacak */
+    .em-container { min-height: 60px !important; margin-bottom: 0 !important; width: 40% !important; justify-content: center !important; }
+    .em-container > span { font-size: 3.5em !important; }
+    
+    .size-big > span { transform: scale(1.1) !important; }
+    .size-small > span { transform: scale(0.8) !important; }
+    
+    /* Bag (Poşet) Boyutları (Ağırlık vs) */
+    .bag-wrapper.is-heavy, .bag-wrapper.is-light { width: 100px !important; height: 120px !important; margin-bottom: 0 !important; }
+    .weight-heavy .bag-emojis span, .weight-light .bag-emojis span { font-size: 0.7em !important; margin: -1px -1px !important; }
+    
+    /* Metinler (Arapça ve Fiyat) */
+    .item-texts { width: 50% !important; display: flex !important; flex-direction: column !important; justify-content: center !important; align-items: center !important; }
+    .q-card .item .ar { font-size: 2.2em !important; font-weight: normal !important; }
+    .q-card .item .price { font-size: 1.8em !important; margin-top: 5px !important; font-weight: normal !important; }
+    
+    /* Start ve Result screen */
+    #start-screen h1 { font-size: clamp(3rem, 10vw, 5rem) !important; margin-bottom: 10px !important; }
+    .start-btn { width: 80vw !important; padding: 20px !important; font-size: clamp(2rem, 8vw, 3.5rem) !important; }
+}
+</style>
 </head>
 <body>
 
@@ -665,6 +694,10 @@ function loadQ() {
     document.getElementById('ar2').textContent = dataB.ar;
     document.getElementById('price2').textContent = toArabicNum(dataB.v) + (dataB.vU ? ' ' + dataB.vU : '');
 
+    let isWeightQ = (dataA.v === 'ثَقيل' || dataA.v === 'خَفيف');
+    document.getElementById('ar1').style.display = isWeightQ ? 'none' : 'block';
+    document.getElementById('ar2').style.display = isWeightQ ? 'none' : 'block';
+    
     document.getElementById('price1').style.display = (typeof dataA.v === 'number') ? 'block' : 'none';
     document.getElementById('price2').style.display = (typeof dataB.v === 'number') ? 'block' : 'none';
 
