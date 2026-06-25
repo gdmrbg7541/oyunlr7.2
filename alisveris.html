@@ -299,7 +299,9 @@
         }
         .rotate-text { font-size: 2.5rem; font-family: 'Arakom', Tahoma, sans-serif; }
 
-        /* Rotate mesajı kaldırıldı */
+        @media only screen and (max-width: 900px) and (orientation: portrait) {
+            #rotate-message { display: flex !important; }
+        }
 
         @media screen and (max-height: 500px) {
             body {
@@ -423,6 +425,7 @@
         // --- FULLSCREEN API ---
         function goFullscreen() {
             let elem = document.documentElement;
+            setTimeout(() => window.scrollTo(0, 1), 100); // Fallback to hide address bar on iOS
             if (elem.requestFullscreen) {
                 elem.requestFullscreen().catch(err => console.log(err));
             } else if (elem.webkitRequestFullscreen) { /* Safari */
