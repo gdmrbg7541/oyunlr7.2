@@ -388,56 +388,62 @@
         }
     /* --- استجابة الجوال (Mobil Uyum - Responsive Design) --- */
         @media (max-width: 768px) {
-            .instruction-text { font-size: 1.8rem; margin: 2px 0; }
-            .start-content h1 { font-size: 2.5rem; }
-            .start-content p { font-size: 1.2rem; }
-            .main-btn { font-size: 1.5rem; padding: 10px 30px; }
-            .icon-btn svg { width: 35px; height: 35px; }
+            body {
+                overflow: hidden !important; /* Scroll yasaklandı, her şey ekrana sığacak */
+            }
+            .instruction-text { font-size: 1.5rem; margin: 2px 0; }
+            .start-content { gap: 2vh; }
+            .start-content h1 { font-size: 2rem; margin-bottom: 5px; }
+            .start-content p { font-size: 1rem; }
+            .main-btn { font-size: 1.2rem; padding: 8px 25px; }
+            .icon-btn svg { width: 30px; height: 30px; }
 
             .timer-modern {
-                top: 50px; left: 10px;
-                width: 60px; height: 60px;
-                border-width: 2px;
+                top: 180px; left: 10px;
+                width: 65px; height: 65px;
+                border-width: 3px;
             }
-            .timer-modern .timer-text { font-size: 1.8rem; margin-top: 0; }
+            .timer-modern .timer-text { font-size: 2rem; margin-top: 0; }
             
             .score-board {
-                top: 50px; right: 10px;
-                font-size: 1.2rem;
-                padding: 5px 15px;
+                top: 180px; right: 10px;
+                font-size: 1.6rem;
+                padding: 6px 14px;
             }
 
-            .emoji { font-size: 6rem; margin: 40px 0 auto 0; }
+            .game-content { padding: 5px 0; justify-content: space-evenly; position: static !important; }
+            .emoji { font-size: clamp(5rem, 18vh, 8rem); margin: 10px 0; flex-shrink: 1; }
             
             .word-box {
-                font-size: 3rem;
-                min-height: 4.5rem;
-                width: 95%;
-                padding: 5px 20px;
-                margin-bottom: 15px;
+                font-size: 2.5rem;
+                min-height: 4rem;
+                width: 98%;
+                padding: 5px 15px;
+                margin-bottom: 5px;
             }
             
-            .letters-container { gap: 10px; width: 100%; }
+            .letters-container { gap: 5px; width: 100%; justify-content: center; }
             
             .letter-btn {
-                font-size: 2.5rem;
-                min-width: 60px;
-                height: 60px;
-                border-radius: 12px;
+                font-size: 2.2rem;
+                min-width: 55px;
+                height: 55px;
+                border-radius: 8px;
                 border-width: 2px;
             }
 
-            .result-card { padding: 30px; min-width: 90%; }
-            .result-card h1 { font-size: 3rem; }
-            .result-card .final-score { font-size: 3.5rem; }
+            .result-card { padding: 20px; min-width: 90%; }
+            .result-card h1 { font-size: 2.5rem; }
+            .result-card .final-score { font-size: 3rem; }
         }
 
         @media (max-width: 480px) {
-            .timer-modern { top: 45px; left: 5px; width: 50px; height: 50px; }
-            .timer-modern .timer-text { font-size: 1.4rem; }
-            .score-board { top: 45px; right: 5px; font-size: 1rem; padding: 5px 10px; }
-            .emoji { font-size: 5rem; margin: 30px 0 auto 0; }
+            .timer-modern { top: 170px; left: 5px; width: 55px; height: 55px; border-width: 3px; }
+            .timer-modern .timer-text { font-size: 1.6rem; }
+            .score-board { top: 170px; right: 5px; font-size: 1.4rem; padding: 5px 10px; }
+            .emoji { font-size: clamp(4rem, 15vh, 7rem); margin: 5px 0; }
             .letter-btn { min-width: 50px; height: 50px; font-size: 2rem; }
+            .word-box { font-size: 2rem; min-height: 3.5rem; }
         }
     
     
@@ -464,25 +470,55 @@
             width: 20%; height: 4px; background: white; border-radius: 2px;
         }
         @keyframes rotate-phone {
-            0% { transform: rotate(0deg); opacity: 1; }
-            25% { transform: rotate(90deg); opacity: 1; }
-            70% { transform: rotate(90deg); opacity: 1; }
-            100% { transform: rotate(90deg); opacity: 0; }
+            0% { transform: rotate(90deg); opacity: 1; }
+            25% { transform: rotate(0deg); opacity: 1; }
+            70% { transform: rotate(0deg); opacity: 1; }
+            100% { transform: rotate(0deg); opacity: 0; }
         }
         .rotate-text { font-size: 2.5rem; font-family: 'Arakom', Tahoma, sans-serif; }
 
-        @media only screen and (max-width: 900px) and (orientation: portrait) {
+        /* YATAY OYNANIŞ YASAKLANDI (SADECE DİKEYE İZİN VERİLDİ) */
+        @media only screen and (max-width: 950px) and (orientation: landscape) {
             #rotate-message { display: flex !important; }
         }
 
-        @media screen and (max-height: 500px) {
+        /* MOBİL YATAY EKRAN (LANDSCAPE) ÖZEL KOMPAKT TASARIM */
+        @media screen and (max-height: 500px) and (max-width: 950px) {
             body {
                 overflow-y: auto !important;
                 height: auto !important;
                 min-height: 100vh;
                 align-items: flex-start;
-                padding-top: 15px; padding-bottom: 15px;
+                padding-top: 5px; padding-bottom: 5px;
             }
+            
+            /* 1. Üst Menü ve Başlık Küçültme */
+            .icon-btn svg { width: 30px; height: 30px; }
+            .instruction-text { font-size: 1.5rem; margin: 2px 0; }
+            
+            /* 2. Başlangıç Ekranı Kompaktlaştırma */
+            .start-content { gap: 1vh; justify-content: flex-start; padding-top: 10px; }
+            .start-content h1 { font-size: 2rem; margin-bottom: 2px; }
+            .start-content p { display: none; /* Açıklama yatayda yer kaplamasın */ }
+            .start-img { max-height: 25vh; max-width: 250px; margin-bottom: 5px; }
+            .main-btn { font-size: 1.2rem; padding: 8px 30px; }
+            
+            /* 3. Oyun Ekranı Elemanları (Emoji ve Kutular) */
+            .game-content { padding: 5px 0; justify-content: flex-start; gap: 5px; }
+            .emoji { font-size: 3.5rem; margin: 5px 0; animation: none; /* Dikey alanı korumak için animasyon iptal */ }
+            .word-box { font-size: 2.2rem; min-height: 3.5rem; padding: 5px 15px; margin-bottom: 5px; width: 98%; border-width: 2px; }
+            .letters-container { gap: 5px; }
+            .letter-btn { font-size: 1.8rem; min-width: 45px; height: 45px; border-width: 2px; border-radius: 8px; }
+            
+            /* 4. UI Elementleri (Skor, Süre) */
+            .timer-modern { top: 5px; left: 5px; width: 45px; height: 45px; border-width: 2px; }
+            .timer-modern .timer-text { font-size: 1.2rem; }
+            .score-board { top: 5px; right: 5px; font-size: 1rem; padding: 5px 10px; }
+            
+            /* 5. Sonuç Ekranı */
+            .result-card { padding: 15px; gap: 10px; min-width: 80%; }
+            .result-card h1 { font-size: 2rem; }
+            .result-card .final-score { font-size: 2.5rem; margin: 5px 0; }
         }
 
     </style>
