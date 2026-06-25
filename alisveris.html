@@ -355,7 +355,7 @@
 
 
     <div id="landing-page">
-        <a href="index.html" id="home-link-top" style="position: absolute; top: 15px; left: 15px; background: #bc6c25; color: white; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%; text-decoration: none; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: 0.3s;">
+        <a href="index.html" onclick="exitFullscreen();" id="home-link-top" style="position: absolute; top: 15px; left: 15px; background: #bc6c25; color: white; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%; text-decoration: none; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: 0.3s;">
             <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
         </a>
         <div class="welcome-card">
@@ -367,7 +367,7 @@
 
     <div id="game-wrapper">
         <!-- Geri Dön Butonu Sabit -->
-        <button onclick="location.reload()" style="position: fixed; top: 15px; left: 15px; z-index: 10000; background: #bc6c25; color: white; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); cursor: pointer; transition: all 0.3s ease; outline: none;">
+        <button onclick="exitFullscreen(); setTimeout(() => location.reload(), 100);" style="position: fixed; top: 15px; left: 15px; z-index: 10000; background: #bc6c25; color: white; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); cursor: pointer; transition: all 0.3s ease; outline: none;">
             <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="19" y1="12" x2="5" y2="12"></line>
                 <polyline points="12 19 5 12 12 5"></polyline>
@@ -419,7 +419,29 @@
         <button onclick="closeCustomAlert()">الطَّلَب الآخَر</button>
     </div>
 
-    <script>
+        <script>
+        // --- FULLSCREEN API ---
+        function goFullscreen() {
+            let elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(err => console.log(err));
+            } else if (elem.webkitRequestFullscreen) { /* Safari */
+                elem.webkitRequestFullscreen().catch(err => console.log(err));
+            } else if (elem.msRequestFullscreen) { /* IE11 */
+                elem.msRequestFullscreen().catch(err => console.log(err));
+            }
+        }
+
+        function exitFullscreen() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen().catch(err => console.log(err));
+            } else if (document.webkitExitFullscreen) { /* Safari */
+                document.webkitExitFullscreen().catch(err => console.log(err));
+            } else if (document.msExitFullscreen) { /* IE11 */
+                document.msExitFullscreen().catch(err => console.log(err));
+            }
+        }
+
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         function playSineWave(freq, duration) {
@@ -443,6 +465,7 @@
         }
 
         function startGame() {
+            goFullscreen();
             if (audioCtx.state === 'suspended') {
                 audioCtx.resume();
             }
