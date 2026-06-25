@@ -314,10 +314,10 @@
     /* Mobil (800px altı) Kapsamlı Düzenlemeler */
 @media (max-width: 800px) {
     /* Genel oyun konteyneri */
-    .main-game-area { flex-direction: column !important; gap: 5px !important; padding: 5px !important; justify-content: flex-start !important; }
+    .main-game-area { flex-direction: row-reverse !important; gap: 5px !important; padding: 5px !important; justify-content: flex-start !important; }
     
     /* Raf Bölümü */
-    #shelf-section { width: 100% !important; margin: 0 !important; padding: 5px !important; }
+    #shelf-section { flex: 0 0 65% !important; max-width: 65% !important; width: 65% !important; margin: 0 !important; padding: 2px !important; }
     .awning { min-height: 20px !important; background-size: 30px 100% !important; margin-bottom: 5px !important; }
     .market-title { font-size: 2vh !important; padding: 5px 20px !important; margin: 0 auto 5px auto !important; }
     .market-title::before, .market-title::after { top: -15px !important; height: 15px !important; }
@@ -333,9 +333,9 @@
     .total-display { font-size: 3.5vh !important; padding: 5px 20px !important; }
     
     /* Alışveriş Listesi (Annemin Listesi) */
-    #mom-paper { flex: none !important; max-width: 100% !important; width: 100% !important; height: auto !important; min-height: 150px !important; margin: 5px 0 !important; padding: 10px !important; }
+    #mom-paper { flex: 0 0 35% !important; max-width: 35% !important; width: 35% !important; height: 95% !important; margin: 0 !important; padding: 5px !important; }
     #mom-paper > div { font-size: 4vh !important; padding-bottom: 5px !important; margin-bottom: 5px !important; }
-    .shopping-list { flex-direction: row !important; flex-wrap: wrap !important; gap: 10px !important; justify-content: center !important; }
+    .shopping-list { flex-direction: column !important; flex-wrap: nowrap !important; gap: 2px !important; justify-content: center !important; }
     .shopping-list li { width: auto !important; padding: 5px 10px !important; font-size: 3.5vh !important; margin-bottom: 0 !important; }
     
     /* Başlangıç Ekranı */
@@ -379,7 +379,7 @@
             <span class="inst-text" style="font-size: clamp(3rem, 6vw, 5rem); line-height: 1.2;">اِقْرَأ القائِمَة ثُم اخْتَر المُنْتَج الصَّحيح‫.‬</span>
         </div>
     
-        <div class="main-game-area" style="display: flex; gap: 20px; flex: 1; width: 100%; overflow: hidden; padding-bottom: 5px;">
+        <div class="main-game-area" style="display: flex; flex-direction: row-reverse; gap: 10px; flex: 1; width: 100%; overflow: hidden; padding-bottom: 5px;">
             
             <div id="shelf-section">
                 <div class="awning"></div>
