@@ -299,19 +299,11 @@
         }
         .rotate-text { font-size: 2.5rem; font-family: 'Arakom', Tahoma, sans-serif; }
 
-        @media only screen and (max-width: 900px) and (orientation: portrait) {
+        @media screen and (orientation: portrait) {
             #rotate-message { display: flex !important; }
         }
 
-        @media screen and (max-height: 500px) {
-            body {
-                overflow-y: auto !important;
-                height: auto !important;
-                min-height: 100dvh;
-                align-items: flex-start;
-                padding-top: 15px; padding-bottom: 15px;
-            }
-        }
+        
 
     /* Mobil (800px altı) Kapsamlı Düzenlemeler */
 @media (max-width: 800px) {
@@ -320,8 +312,8 @@
     
     /* Raf Bölümü */
     #shelf-section { flex: 0 0 65% !important; max-width: 65% !important; width: 65% !important; margin: 0 !important; padding: 2px !important; }
-    .awning { min-height: 20px !important; background-size: 30px 100% !important; margin-bottom: 5px !important; }
-    .market-title { font-size: 2vh !important; padding: 5px 20px !important; margin: 0 auto 5px auto !important; }
+    .awning { min-height: 10px !important; background-size: 30px 100% !important; margin-bottom: 2px !important; }
+    .market-title { font-size: 1.5vh !important; padding: 2px 10px !important; margin: 0 auto 2px auto !important; border-width: 2px !important; }
     .market-title::before, .market-title::after { top: -15px !important; height: 15px !important; }
     
     /* Ürün Izgarası ve Kartlar */
