@@ -353,7 +353,47 @@
             .nav-svg { width: 40px !important; height: 40px !important; top: 10px !important; left: 10px !important; }
         }
 
+        
+        /* MASAÜSTÜ İÇİN YAN YANA DİZİLİM VE BOYUTLANDIRMA */
+        .price-display {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 60px;
+            width: 100%;
+        }
+        
+        .price-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .price-item .emoji {
+            font-size: clamp(5rem, 10vh, 8rem);
+            line-height: 1;
+        }
+        
+        .price-item .price {
+            font-size: clamp(2.5rem, 6vh, 4rem);
+            color: #E65100;
+            margin-top: 10px;
+            font-weight: normal;
+        }
+
+        .price-vs {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 130px;
+            height: 130px;
+            flex-shrink: 0;
+        }
+
         /* MOBİL YATAY VE DAR EKRANLAR (YAN YANA SIKIŞIK) */
+
         @media screen and (max-height: 500px), screen and (max-width: 950px) and (orientation: landscape) {
             body { overflow: hidden !important; }
             #rotate-message { display: none !important; }
@@ -375,18 +415,13 @@
             .nav-svg { width: 35px !important; height: 35px !important; top: 10px !important; left: 10px !important; }
         }
 
+        /* SADECE MOBİL İÇİN KÜÇÜLTME */
+        @media screen and (max-width: 950px) {
+            .price-vs { width: 30px !important; height: 30px !important; margin: 0 5px !important; flex-shrink: 0; }
+            .price-display { transform: scale(0.65) !important; transform-origin: center !important; }
+        }
+    </style>
     
-    /* VS Tag Resize Fix */
-    .price-vs {
-        width: clamp(40px, 8vw, 60px) !important;
-        height: clamp(40px, 8vw, 60px) !important;
-        flex-shrink: 0;
-        margin: 0 15px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-</style>
 
 </head>
 <body>
