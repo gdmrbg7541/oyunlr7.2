@@ -12,6 +12,8 @@
 
 
 <style>
+    h1, h2, h3, h4, h5, h6, strong, b { font-weight: normal !important; }
+
   html { font-size: clamp(12px, 1.2vw, 16px); }
   :root{
     --bg-start:#f7f9fc; --bg-end:#e8eef5; --primary-color:#5E81AC; --accent-color:#f7b733;
@@ -547,7 +549,7 @@ body, button, div, span {
 <body>
 
     <!-- CİHAZ DÖNDÜRME UYARISI (TÜM OYUNLAR ORTAK) -->
-    <div id="rotate-message">
+    <div id="rotate-message" style="display: none;">
         <div class="phone-animation"></div>
         <div class="rotate-text">يُرْجى تَدْوير الجِهاز</div> 
     </div>
@@ -964,7 +966,7 @@ populateBoard(cards){
         this.state.p++; this.state.f=[]; this.state.l=false;
 
         if(this.state.p === this.state.w.length){
-          setTimeout(()=>{ this.showEndUI(); App.unlockNextLesson(App.state.selectedLessonId); }, 600);
+          setTimeout(()=>{ this.showEndUI(); }, 600);
         }
       }else{
         if(this.state.flipTimeout) clearTimeout(this.state.flipTimeout);
@@ -996,9 +998,14 @@ populateBoard(cards){
 
 
   showEndUI(){
-    const p1 = this.state.s1, p2 = this.state.s2;
-    const isDraw = p1===p2;
-    const txt = isDraw ? 'التَّعادُل' : (p1>p2 ? 'فازَ المُتَسابِق الأَوَّل' : 'فازَ المُتَسابِق الثّاني');
+    let txt = '';
+    if (this.state.playerMode === 1) {
+        txt = 'أَحْسَنْتَ! لَقَدْ أَتْمَمْتَ اللُّعْبَة!'; // Aferin, oyunu tamamladın!
+    } else {
+        const p1 = this.state.s1, p2 = this.state.s2;
+        const isDraw = p1===p2;
+        txt = isDraw ? 'التَّعادُل' : (p1>p2 ? 'فازَ المُتَسابِق الأَوَّل' : 'فازَ المُتَسابِق الثّاني');
+    }
     this.dom.winText.textContent = txt;
     this.dom.gameOver.classList.remove('hidden');
   }

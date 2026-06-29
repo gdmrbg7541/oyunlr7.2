@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>التَّسَوُّق</title>
     <style>
+    h1, h2, h3, h4, h5, h6, strong, b { font-weight: normal !important; }
+
         @font-face {
             font-family: 'Arakom';
             src: url('arakom.ttf') format('truetype');
@@ -42,16 +44,17 @@
         }
 
         #game-wrapper {
-            display: none; flex-direction: column; width: 95vw; height: 98vh; max-width: 1400px;
-            gap: 15px; background: transparent; padding: 5px; border-radius: 0;
-            box-sizing: border-box; border: none;
+            display: none; flex-direction: column; width: 98vw; height: 98vh; max-width: 2800px;
+            gap: 15px; background: transparent; padding: 10px; border-radius: 0;
+            box-sizing: border-box; border: none; justify-content: center; align-items: center;
         }
 
         /* --- GELİŞTİRİLMİŞ MARKET STANDI TASARIMI --- */
         #shelf-section {
-            flex: 1.8; 
+            flex: 0 0 62%; max-width: 65%;
+            height: 85vh;
             background: #e6c280; 
-            padding: 50px 20px 20px 20px; 
+            padding: 50px 30px 20px 30px; 
             border: 12px solid var(--wood-dark); 
             border-radius: 10px;
             display: flex; flex-direction: column; 
@@ -129,7 +132,7 @@
             display: grid; 
             grid-template-columns: repeat(4, 1fr); 
             grid-template-rows: repeat(2, 1fr); 
-            gap: 15px; 
+            gap: 20px; 
             flex-grow: 1; 
             overflow: hidden; 
             z-index: 2; 
@@ -156,7 +159,7 @@
 
         /* --- ALIŞVERİŞ LİSTESİ: BAĞIMSIZ, DÜZ KAĞIT --- */
         #mom-paper {
-            flex: 0 0 30% !important; max-width: 30%; 
+            flex: 0 0 32% !important; max-width: 32%; 
             display: flex; flex-direction: column;
             background: #fdf8e4 !important; 
             border: 1px solid #e5dcb5 !important;
@@ -164,11 +167,11 @@
             padding: 20px 15px; box-sizing: border-box;
             overflow: hidden !important; 
             position: relative;
-            transform: rotate(0deg); /* Eğim kaldırıldı, tamamen düz yapıldı */
+            transform: rotate(0deg);
             border-radius: 2px !important; 
             align-self: center; 
-            height: 88%; 
-            margin-left: 20px; 
+            height: 85vh;
+            margin-left: 0; 
         }
 
         .shopping-list { 
@@ -299,7 +302,7 @@
         }
         .rotate-text { font-size: 2.5rem; font-family: 'Arakom', Tahoma, sans-serif; }
 
-        @media screen and (orientation: portrait) {
+        @media only screen and (max-width: 900px) and (orientation: portrait) and (pointer: coarse) {
             #rotate-message { display: flex !important; }
         }
 
@@ -342,7 +345,7 @@
 <body>
 
     <!-- CİHAZ DÖNDÜRME UYARISI (TÜM OYUNLAR ORTAK) -->
-    <div id="rotate-message">
+    <div id="rotate-message" style="display: none;">
         <div class="phone-animation"></div>
         <div class="rotate-text">يُرْجى تَدْوير الجِهاز</div> 
     </div>
@@ -373,7 +376,7 @@
             <span class="inst-text" style="font-size: clamp(3rem, 6vw, 5rem); line-height: 1.2;">اِقْرَأ القائِمَة ثُم اخْتَر المُنْتَج الصَّحيح‫.‬</span>
         </div>
     
-        <div class="main-game-area" style="display: flex; flex-direction: row-reverse; gap: 10px; flex: 1; width: 100%; overflow: hidden; padding-bottom: 5px;">
+        <div class="main-game-area" style="display: flex; flex-direction: row-reverse; gap: 4vw; flex: 1; width: 100%; max-width: 2800px; overflow: hidden; padding-bottom: 5px; justify-content: center; align-items: center;">
             
             <div id="shelf-section">
                 <div class="awning"></div>
@@ -406,7 +409,7 @@
     </div>
 
     <audio id="yonergeAudio" src="yonergealisveris.mp3"></audio>
-    <audio id="snd-cash" src="cash_register.mp3"></audio>
+    
 
     <div id="custom-alert" class="custom-alert">
         <h2 id="alert-text"></h2>

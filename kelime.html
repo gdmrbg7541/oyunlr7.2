@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لعبة الكلمات</title>
     <style>
+    h1, h2, h3, h4, h5, h6, strong, b { font-weight: normal !important; }
+
         @font-face {
             font-family: 'AraKomFont';
             src: url('arakom.ttf') format('truetype');
@@ -227,7 +229,7 @@
 <body>
 
     <!-- CİHAZ DÖNDÜRME UYARISI (TÜM OYUNLAR ORTAK) -->
-    <div id="rotate-message">
+    <div id="rotate-message" style="display: none;">
         <div class="phone-animation"></div>
         <div class="rotate-text">يُرْجى تَدْوير الجِهاز</div> 
     </div>
@@ -261,7 +263,8 @@
     <div id="overlay" class="screen">
         <div style="font-size: 120px; animation: spin 4s linear infinite;">🔄</div>
         <h2 style="font-size: 3rem;">اِنْتَهَت الجَوْلَة!</h2>
-        <button class="btn" onclick="startGame()">طالِب جَديد</button>
+        <p id="score-text" style="font-size: 2rem; margin: 20px 0; color: #fff; text-shadow: 1px 1px 5px rgba(0,0,0,0.5);"></p>
+        <button class="btn" onclick="startGame()">مَرَّة أُخْرى</button>
     </div>
 
     <audio id="instruction-audio" src="yonergekelime.mp3"></audio>
@@ -271,8 +274,7 @@ const allWords = [
     // --- Temel Gıdalar & Market ---
     { w: "سُكَّر", e: "🍬" },      // Şeker
     { w: "مِلْح", e: "🧂" },      // Tuz
-    { w: "شاي", e: "☕" },       // Çay
-    { w: "حَليب", e: "🥛" },     // Süt
+        { w: "حَليب", e: "🥛" },     // Süt
     { w: "عَسَل", e: "🍯" },      // Bal
     { w: "خُبْز", e: "🍞" },      // Ekmek
     { w: "بَيْض", e: "🥚" },      // Yumurta
@@ -294,8 +296,7 @@ const allWords = [
     { w: "مَوْز", e: "🍌" },       // Muz
     { w: "عِنَب", e: "🍇" },       // Üzüm
     { w: "كَرَز", e: "🍒" },       // Kiraz
-    { w: "مِشْمِش", e: "🍑" },     // Kayısı
-
+    
     // --- Miktarlar & Nesneler ---
     { w: "كيلو", e: "⚖️" },       // Kilo
     { w: "عُلْبَة", e: "📦" },     // Kutu/Paket
@@ -308,12 +309,15 @@ const allWords = [
 ];
 
     let currentQuestion = 0;
+    let wrongAttempts = 0;
+
     const totalQuestions = 5;
     let roundWords = [];
     const emojiObjects = [];
     let isGameRunning = false;
 
 function startGame() {
+        wrongAttempts = 0;
     const audio = document.getElementById('instruction-audio');
     const instruction = document.getElementById('instruction-text');
     
@@ -349,7 +353,7 @@ let usedWordsPool = [];
 
 function initRound() {
     currentQuestion = 0;
-    
+
     // 1. Tüm kelimeler kullanıldıysa havuzu sıfırla
     if (usedWordsPool.length >= allWords.length) {
         usedWordsPool = [];
@@ -378,10 +382,7 @@ function initRound() {
     }
 
     // Eğer çay/kahve elemesi yüzünden 5 kelimeye ulaşamazsak havuzdan rastgele tamamla
-    if (roundWords.length < totalQuestions) {
-        let backups = allWords.filter(w => !roundWords.includes(w));
-        roundWords.push(...backups.slice(0, totalQuestions - roundWords.length));
-    }
+/* Yedek tamamlama kapatıldı */
 
     updateProgress();
     nextQuestion();
@@ -399,8 +400,7 @@ function initRound() {
 
     function nextQuestion() {
         if (currentQuestion >= totalQuestions) {
-            document.getElementById('overlay').style.display = 'flex';
-            isGameRunning = false;
+            // Handled inside onclick to allow animation to finish
             return;
         }
 
@@ -436,10 +436,23 @@ function initRound() {
 
         el.onclick = () => {
             if(isCorrect) {
+                playSound('success');
                 currentQuestion++;
                 updateProgress();
-                nextQuestion();
+                
+                if (currentQuestion >= totalQuestions) {
+                    setTimeout(() => {
+                        let scoreDisp = document.getElementById('score-text');
+                        if(scoreDisp) scoreDisp.innerText = `الإجابات الصحيحة: ${totalQuestions} | الأخطاء: ${wrongAttempts}`;
+                        document.getElementById('overlay').style.display = 'flex';
+                        isGameRunning = false;
+                    }, 500);
+                    return;
+                }
+                setTimeout(() => nextQuestion(), 300);
             } else {
+                wrongAttempts++;
+                playSound('error');
                 el.style.opacity = "0.2";
                 setTimeout(() => el.style.opacity = "1", 500);
             }
@@ -473,6 +486,27 @@ function initRound() {
             to { transform: rotate(360deg); }
         }
     `, styleSheet.cssRules.length);
+
+    function playSound(type) {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.type = 'sine';
+            if (type === 'success') {
+                oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.2);
+                oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.2);
+            } else {
+                oscillator.frequency.setValueAtTime(220, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(110, audioCtx.currentTime + 0.3);
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
+                oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.4);
+            }
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+        } catch(e) {}
+    }
 </script>
 </body>
 </html>
