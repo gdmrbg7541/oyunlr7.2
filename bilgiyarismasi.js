@@ -1,5 +1,5 @@
 /* ===========================================================
-   Bilgi Yarışması — 7. Sınıf · 1. Ünite (ماذا فَعَلْت اليَوْم؟)
+   Bilgi Yarışması — 7. Sınıf · 2. Ünite (وَقْت التَّسَوُّق)
    Firebase 8.10.1 (compat) · proje: bilgiyarismasi7sinif2unite
    Soru biçimleri: test · sürükle-bırak · eşleştirme · klavyeyle yazma
    Mod 1 (ADMIN): dosyayı sade adresle açan kişi = öğretmen (giriş yok).
@@ -68,6 +68,11 @@ const ETIKET_TIP = {
   "namaz": _EA+'<path d="M4 20.5h16"/><path d="M6 20.5v-7M18 20.5v-7"/><path d="M12 4.8c3 2 4.6 3.8 4.6 6.5v9.2H7.4v-9.2c0-2.7 1.6-4.5 4.6-6.5z"/><circle class="biy-ea-puls" cx="12" cy="2.4" r="1" fill="currentColor" stroke="none"/></svg>',
   "zamir": _EA+'<g class="biy-ea-zip"><circle cx="8.3" cy="8.8" r="2.5"/><path d="M3.8 19.2c0-2.6 2-4.6 4.5-4.6s4.5 2 4.5 4.6"/></g><g class="biy-ea-zip2"><circle cx="16.6" cy="7.8" r="2.2"/><path d="M14.6 14.4c.6-.3 1.3-.5 2-.5 2.3 0 4 1.9 4 4.3"/></g></svg>',
   "kelime": _EA+'<rect x="3" y="6" width="18" height="12" rx="2"/><g class="biy-ea-bas"><rect x="9.4" y="10" width="5.2" height="4" rx="1"/></g><path d="M6 9.5h1.2M16.8 9.5H18M6 14.5h1.2M16.8 14.5H18"/></svg>',
+  "market": _EA+'<g class="biy-ea-zip"><circle cx="9.4" cy="20" r="1.7"/><circle cx="17.6" cy="20" r="1.7"/><path d="M2.8 3.8h2.3l2.3 10.8h10.9l2-7.4H6.3"/></g></svg>',
+  "sebze":  _EA+'<path d="M14.8 9.2c1.9 1.9 1.4 4-1 6.4-2.4 2.4-5.8 4.3-9.2 5.3 1-3.4 2.9-6.8 5.3-9.2 2.4-2.4 4.5-2.9 6.4-1z"/><g class="biy-ea-parla"><path d="M15.4 8.6c.3-1.6 1.4-2.9 3-3.4M15.8 8.4c1.5-.7 3.1-.6 4.4.2"/></g></svg>',
+  "meyve":  _EA+'<path d="M12 7.8c-1.2-1-2.8-1.3-4.3-.6-2.6 1.2-3.4 4.6-1.9 7.8 1.2 2.7 3.4 4.5 5.2 4.3.4 0 .7-.1 1-.3.3.2.6.3 1 .3 1.8.2 4-1.6 5.2-4.3 1.5-3.2.7-6.6-1.9-7.8-1.5-.7-3.1-.4-4.3.6z"/><path d="M12 7.6c0-1.7.8-2.9 2.3-3.7"/><path class="biy-ea-puls" d="M14.6 4.6c1.2-.6 2.4-.5 3.4.3-1 .8-2.2 1-3.4.5z" fill="currentColor" stroke="none"/></svg>',
+  "aded":   _EA+'<path d="M12.6 3.6h6.3a1.5 1.5 0 0 1 1.5 1.5v6.3a2 2 0 0 1-.6 1.4l-8 8a2 2 0 0 1-2.8 0l-4.8-4.8a2 2 0 0 1 0-2.8l8-8a2 2 0 0 1 1.4-.6z"/><circle class="biy-ea-puls" cx="16.5" cy="7.5" r="1.5" fill="currentColor" stroke="none"/></svg>',
+  "mukayese": _EA+'<g class="biy-ea-zip"><path d="M4.2 7h15.6"/><path d="M6.8 7l-2.7 5a3.1 3.1 0 0 0 5.4 0z"/><path d="M17.2 7l-2.7 5a3.1 3.1 0 0 0 5.4 0z"/></g><path d="M12 4.4v13.2M8.6 20.4h6.8"/><circle cx="12" cy="4.2" r="1.1"/></svg>',
   "varsayilan": _EA+'<circle cx="12" cy="12" r="8.6"/><path class="biy-ea-ciz" d="M9.6 9.2a2.4 2.4 0 1 1 3.3 2.2c-.8.4-.9 1-.9 1.8"/><circle cx="12" cy="16.6" r=".9" fill="currentColor" stroke="none"/></svg>'
 };
 const ETIKET_BICIM = {
@@ -162,134 +167,121 @@ function secimHtml(soru, secilen){
 }
 
 /* ---------------- Seed soru havuzu ---------------- */
-/* 7. SINIF — 1. ÜNİTE:  ماذا فَعَلْت اليَوْم؟  (Bugün Ne Yaptım?)
-   Konular: günlük rutin fiilleri, yiyecek-içecekler, saatler,
-            haftanın günleri, namaz vakitleri, zamir-fiil uyumu.
+/* 7. SINIF — 2. ÜNİTE:  وَقْت التَّسَوُّق  (Alışveriş Zamanı)
+   Veriler bu klasördeki oyunlardan derlendi: yaz · kelime · evethayir ·
+   mukayese · alisveris · hafizakarti.
+   Konular: market/temel gıdalar, sebzeler, meyveler, sayılar-fiyat, mukayese.
    Soru id'leri konu grupları arasında ÇAKIŞMAMALIDIR (birleşik konu kullanıldığı için). */
 
-/* --- 1) Günlük rutin (id 1-99) --- */
-const S_GUNLUK = [
-  {"id":1,"tip":"fiil","zorluk":1,"soru":"ما مَعْنى «أَسْتَيْقِظُ»؟","secenekler":["Uyanırım","Uyurum","Yıkanırım","Giyerim"],"dogru":0,"arapca":"أَسْتَيْقِظُ"},
-  {"id":2,"tip":"fiil","zorluk":1,"soru":"ما مَعْنى «أَتَوَضَّأُ»؟","secenekler":["Abdest alırım","Namaz kılarım","Uyanırım","Yemek yerim"],"dogru":0,"arapca":"أَتَوَضَّأُ"},
-  {"id":3,"tip":"fiil","zorluk":1,"soru":"ما مَعْنى «أُصَلّي»؟","secenekler":["Namaz kılarım","Ders çalışırım","Koşarım","Dönerim"],"dogru":0,"arapca":"أُصَلّي"},
-  {"id":4,"tip":"fiil","zorluk":1,"soru":"ما مَعْنى «أَتَناوَلُ الفَطور»؟","secenekler":["Kahvaltı yaparım","Akşam yemeği yerim","Süt içerim","Uyurum"],"dogru":0,"arapca":"أَتَناوَلُ الفَطور"},
-  {"id":5,"tip":"fiil","zorluk":1,"soru":"ما مَعْنى «أَلْبَسُ مَلابِسي»؟","secenekler":["Elbiselerimi giyerim","Ellerimi yıkarım","Dişlerimi fırçalarım","Odamı temizlerim"],"dogru":0,"arapca":"أَلْبَسُ مَلابِسي"},
-  {"id":6,"tip":"fiil","zorluk":1,"soru":"ما مَعْنى «أَرْجِعُ إِلى البَيْت»؟","secenekler":["Eve dönerim","Okula giderim","Evden çıkarım","Eve girerim"],"dogru":0,"arapca":"أَرْجِعُ إِلى البَيْت"},
-  {"id":7,"tip":"fiil","zorluk":1,"soru":"ما مَعْنى «أُساعِدُ أُمّي»؟","secenekler":["Anneme yardım ederim","Annemi severim","Annemi beklerim","Anneme sorarım"],"dogru":0,"arapca":"أُساعِدُ أُمّي"},
-  {"id":8,"tip":"fiil","zorluk":1,"soru":"ما مَعْنى «أَدْرُسُ دُروسي»؟","secenekler":["Derslerimi çalışırım","Derse giderim","Ders anlatırım","Dersi dinlerim"],"dogru":0,"arapca":"أَدْرُسُ دُروسي"},
-  {"id":9,"tip":"fiil","zorluk":2,"soru":"ما تَرْجَمَة «Dişlerimi temizlerim» بِالعَرَبِيَّة؟","secenekler":["أُنَظِّفُ أَسْناني","أَغْسِلُ يَدَيّ","أَلْبَسُ مَلابِسي","أَتَناوَلُ الفَطور"],"dogru":0,"arSecenek":true},
-  {"id":10,"tip":"fiil","zorluk":2,"soru":"ما تَرْجَمَة «Geceleyin uyurum» بِالعَرَبِيَّة؟","secenekler":["أَنامُ لَيْلًا","أَسْتَيْقِظُ صَباحًا","أَرْجِعُ ظُهْرًا","أَدْرُسُ مَساءً"],"dogru":0,"arSecenek":true},
-  {"id":11,"tip":"fiil","zorluk":2,"soru":"ما مَعْنى «أَغْسِلُ يَدَيّ قَبْل الطَّعام»؟","secenekler":["Yemekten önce ellerimi yıkarım","Yemekten sonra ellerimi yıkarım","Yemekten önce dua ederim","Yemekten sonra dişlerimi fırçalarım"],"dogru":0,"arapca":"أَغْسِلُ يَدَيّ قَبْل الطَّعام"},
-  {"id":12,"tip":"fiil","zorluk":2,"soru":"ما مَعْنى «مُبَكِّرًا»؟","secenekler":["Erken","Geç","Yavaş","Hızlı"],"dogru":0,"arapca":"مُبَكِّرًا"},
-  {"id":13,"tip":"cumle","bicim":"surukle","zorluk":2,"soru":"رَتِّب الكَلِمات: «Sabah erken uyanırım.»","parcalar":["أَسْتَيْقِظُ","في","الصَّباح","مُبَكِّرًا"]},
-  {"id":14,"tip":"cumle","bicim":"surukle","zorluk":2,"soru":"رَتِّب الكَلِمات: «Ailemle kahvaltı yaparım.»","parcalar":["أَتَناوَلُ","الفَطور","مَع","عائِلَتي"]},
-  {"id":15,"tip":"cumle","bicim":"surukle","zorluk":2,"soru":"رَتِّب الكَلِمات: «Öğleyin eve dönerim.»","parcalar":["أَرْجِعُ","إِلى","البَيْت","ظُهْرًا"]},
-  {"id":16,"tip":"cumle","bicim":"surukle","zorluk":3,"soru":"رَتِّب الكَلِمات: «Abdest alırım, sonra sabah namazını kılarım.»","parcalar":["أَتَوَضَّأُ","ثُمّ","أُصَلّي","الفَجْر"]},
-  {"id":17,"tip":"anlam","bicim":"eslestir","zorluk":2,"soru":"صِل الأَفْعال بِمَعانيها.","ciftler":[["أَسْتَيْقِظُ","uyanırım"],["أَنامُ","uyurum"],["أَلْبَسُ","giyerim"],["أُساعِدُ","yardım ederim"]]},
-  {"id":18,"tip":"anlam","bicim":"eslestir","zorluk":2,"soru":"صِل الأَفْعال بِمَعانيها.","ciftler":[["أَتَوَضَّأُ","abdest alırım"],["أُصَلّي","namaz kılarım"],["أَدْرُسُ","ders çalışırım"],["أَذْهَبُ","giderim"]]},
-  {"id":19,"tip":"anlam","bicim":"eslestir","zorluk":3,"soru":"صِلْ ظُروف الزَّمان.","ciftler":[["الصَّباح","sabah"],["الظُّهْر","öğle"],["المَساء","akşam"],["اللَّيْل","gece"]]},
-  {"id":20,"tip":"kelime","bicim":"yazma","zorluk":3,"soru":"اُكْتُبْ «ev» بِالحُروف.","cevapYazi":"بيت","tuslar":["ب","ي","ت","ن","ث","م","ل","ر","س","د"]}
+/* --- 1) Market / temel gıdalar (id 1-99) --- */
+const S_MARKET = [
+  {"id":1,"tip":"market","zorluk":1,"soru":"ما مَعْنى «الخُبْز»؟","secenekler":["Ekmek","Süt","Peynir","Tuz"],"dogru":0,"arapca":"الخُبْز"},
+  {"id":2,"tip":"market","zorluk":1,"soru":"ما مَعْنى «الحَليب»؟","secenekler":["Süt","Su","Meyve suyu","Çay"],"dogru":0,"arapca":"الحَليب"},
+  {"id":3,"tip":"market","zorluk":1,"soru":"ما مَعْنى «العَسَل»؟","secenekler":["Bal","Şeker","Tereyağı","Reçel"],"dogru":0,"arapca":"العَسَل"},
+  {"id":4,"tip":"market","zorluk":1,"soru":"ما مَعْنى «البَيْض»؟","secenekler":["Yumurta","Peynir","Zeytin","Ekmek"],"dogru":0,"arapca":"البَيْض"},
+  {"id":5,"tip":"market","zorluk":1,"soru":"ما مَعْنى «السُّكَّر»؟","secenekler":["Şeker","Tuz","Bal","Un"],"dogru":0,"arapca":"السُّكَّر"},
+  {"id":6,"tip":"market","zorluk":1,"soru":"ما مَعْنى «المِلْح»؟","secenekler":["Tuz","Şeker","Biber","Baharat"],"dogru":0,"arapca":"المِلْح"},
+  {"id":7,"tip":"market","zorluk":1,"soru":"ما مَعْنى «الجُبْن»؟","secenekler":["Peynir","Tereyağı","Yoğurt","Süt"],"dogru":0,"arapca":"الجُبْن"},
+  {"id":8,"tip":"market","zorluk":1,"soru":"ما مَعْنى «اللَّحْم»؟","secenekler":["Et","Tavuk","Balık","Köfte"],"dogru":0,"arapca":"اللَّحْم"},
+  {"id":9,"tip":"market","zorluk":1,"soru":"ما مَعْنى «الدَّجاج»؟","secenekler":["Tavuk","Et","Balık","Yumurta"],"dogru":0,"arapca":"الدَّجاج"},
+  {"id":10,"tip":"market","zorluk":1,"soru":"ما مَعْنى «السَّمَك»؟","secenekler":["Balık","Tavuk","Et","Çorba"],"dogru":0,"arapca":"السَّمَك"},
+  {"id":11,"tip":"market","zorluk":2,"soru":"ما تَرْجَمَة «Makarna» بِالعَرَبِيَّة؟","secenekler":["مَكَرونَة","بَقّالَة","زُبْدَة","حَساء"],"dogru":0,"arSecenek":true},
+  {"id":12,"tip":"market","zorluk":2,"soru":"ما تَرْجَمَة «Meyve suyu» بِالعَرَبِيَّة؟","secenekler":["عَصير","ماء","قَهْوَة","شاي"],"dogru":0,"arSecenek":true},
+  {"id":13,"tip":"market","zorluk":2,"soru":"ما مَعْنى «البَقّالَة»؟","secenekler":["Bakkal","Kasap","Fırın","Eczane"],"dogru":0,"arapca":"البَقّالَة"},
+  {"id":14,"tip":"market","zorluk":2,"soru":"ما مَعْنى «الزُّبْدَة»؟","secenekler":["Tereyağı","Bal","Peynir","Kaymak"],"dogru":0,"arapca":"الزُّبْدَة"},
+  {"id":15,"tip":"market","zorluk":2,"soru":"ما مَعْنى «أُريدُ خُبْزًا طازَجًا»؟","secenekler":["Taze ekmek istiyorum","Taze süt istiyorum","Bayat ekmek var","Ekmek sevmiyorum"],"dogru":0,"arapca":"أُريدُ خُبْزًا طازَجًا"},
+  {"id":16,"tip":"market","bicim":"surukle","zorluk":2,"soru":"رَتِّب الكَلِمات: «Taze ekmek istiyorum.»","parcalar":["أُريدُ","خُبْزًا","طازَجًا"]},
+  {"id":17,"tip":"market","bicim":"surukle","zorluk":2,"soru":"رَتِّب الكَلِمات: «Bakkala gidiyorum.»","parcalar":["أَذْهَبُ","إِلى","البَقّالَة"]},
+  {"id":18,"tip":"market","bicim":"surukle","zorluk":3,"soru":"رَتِّب الكَلِمات: «Meyve suyu ve su istiyorum.»","parcalar":["أُريدُ","عَصيرًا","وَماءً"]},
+  {"id":19,"tip":"market","bicim":"eslestir","zorluk":2,"soru":"صِل المَشْروبات.","ciftler":[["الشّاي","Çay"],["القَهْوَة","Kahve"],["الحَليب","Süt"],["العَصير","Meyve suyu"]]},
+  {"id":20,"tip":"market","bicim":"eslestir","zorluk":2,"soru":"صِل الأَطْعِمَة.","ciftler":[["الخُبْز","Ekmek"],["الجُبْن","Peynir"],["البَيْض","Yumurta"],["العَسَل","Bal"]]},
+  {"id":21,"tip":"market","bicim":"eslestir","zorluk":3,"soru":"صِل المَوادّ الغِذائِيَّة.","ciftler":[["الأُرْز","Pirinç"],["المَكَرونَة","Makarna"],["اللَّحْم","Et"],["السَّمَك","Balık"]]},
+  {"id":22,"tip":"market","bicim":"yazma","zorluk":3,"soru":"اُكْتُبْ «süt» بِالحُروف.","cevapYazi":"حليب","tuslar":["ح","ل","ي","ب","م","س","ك","ر","ن","د"]}
 ];
 
-/* --- 2) Yiyecek & içecekler (id 101-199) --- */
-const S_YEMEK = [
-  {"id":101,"tip":"yemek","zorluk":1,"soru":"ما مَعْنى «الحَليب»؟","secenekler":["Süt","Peynir","Bal","Su"],"dogru":0,"arapca":"الحَليب"},
-  {"id":102,"tip":"yemek","zorluk":1,"soru":"ما مَعْنى «الجُبْن»؟","secenekler":["Peynir","Zeytin","Et","Ekmek"],"dogru":0,"arapca":"الجُبْن"},
-  {"id":103,"tip":"yemek","zorluk":1,"soru":"ما مَعْنى «الزَّيْتون»؟","secenekler":["Zeytin","Üzüm","Elma","Hurma"],"dogru":0,"arapca":"الزَّيْتون"},
-  {"id":104,"tip":"yemek","zorluk":1,"soru":"ما مَعْنى «العَسَل»؟","secenekler":["Bal","Tereyağı","Reçel","Şeker"],"dogru":0,"arapca":"العَسَل"},
-  {"id":105,"tip":"yemek","zorluk":1,"soru":"ما مَعْنى «الزُّبْدَة»؟","secenekler":["Tereyağı","Bal","Peynir","Yoğurt"],"dogru":0,"arapca":"الزُّبْدَة"},
-  {"id":106,"tip":"yemek","zorluk":1,"soru":"ما مَعْنى «السَّمَك»؟","secenekler":["Balık","Tavuk","Et","Pirinç"],"dogru":0,"arapca":"السَّمَك"},
-  {"id":107,"tip":"yemek","zorluk":1,"soru":"ما مَعْنى «الدَّجاج»؟","secenekler":["Tavuk","Balık","Et","Yumurta"],"dogru":0,"arapca":"الدَّجاج"},
-  {"id":108,"tip":"yemek","zorluk":1,"soru":"ما مَعْنى «الأُرْز»؟","secenekler":["Pirinç","Makarna","Ekmek","Çorba"],"dogru":0,"arapca":"الأُرْز"},
-  {"id":109,"tip":"yemek","zorluk":1,"soru":"ما مَعْنى «العَصير»؟","secenekler":["Meyve suyu","Çay","Kahve","Süt"],"dogru":0,"arapca":"العَصير"},
-  {"id":110,"tip":"yemek","zorluk":1,"soru":"ما مَعْنى «الخُبْز»؟","secenekler":["Ekmek","Peynir","Pirinç","Tuz"],"dogru":0,"arapca":"الخُبْز"},
-  {"id":111,"tip":"yemek","zorluk":2,"soru":"ما مَعْنى «الفَطور - الغَداء - العَشاء» بِالتَّرْتيب؟","secenekler":["Kahvaltı - öğle yemeği - akşam yemeği","Öğle yemeği - kahvaltı - akşam yemeği","Akşam yemeği - kahvaltı - öğle yemeği","Kahvaltı - akşam yemeği - öğle yemeği"],"dogru":0},
-  {"id":112,"tip":"yemek","zorluk":2,"soru":"ما تَرْجَمَة «Kahvaltıda süt içerim» بِالعَرَبِيَّة؟","secenekler":["أَشْرَبُ الحَليب في الفَطور","آكُلُ الجُبْن في الفَطور","أَشْرَبُ العَصير في العَشاء","آكُلُ السَّمَك في الغَداء"],"dogru":0,"arSecenek":true},
-  {"id":113,"tip":"yemek","bicim":"surukle","zorluk":2,"soru":"رَتِّب الكَلِمات: «Öğle yemeğinde et ve pirinç yerim.»","parcalar":["أَتَناوَلُ","اللَّحْم","وَالأُرْز","في","الغَداء"]},
-  {"id":114,"tip":"yemek","bicim":"surukle","zorluk":2,"soru":"رَتِّب الكَلِمات: «Öğle yemeğinden sonra kahve içerim.»","parcalar":["أَشْرَبُ","القَهْوَة","بَعْد","الغَداء"]},
-  {"id":115,"tip":"yemek","bicim":"surukle","zorluk":3,"soru":"رَتِّب الكَلِمات: «Kahvaltıda zeytin ve peynir yerim.»","parcalar":["أَتَناوَلُ","الزَّيْتون","وَالجُبْن","في","الفَطور"]},
-  {"id":116,"tip":"yemek","bicim":"eslestir","zorluk":2,"soru":"صِل المَشْروبات.","ciftler":[["الحَليب","süt"],["القَهْوَة","kahve"],["الشّاي","çay"],["العَصير","meyve suyu"]]},
-  {"id":117,"tip":"yemek","bicim":"eslestir","zorluk":2,"soru":"صِل الأَطْعِمَة.","ciftler":[["السَّمَك","balık"],["الدَّجاج","tavuk"],["اللَّحْم","et"],["الخُبْز","ekmek"]]},
-  {"id":118,"tip":"yemek","bicim":"eslestir","zorluk":3,"soru":"صِلْ أَطْعِمَة الفَطور.","ciftler":[["الزَّيْتون","zeytin"],["الجُبْن","peynir"],["العَسَل","bal"],["الزُّبْدَة","tereyağı"]]},
-  {"id":119,"tip":"kelime","bicim":"yazma","zorluk":3,"soru":"اُكْتُبْ «ekmek» بِالحُروف.","cevapYazi":"خبز","tuslar":["خ","ب","ز","ح","ج","ر","د","ن","ت","م"]},
-  {"id":120,"tip":"kelime","bicim":"yazma","zorluk":3,"soru":"اُكْتُبْ «balık» بِالحُروف.","cevapYazi":"سمك","tuslar":["س","م","ك","ش","ن","ل","ب","ت","ح","ر"]}
+/* --- 2) Sebzeler (id 101-199) --- */
+const S_SEBZE = [
+  {"id":101,"tip":"sebze","zorluk":1,"soru":"ما مَعْنى «البَصَل»؟","secenekler":["Soğan","Sarımsak","Patates","Havuç"],"dogru":0,"arapca":"البَصَل"},
+  {"id":102,"tip":"sebze","zorluk":1,"soru":"ما مَعْنى «البَطاطا»؟","secenekler":["Patates","Patlıcan","Domates","Soğan"],"dogru":0,"arapca":"البَطاطا"},
+  {"id":103,"tip":"sebze","zorluk":1,"soru":"ما مَعْنى «الطَّماطِم»؟","secenekler":["Domates","Biber","Salatalık","Havuç"],"dogru":0,"arapca":"الطَّماطِم"},
+  {"id":104,"tip":"sebze","zorluk":1,"soru":"ما مَعْنى «الخِيار»؟","secenekler":["Salatalık","Kabak","Domates","Fasulye"],"dogru":0,"arapca":"الخِيار"},
+  {"id":105,"tip":"sebze","zorluk":1,"soru":"ما مَعْنى «الجَزَر»؟","secenekler":["Havuç","Patates","Turp","Soğan"],"dogru":0,"arapca":"الجَزَر"},
+  {"id":106,"tip":"sebze","zorluk":1,"soru":"ما مَعْنى «الباذِنْجان»؟","secenekler":["Patlıcan","Kabak","Biber","Domates"],"dogru":0,"arapca":"الباذِنْجان"},
+  {"id":107,"tip":"sebze","zorluk":2,"soru":"ما مَعْنى «الفُلْفُل»؟","secenekler":["Biber","Tuz","Baharat","Fasulye"],"dogru":0,"arapca":"الفُلْفُل"},
+  {"id":108,"tip":"sebze","zorluk":2,"soru":"ما مَعْنى «الفاصولْيا»؟","secenekler":["Fasulye","Nohut","Mercimek","Bezelye"],"dogru":0,"arapca":"الفاصولْيا"},
+  {"id":109,"tip":"sebze","zorluk":2,"soru":"ما تَرْجَمَة «Sebzeler» بِالعَرَبِيَّة؟","secenekler":["خَضْراوات","فَواكِه","طَماطِم","مَشْروبات"],"dogru":0,"arSecenek":true},
+  {"id":110,"tip":"sebze","zorluk":2,"soru":"ما مَعْنى «أَنا بِحاجَة إِلى خَضْراوات طازَجَة»؟","secenekler":["Taze sebzelere ihtiyacım var","Taze meyve istiyorum","Sebzeleri sevmem","Sebzeler çok pahalı"],"dogru":0,"arapca":"أَنا بِحاجَة إِلى خَضْراوات طازَجَة"},
+  {"id":111,"tip":"sebze","bicim":"eslestir","zorluk":2,"soru":"صِل الخَضْراوات.","ciftler":[["البَصَل","Soğan"],["الجَزَر","Havuç"],["الخِيار","Salatalık"],["الطَّماطِم","Domates"]]},
+  {"id":112,"tip":"sebze","bicim":"eslestir","zorluk":3,"soru":"صِل الخَضْراوات.","ciftler":[["البَطاطا","Patates"],["الباذِنْجان","Patlıcan"],["الفُلْفُل","Biber"],["الفاصولْيا","Fasulye"]]},
+  {"id":113,"tip":"sebze","bicim":"surukle","zorluk":2,"soru":"رَتِّب الكَلِمات: «Bir kilo domates istiyorum.»","parcalar":["أُريدُ","كيلو","طَماطِم"]},
+  {"id":114,"tip":"sebze","bicim":"yazma","zorluk":3,"soru":"اُكْتُبْ «havuç» بِالحُروف.","cevapYazi":"جزر","tuslar":["ج","ز","ر","ب","ص","ل","خ","ي","ا","د"]}
 ];
 
-/* --- 3) Saatler (id 201-299) --- */
-const S_SAAT = [
-  {"id":201,"tip":"saat","zorluk":1,"soru":"كَم السّاعَة؟ «السّاعَة الثّالِثَة»","secenekler":["3","2","4","8"],"dogru":0,"arapca":"السّاعَة الثّالِثَة"},
-  {"id":202,"tip":"saat","zorluk":1,"soru":"كَم السّاعَة؟ «السّاعَة السّابِعَة»","secenekler":["7","6","8","9"],"dogru":0,"arapca":"السّاعَة السّابِعَة"},
-  {"id":203,"tip":"saat","zorluk":1,"soru":"كَم السّاعَة؟ «السّاعَة العاشِرَة»","secenekler":["10","9","11","12"],"dogru":0,"arapca":"السّاعَة العاشِرَة"},
-  {"id":204,"tip":"saat","zorluk":2,"soru":"كَم السّاعَة؟ «السّاعَة الحادِيَة عَشْرَة»","secenekler":["11","10","12","1"],"dogru":0,"arapca":"السّاعَة الحادِيَة عَشْرَة"},
-  {"id":205,"tip":"saat","zorluk":2,"soru":"كَيْف نَقولُ السّاعَة 1 بِالعَرَبِيَّة؟","secenekler":["السّاعَة الواحِدَة","السّاعَة الثّانِيَة","السّاعَة الحادِيَة عَشْرَة","السّاعَة الثّامِنَة"],"dogru":0,"arSecenek":true},
-  {"id":206,"tip":"saat","zorluk":2,"soru":"كَيْف نَقولُ السّاعَة 12 بِالعَرَبِيَّة؟","secenekler":["السّاعَة الثّانِيَة عَشْرَة","السّاعَة الثّانِيَة","السّاعَة العاشِرَة","السّاعَة التّاسِعَة"],"dogru":0,"arSecenek":true},
-  {"id":207,"tip":"saat","zorluk":2,"soru":"كَم السّاعَة؟ «السّاعَة السّادِسَة»","secenekler":["6","5","7","9"],"dogru":0,"arapca":"السّاعَة السّادِسَة"},
-  {"id":208,"tip":"saat","bicim":"surukle","zorluk":2,"soru":"رَتِّب السّاعات مِنْ 1 إِلى 4 (مِن اليَمين).","parcalar":["الواحِدَة","الثّانِيَة","الثّالِثَة","الرّابِعَة"]},
-  {"id":209,"tip":"saat","bicim":"surukle","zorluk":2,"soru":"رَتِّب السّاعات مِنْ 5 إِلى 8 (مِن اليَمين).","parcalar":["الخامِسَة","السّادِسَة","السّابِعَة","الثّامِنَة"]},
-  {"id":210,"tip":"saat","bicim":"surukle","zorluk":3,"soru":"رَتِّب الكَلِمات: «Saat yedide okula giderim.»","parcalar":["أَذْهَبُ","إِلى","المَدْرَسَة","في","السّاعَة","السّابِعَة"]},
-  {"id":211,"tip":"saat","bicim":"eslestir","zorluk":2,"soru":"صِل السّاعات بِالأَرْقام.","ciftler":[["الثّانِيَة","2"],["الرّابِعَة","4"],["السّادِسَة","6"],["الثّامِنَة","8"]]},
-  {"id":212,"tip":"saat","bicim":"eslestir","zorluk":3,"soru":"صِل السّاعات بِالأَرْقام.","ciftler":[["الخامِسَة","5"],["التّاسِعَة","9"],["العاشِرَة","10"],["الثّانِيَة عَشْرَة","12"]]},
-  {"id":213,"tip":"kelime","bicim":"yazma","zorluk":3,"soru":"اُكْتُبْ «saat» بِالحُروف.","cevapYazi":"ساعة","tuslar":["س","ا","ع","ة","ص","ح","ه","ت","ن","م"]}
+/* --- 3) Meyveler (id 201-299) --- */
+const S_MEYVE = [
+  {"id":201,"tip":"meyve","zorluk":1,"soru":"ما مَعْنى «التُّفّاح»؟","secenekler":["Elma","Portakal","Kiraz","Üzüm"],"dogru":0,"arapca":"التُّفّاح"},
+  {"id":202,"tip":"meyve","zorluk":1,"soru":"ما مَعْنى «البُرْتُقال»؟","secenekler":["Portakal","Mandalina","Elma","Muz"],"dogru":0,"arapca":"البُرْتُقال"},
+  {"id":203,"tip":"meyve","zorluk":1,"soru":"ما مَعْنى «المَوْز»؟","secenekler":["Muz","Elma","Kayısı","Kiraz"],"dogru":0,"arapca":"المَوْز"},
+  {"id":204,"tip":"meyve","zorluk":1,"soru":"ما مَعْنى «العِنَب»؟","secenekler":["Üzüm","Kiraz","İncir","Nar"],"dogru":0,"arapca":"العِنَب"},
+  {"id":205,"tip":"meyve","zorluk":1,"soru":"ما مَعْنى «الكَرَز»؟","secenekler":["Kiraz","Vişne","Üzüm","Çilek"],"dogru":0,"arapca":"الكَرَز"},
+  {"id":206,"tip":"meyve","zorluk":2,"soru":"ما مَعْنى «المِشْمِش»؟","secenekler":["Kayısı","Şeftali","Erik","Elma"],"dogru":0,"arapca":"المِشْمِش"},
+  {"id":207,"tip":"meyve","zorluk":2,"soru":"ما مَعْنى «الزَّيْتون»؟","secenekler":["Zeytin","Üzüm","Hurma","İncir"],"dogru":0,"arapca":"الزَّيْتون"},
+  {"id":208,"tip":"meyve","zorluk":2,"soru":"ما تَرْجَمَة «Meyveler» بِالعَرَبِيَّة؟","secenekler":["فَواكِه","خَضْراوات","مَشْروبات","أَطْعِمَة"],"dogru":0,"arSecenek":true},
+  {"id":209,"tip":"meyve","zorluk":2,"soru":"ما مَعْنى «عِنْدي فَواكِه أَيْضًا»؟","secenekler":["Bende meyveler de var","Meyve istemiyorum","Meyveler taze değil","Sebzelerim de var"],"dogru":0,"arapca":"عِنْدي فَواكِه أَيْضًا"},
+  {"id":210,"tip":"meyve","bicim":"eslestir","zorluk":2,"soru":"صِل الفَواكِه.","ciftler":[["التُّفّاح","Elma"],["المَوْز","Muz"],["العِنَب","Üzüm"],["الكَرَز","Kiraz"]]},
+  {"id":211,"tip":"meyve","bicim":"eslestir","zorluk":3,"soru":"صِل الفَواكِه.","ciftler":[["البُرْتُقال","Portakal"],["المِشْمِش","Kayısı"],["الزَّيْتون","Zeytin"],["الفَواكِه","Meyveler"]]},
+  {"id":212,"tip":"meyve","bicim":"surukle","zorluk":2,"soru":"رَتِّب الكَلِمات: «Elma ve muz alıyorum.»","parcalar":["أَشْتَري","تُفّاحًا","وَمَوْزًا"]},
+  {"id":213,"tip":"meyve","bicim":"yazma","zorluk":3,"soru":"اُكْتُبْ «muz» بِالحُروف.","cevapYazi":"موز","tuslar":["م","و","ز","ت","ف","ح","ع","ن","ب","ك"]}
 ];
 
-/* --- 4) Haftanın günleri (id 301-399) --- */
-const S_GUNLER = [
-  {"id":301,"tip":"gun","zorluk":1,"soru":"أَيّ يَوْم هُوَ «يَوْم الجُمُعَة»؟","secenekler":["Cuma","Perşembe","Cumartesi","Pazar"],"dogru":0,"arapca":"يَوْم الجُمُعَة"},
-  {"id":302,"tip":"gun","zorluk":1,"soru":"أَيّ يَوْم هُوَ «يَوْم السَّبْت»؟","secenekler":["Cumartesi","Cuma","Pazar","Pazartesi"],"dogru":0,"arapca":"يَوْم السَّبْت"},
-  {"id":303,"tip":"gun","zorluk":1,"soru":"أَيّ يَوْم هُوَ «يَوْم الأَحَد»؟","secenekler":["Pazar","Cumartesi","Pazartesi","Salı"],"dogru":0,"arapca":"يَوْم الأَحَد"},
-  {"id":304,"tip":"gun","zorluk":1,"soru":"أَيّ يَوْم هُوَ «يَوْم الاِثْنَيْن»؟","secenekler":["Pazartesi","Salı","Çarşamba","Pazar"],"dogru":0,"arapca":"يَوْم الاِثْنَيْن"},
-  {"id":305,"tip":"gun","zorluk":1,"soru":"أَيّ يَوْم هُوَ «يَوْم الخَميس»؟","secenekler":["Perşembe","Çarşamba","Cuma","Salı"],"dogru":0,"arapca":"يَوْم الخَميس"},
-  {"id":306,"tip":"gun","zorluk":2,"soru":"كَيْف نَقولُ «Çarşamba» بِالعَرَبِيَّة؟","secenekler":["الأَرْبِعاء","الثُّلاثاء","الخَميس","الاِثْنَيْن"],"dogru":0,"arSecenek":true},
-  {"id":307,"tip":"gun","zorluk":2,"soru":"أَيّ يَوْم هُوَ «يَوْم الثُّلاثاء»؟","secenekler":["Salı","Çarşamba","Pazartesi","Perşembe"],"dogru":0,"arapca":"يَوْم الثُّلاثاء"},
-  {"id":308,"tip":"gun","bicim":"surukle","zorluk":2,"soru":"رَتِّب الكَلِمات: «Pazar günü Cumartesi gününden sonra gelir.»","parcalar":["يَوْم","الأَحَد","يَأْتي","بَعْد","يَوْم","السَّبْت"]},
-  {"id":309,"tip":"gun","bicim":"surukle","zorluk":2,"soru":"رَتِّب الأَيّام: Pazartesi → Perşembe (مِن اليَمين).","parcalar":["الاِثْنَيْن","الثُّلاثاء","الأَرْبِعاء","الخَميس"]},
-  {"id":310,"tip":"gun","bicim":"eslestir","zorluk":2,"soru":"صِل الأَيّام.","ciftler":[["الاِثْنَيْن","Pazartesi"],["الثُّلاثاء","Salı"],["الأَرْبِعاء","Çarşamba"],["الخَميس","Perşembe"]]},
-  {"id":311,"tip":"gun","bicim":"eslestir","zorluk":2,"soru":"صِل الأَيّام.","ciftler":[["الجُمُعَة","Cuma"],["السَّبْت","Cumartesi"],["الأَحَد","Pazar"],["الأُسْبوع","hafta"]]},
-  {"id":312,"tip":"kelime","bicim":"yazma","zorluk":3,"soru":"اُكْتُبْ «gün» بِالحُروف.","cevapYazi":"يوم","tuslar":["ي","و","م","ن","ب","ت","ل","ر","س","ه"]}
+/* --- 4) Sayılar ve fiyat (id 301-399) --- */
+const S_ADED = [
+  {"id":301,"tip":"aded","zorluk":1,"soru":"ما مَعْنى «خَمْسَة»؟","secenekler":["Beş","Üç","Dört","On"],"dogru":0,"arapca":"خَمْسَة"},
+  {"id":302,"tip":"aded","zorluk":1,"soru":"ما مَعْنى «ثَلاثَة»؟","secenekler":["Üç","İki","Beş","Sekiz"],"dogru":0,"arapca":"ثَلاثَة"},
+  {"id":303,"tip":"aded","zorluk":1,"soru":"ما مَعْنى «سَبْعَة»؟","secenekler":["Yedi","Altı","Dokuz","İki"],"dogru":0,"arapca":"سَبْعَة"},
+  {"id":304,"tip":"aded","zorluk":1,"soru":"ما مَعْنى «عَشَرَة»؟","secenekler":["On","Dokuz","Beş","Yirmi"],"dogru":0,"arapca":"عَشَرَة"},
+  {"id":305,"tip":"aded","zorluk":1,"soru":"ما مَعْنى «اِثْنان»؟","secenekler":["İki","Bir","Üç","Dört"],"dogru":0,"arapca":"اِثْنان"},
+  {"id":306,"tip":"aded","zorluk":1,"soru":"ما مَعْنى «ثَمانِيَة»؟","secenekler":["Sekiz","Yedi","Dokuz","Altı"],"dogru":0,"arapca":"ثَمانِيَة"},
+  {"id":307,"tip":"aded","zorluk":2,"soru":"ما مَعْنى «اِثْنا عَشَر»؟","secenekler":["On iki","On bir","Yirmi","İki"],"dogru":0,"arapca":"اِثْنا عَشَر"},
+  {"id":308,"tip":"aded","zorluk":2,"soru":"ما مَعْنى «خَمْسَة عَشَر»؟","secenekler":["On beş","On dört","Beş","Elli"],"dogru":0,"arapca":"خَمْسَة عَشَر"},
+  {"id":309,"tip":"aded","bicim":"eslestir","zorluk":2,"soru":"صِل الأَعْداد بِالأَرْقام.","ciftler":[["ثَلاثَة","3"],["خَمْسَة","5"],["سَبْعَة","7"],["تِسْعَة","9"]]},
+  {"id":310,"tip":"aded","bicim":"eslestir","zorluk":3,"soru":"صِل الأَعْداد بِالأَرْقام.","ciftler":[["أَحَد عَشَر","11"],["اِثْنا عَشَر","12"],["أَرْبَعَة عَشَر","14"],["خَمْسَة عَشَر","15"]]},
+  {"id":311,"tip":"aded","bicim":"surukle","zorluk":2,"soru":"رَتِّب الأَعْداد مِنْ 1 إِلى 4 (مِن اليَمين).","parcalar":["واحِد","اِثْنان","ثَلاثَة","أَرْبَعَة"]},
+  {"id":312,"tip":"aded","bicim":"surukle","zorluk":3,"soru":"رَتِّب الأَعْداد مِنْ 6 إِلى 9 (مِن اليَمين).","parcalar":["سِتَّة","سَبْعَة","ثَمانِيَة","تِسْعَة"]},
+  {"id":313,"tip":"aded","zorluk":2,"soru":"ما مَعْنى «البَيْضَة الواحِدَة بِليرَتَيْن»؟","secenekler":["Bir yumurta iki liradır","Yumurta bir liradır","İki yumurta bir liradır","Yumurtalar tazedir"],"dogru":0,"arapca":"البَيْضَة الواحِدَة بِليرَتَيْن"},
+  {"id":314,"tip":"aded","zorluk":2,"soru":"ما مَعْنى «بِكَم هذا»؟","secenekler":["Bu kaç para?","Bu ne?","Bu nerede?","Bu kimin?"],"dogru":0,"arapca":"بِكَم هذا؟"},
+  {"id":315,"tip":"aded","zorluk":3,"soru":"ما تَرْجَمَة «Kaç kilo?» بِالعَرَبِيَّة؟","secenekler":["كَم كيلو؟","كَم السّاعَة؟","ما هذا؟","بِكَم هذا؟"],"dogru":0,"arSecenek":true},
+  {"id":316,"tip":"aded","bicim":"yazma","zorluk":3,"soru":"اُكْتُبْ «beş» بِالحُروف.","cevapYazi":"خمسة","tuslar":["خ","م","س","ة","ع","ش","ر","ث","ل","ت"]}
 ];
 
-/* --- 5) Namaz vakitleri (id 401-499) --- */
-const S_NAMAZ = [
-  {"id":401,"tip":"namaz","zorluk":1,"soru":"أَيّ صَلاة هِيَ «الفَجْر»؟","secenekler":["Sabah","Öğle","İkindi","Akşam"],"dogru":0,"arapca":"الفَجْر"},
-  {"id":402,"tip":"namaz","zorluk":1,"soru":"أَيّ صَلاة هِيَ «الظُّهْر»؟","secenekler":["Öğle","İkindi","Akşam","Yatsı"],"dogru":0,"arapca":"الظُّهْر"},
-  {"id":403,"tip":"namaz","zorluk":1,"soru":"أَيّ صَلاة هِيَ «العَصْر»؟","secenekler":["İkindi","Öğle","Akşam","Sabah"],"dogru":0,"arapca":"العَصْر"},
-  {"id":404,"tip":"namaz","zorluk":1,"soru":"أَيّ صَلاة هِيَ «المَغْرِب»؟","secenekler":["Akşam","Yatsı","İkindi","Sabah"],"dogru":0,"arapca":"المَغْرِب"},
-  {"id":405,"tip":"namaz","zorluk":1,"soru":"أَيّ صَلاة هِيَ «العِشاء»؟","secenekler":["Yatsı","Akşam","Sabah","Öğle"],"dogru":0,"arapca":"العِشاء"},
-  {"id":406,"tip":"namaz","zorluk":2,"soru":"ما مَعْنى «شُروق الشَّمْس»؟","secenekler":["Güneşin doğuşu","Güneşin batışı","Gece yarısı","Öğle vakti"],"dogru":0,"arapca":"شُروق الشَّمْس"},
-  {"id":407,"tip":"namaz","bicim":"surukle","zorluk":2,"soru":"رَتِّب الكَلِمات: «Güneş doğmadan önce sabah namazı kılarım.»","parcalar":["أُصَلّي","الفَجْر","قَبْل","شُروق","الشَّمْس"]},
-  {"id":408,"tip":"namaz","bicim":"surukle","zorluk":2,"soru":"رَتِّب الكَلِمات: «Uyumadan önce yatsı namazı kılarım.»","parcalar":["أُصَلّي","العِشاء","قَبْل","النَّوْم"]},
-  {"id":409,"tip":"namaz","bicim":"surukle","zorluk":3,"soru":"رَتِّب الكَلِمات: «Muhammed öğle namazını cemaatle kılar.»","parcalar":["يُصَلّي","مُحَمَّد","الظُّهْر","مَع","الجَماعَة"]},
-  {"id":410,"tip":"namaz","bicim":"eslestir","zorluk":2,"soru":"صِلْ أَوْقات الصَّلاة.","ciftler":[["الفَجْر","sabah"],["الظُّهْر","öğle"],["العَصْر","ikindi"],["المَغْرِب","akşam"]]},
-  {"id":411,"tip":"kelime","bicim":"yazma","zorluk":3,"soru":"اُكْتُبْ «mescid / cami» بِالحُروف.","cevapYazi":"مسجد","tuslar":["م","س","ج","د","ح","خ","ش","ن","ت","ر"]}
+/* --- 5) Mukayese / sıfatlar (id 401-499) --- */
+const S_MUKAYESE = [
+  {"id":401,"tip":"mukayese","zorluk":1,"soru":"ما مَعْنى «غالٍ»؟","secenekler":["Pahalı","Ucuz","Ağır","Hafif"],"dogru":0,"arapca":"غالٍ"},
+  {"id":402,"tip":"mukayese","zorluk":1,"soru":"ما مَعْنى «رَخيص»؟","secenekler":["Ucuz","Pahalı","Büyük","Küçük"],"dogru":0,"arapca":"رَخيص"},
+  {"id":403,"tip":"mukayese","zorluk":1,"soru":"ما مَعْنى «كَبير»؟","secenekler":["Büyük","Küçük","Ağır","Uzun"],"dogru":0,"arapca":"كَبير"},
+  {"id":404,"tip":"mukayese","zorluk":1,"soru":"ما مَعْنى «صَغير»؟","secenekler":["Küçük","Büyük","Hafif","Kısa"],"dogru":0,"arapca":"صَغير"},
+  {"id":405,"tip":"mukayese","zorluk":1,"soru":"ما مَعْنى «ثَقيل»؟","secenekler":["Ağır","Hafif","Büyük","Pahalı"],"dogru":0,"arapca":"ثَقيل"},
+  {"id":406,"tip":"mukayese","zorluk":1,"soru":"ما مَعْنى «خَفيف»؟","secenekler":["Hafif","Ağır","Küçük","Ucuz"],"dogru":0,"arapca":"خَفيف"},
+  {"id":407,"tip":"mukayese","zorluk":2,"soru":"ما مَعْنى «طازَج»؟","secenekler":["Taze","Bayat","Ucuz","Lezzetli"],"dogru":0,"arapca":"طازَج"},
+  {"id":408,"tip":"mukayese","zorluk":2,"soru":"ما مَعْنى «أَغْلى»؟","secenekler":["Daha pahalı","Daha ucuz","En büyük","Daha ağır"],"dogru":0,"arapca":"أَغْلى"},
+  {"id":409,"tip":"mukayese","zorluk":2,"soru":"ما مَعْنى «أَرْخَص»؟","secenekler":["Daha ucuz","Daha pahalı","Daha küçük","Daha hafif"],"dogru":0,"arapca":"أَرْخَص"},
+  {"id":410,"tip":"mukayese","zorluk":2,"soru":"ما مَعْنى «أَيُّهُما أَكْبَر؟»؟","secenekler":["Hangisi daha büyük?","Hangisi daha küçük?","Hangisi daha pahalı?","Hangisi daha ağır?"],"dogru":0,"arapca":"أَيُّهُما أَكْبَر؟"},
+  {"id":411,"tip":"mukayese","zorluk":2,"soru":"المَوْز بِـ 10 ليرات وَالتُّفّاح بِـ 7 ليرات. أَيُّهُما أَغْلى؟","secenekler":["المَوْز","التُّفّاح"],"dogru":0,"arSecenek":true},
+  {"id":412,"tip":"mukayese","zorluk":2,"soru":"الكَرَز بِـ 9 ليرات وَالتُّفّاح بِـ 7 ليرات. أَيُّهُما أَرْخَص؟","secenekler":["التُّفّاح","الكَرَز"],"dogru":0,"arSecenek":true},
+  {"id":413,"tip":"mukayese","zorluk":3,"soru":"الكَرَز بِـ 9 ليرات وَالتُّفّاح بِـ 7 ليرات. «الكَرَز أَغْلى مِن التُّفّاح» — صَحيح؟","secenekler":["نَعَمْ","لا"],"dogru":0,"arSecenek":true},
+  {"id":414,"tip":"mukayese","zorluk":3,"soru":"المِشْمِش بِـ 8 ليرات وَالمَوْز بِـ 12 ليرة. «المِشْمِش أَغْلى مِن المَوْز» — صَحيح؟","secenekler":["لا","نَعَمْ"],"dogru":0,"arSecenek":true},
+  {"id":415,"tip":"mukayese","bicim":"eslestir","zorluk":2,"soru":"صِل الأَضْداد.","ciftler":[["كَبير","صَغير"],["ثَقيل","خَفيف"],["غالٍ","رَخيص"]]},
+  {"id":416,"tip":"mukayese","bicim":"surukle","zorluk":3,"soru":"رَتِّب الكَلِمات: «Kiraz elmadan daha pahalıdır.»","parcalar":["الكَرَز","أَغْلى","مِن","التُّفّاح"]}
 ];
 
-/* --- 6) Zamir - fiil uyumu (id 501-599) --- */
-const S_ZAMIR = [
-  {"id":501,"tip":"zamir","zorluk":2,"soru":"ما الكَلِمَة المُناسِبَة لِلْفَراغ؟ «هُوَ ... مُبَكِّرًا»","secenekler":["يَسْتَيْقِظُ","تَسْتَيْقِظُ","أَسْتَيْقِظُ","تَسْتَيْقِظينَ"],"dogru":0,"arSecenek":true},
-  {"id":502,"tip":"zamir","zorluk":2,"soru":"ما الكَلِمَة المُناسِبَة لِلْفَراغ؟ «هِيَ ... الفَجْر»","secenekler":["تُصَلّي","يُصَلّي","أُصَلّي","تُصَلّينَ"],"dogru":0,"arSecenek":true},
-  {"id":503,"tip":"zamir","zorluk":2,"soru":"ما الكَلِمَة المُناسِبَة لِلْفَراغ؟ «أَنْتِ ... إِلى البَيْت»","secenekler":["تَرْجِعينَ","تَرْجِعُ","يَرْجِعُ","أَرْجِعُ"],"dogru":0,"arSecenek":true},
-  {"id":504,"tip":"zamir","zorluk":2,"soru":"ما الكَلِمَة المُناسِبَة لِلْفَراغ؟ «أَنْتَ ... أُمَّكَ»","secenekler":["تُساعِدُ","تُساعِدينَ","يُساعِدُ","أُساعِدُ"],"dogru":0,"arSecenek":true},
-  {"id":505,"tip":"zamir","zorluk":2,"soru":"ما الكَلِمَة المُناسِبَة لِلْفَراغ؟ «هِيَ ... أَسْنانَها»","secenekler":["تُنَظِّفُ","يُنَظِّفُ","أُنَظِّفُ","تُنَظِّفينَ"],"dogru":0,"arSecenek":true},
-  {"id":506,"tip":"zamir","zorluk":2,"soru":"ما الكَلِمَة المُناسِبَة لِلْفَراغ؟ «أَنْتِ ... لَيْلًا»","secenekler":["تَنامينَ","تَنامُ","يَنامُ","أَنامُ"],"dogru":0,"arSecenek":true},
-  {"id":507,"tip":"zamir","zorluk":3,"soru":"مَن فاعِل الفِعْل «يَتَناوَلُ»؟","secenekler":["هُوَ","هِيَ","أَنا","أَنْتِ"],"dogru":0,"arSecenek":true},
-  {"id":508,"tip":"zamir","bicim":"eslestir","zorluk":2,"soru":"صِل الضَّمائِر بِالأَفْعال (دَرَسَ).","ciftler":[["أَنا","أَدْرُسُ"],["هُوَ","يَدْرُسُ"],["هِيَ","تَدْرُسُ"],["أَنْتِ","تَدْرُسينَ"]]},
-  {"id":509,"tip":"zamir","bicim":"eslestir","zorluk":3,"soru":"صِل الضَّمائِر بِالأَفْعال (نامَ).","ciftler":[["أَنا","أَنامُ"],["هُوَ","يَنامُ"],["هِيَ","تَنامُ"],["أَنْتِ","تَنامينَ"]]},
-  {"id":510,"tip":"zamir","bicim":"surukle","zorluk":2,"soru":"رَتِّب الكَلِمات: «O (kız) ailesiyle kahvaltı yapar.»","parcalar":["هِيَ","تَتَناوَلُ","الفَطور","مَع","أُسْرَتِها"]},
-  {"id":511,"tip":"zamir","bicim":"surukle","zorluk":3,"soru":"رَتِّب الكَلِمات: «O (erkek) sabahleyin dişlerini temizler.»","parcalar":["هُوَ","يُنَظِّفُ","أَسْنانَه","في","الصَّباح"]}
-];
-
-const SORULAR = [].concat(S_GUNLUK, S_YEMEK, S_SAAT, S_GUNLER, S_NAMAZ, S_ZAMIR);
+const SORULAR = [].concat(S_MARKET, S_SEBZE, S_MEYVE, S_ADED, S_MUKAYESE);
 
 const TIP_BILGI = {
-  "fiil":    { ad: "أَفْعال يَوْمِيَّة",  emoji: "🏃" },
-  "cumle":   { ad: "جُمْلَة",           emoji: "💬" },
-  "anlam":   { ad: "مَعْنًى",           emoji: "💡" },
-  "yemek":   { ad: "طَعام وَشَراب",  emoji: "🍽️" },
-  "saat":    { ad: "السّاعات",         emoji: "🕒" },
-  "gun":     { ad: "أَيّام الأُسْبوع",emoji: "📅" },
-  "namaz":   { ad: "أَوْقات الصَّلاة", emoji: "🕌" },
-  "zamir":   { ad: "ضَمير وَفِعْل",      emoji: "👥" },
-  "kelime":  { ad: "كِتابَة الكَلِمات",    emoji: "🔤" }
+  "market":   { ad: "المَوادّ الغِذائِيَّة", emoji: "🛒" },
+  "sebze":    { ad: "الخَضْراوات",          emoji: "🥕" },
+  "meyve":    { ad: "الفَواكِه",            emoji: "🍎" },
+  "aded":     { ad: "الأَعْداد وَالثَّمَن",  emoji: "🔢" },
+  "mukayese": { ad: "المُقارَنَة",           emoji: "⚖️" }
 };
 const ZORLUK_AD = { 1: "سَهْل", 2: "مُتَوَسِّط", 3: "صَعْب" };
 const SIK_RENK = ["#E74C3C", "#3498DB", "#F1C40F", "#27AE60", "#9B59B6"]; // A B C D E
@@ -389,13 +381,12 @@ const SEVIYE_ZORLUK = { kolay: 1, orta: 2, zor: 3 };
    • sorular: SORULAR ile aynı biçimde; boşsa o konuda yarışma başlatılamaz.
    NOT: Soru id'leri aynı konu içinde benzersiz olmalıdır (birleşik konu da dâhil).      */
 const KONULAR = [
-  { id: "unite1",  ad: "الوَحْدَة الأولى — كُلّ الأَسْئِلَة (ماذا فَعَلْت اليَوْم؟)", pdf: "", sorular: SORULAR },
-  { id: "gunluk",  ad: "الرّوتين اليَوْمِيّ",        pdf: "", sorular: S_GUNLUK },
-  { id: "yemek",   ad: "الطَّعام وَالشَّراب",pdf: "", sorular: S_YEMEK },
-  { id: "saat",    ad: "السّاعات",             pdf: "", sorular: S_SAAT },
-  { id: "gunler",  ad: "أَيّام الأُسْبوع",    pdf: "", sorular: S_GUNLER },
-  { id: "namaz",   ad: "أَوْقات الصَّلاة",     pdf: "", sorular: S_NAMAZ },
-  { id: "zamir",   ad: "الضَّمير وَالفِعْل",  pdf: "", sorular: S_ZAMIR }
+  { id: "unite2",   ad: "الوَحْدَة الثّانِيَة — كُلّ الأَسْئِلَة (وَقْت التَّسَوُّق)", pdf: "", sorular: SORULAR },
+  { id: "market",   ad: "المَوادّ الغِذائِيَّة", pdf: "", sorular: S_MARKET },
+  { id: "sebze",    ad: "الخَضْراوات",          pdf: "", sorular: S_SEBZE },
+  { id: "meyve",    ad: "الفَواكِه",            pdf: "", sorular: S_MEYVE },
+  { id: "aded",     ad: "الأَعْداد وَالثَّمَن",  pdf: "", sorular: S_ADED },
+  { id: "mukayese", ad: "المُقارَنَة",           pdf: "", sorular: S_MUKAYESE }
 ];
 
 /* ---------------- Biçime göre HTML üreticileri ---------------- */
