@@ -1,0 +1,1954 @@
+/* ===========================================================
+   Bilgi Yarışması — Vezinler & Kelimeler
+   Tasarım dili: kidefarapca.com (index) — açık zemin, Marhey/
+   Harmattan/Nunito, amber-turuncu-kırmızı header, teal/yeşil aksan.
+   =========================================================== */
+* { box-sizing: border-box; font-synthesis: none; }
+@font-face {
+  font-family: 'Arakom';
+  src: url('arakom.ttf') format('truetype');
+  font-weight: normal; font-style: normal; font-display: swap;
+}
+html, body {
+  margin: 0; padding: 0; min-height: 100%;
+  font-family: 'Arakom', sans-serif;
+  color: #333; line-height: 1.6;
+  background: #F7F9FC;
+  -webkit-font-smoothing: antialiased;
+}
+/* Bilgi yarışmasında TÜM yazılar Arakom */
+#biy-app, #biy-app *, #biy-app *::before, #biy-app *::after { font-family: 'Arakom', sans-serif !important; }
+.gizli { display: none !important; }
+
+/* ---- ekran temelleri ---- */
+.biy-ekran { min-height: 100vh; display: flex; flex-direction: column; }
+#ekranYukleniyor, #ekranGirisKapisi, #ekranTakim { align-items: center; justify-content: center; text-align: center; }
+.biy-orta { max-width: 480px; width: 92%; margin: 0 auto; }
+
+.biy-kart {
+  background: #fff; border: 1px solid #E9EEF5; border-radius: 18px;
+  padding: 38px 30px; box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+.biy-logo { font-size: 62px; line-height: 1; margin-bottom: 8px; }
+h1 { font-size: 2rem; margin: 6px 0 10px; color: #16A085; font-weight: 700; }
+.biy-alt { color: #64748b; font-size: 1.02rem; line-height: 1.55; margin: 0 0 22px; }
+.biy-not { color: #94a3b8; font-size: .88rem; margin-top: 14px; min-height: 1em; }
+
+/* ---- butonlar ---- */
+.biy-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  border: none; cursor: pointer; text-decoration: none; font-family: 'Marhey', sans-serif;
+  padding: 13px 26px; border-radius: 12px; font-size: 1.05rem; font-weight: 700; color: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.12); transition: transform .12s ease, filter .12s ease;
+}
+.biy-btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
+.biy-btn:active { transform: translateY(0); }
+.biy-btn-mavi  { background: #3498db; }
+.biy-btn-yesil { background: #27AE60; }
+.biy-btn-buyuk { background: linear-gradient(90deg, #F39C12, #EF5350); padding: 22px 60px; font-size: 1.6rem; border-radius: 16px; }
+
+/* ---- header ---- */
+.biy-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 22px; color: #fff;
+  background: linear-gradient(90deg, #FFC107 0%, #F39C12 50%, #EF5350 100%);
+  border-bottom: 2px solid #E53935; box-shadow: 0 4px 8px rgba(0,0,0,.1);
+  position: sticky; top: 0; z-index: 100;
+}
+.biy-header-sol { display: flex; align-items: center; gap: 12px; }
+.biy-baslik { font-weight: 700; font-size: 1.5rem; }
+.biy-baslik small { color: rgba(255,255,255,.9); font-weight: 600; font-size: .78rem; font-family: 'Nunito',sans-serif; }
+.biy-header-sag { display: flex; align-items: center; gap: 14px; }
+.biy-admin-ad { color: rgba(255,255,255,.95); font-size: .92rem; font-weight: 600; }
+
+/* geri tuşu — kaliplartablosu .back-link ile aynı görünüm */
+.biy-geri-tus {
+  display: flex; align-items: center; justify-content: center;
+  width: 46px; height: 46px; box-sizing: border-box; cursor: pointer; padding: 0;
+  background-color: #f1f5f9; border: 2px solid #e2e8f0; border-radius: 12px;
+  color: #000000; text-decoration: none;
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease, transform .12s ease;
+}
+.biy-geri-tus:hover { background: #e2e8f0; border-color: #cbd5e1; color: #FF3B30; }
+.biy-geri-tus:active { transform: translateY(1px); }
+
+/* ---- konu seçimi + PDF önizleme (tek bütün kart) ---- */
+.biy-konu-panel { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; justify-content: center;
+  background: #fff; border: 1px solid #E9EEF5; border-radius: 18px; box-shadow: 0 6px 18px rgba(0,0,0,.06);
+  padding: 20px 26px; margin: 30px auto 10px; width: fit-content; max-width: 94%; }
+.biy-konu-secim { display: flex; flex-direction: column; gap: 8px; }
+.biy-konu-label { font-family: 'Marhey',sans-serif; font-weight: 700; color: #64748b; font-size: 1.05rem; }
+.biy-konu-select { appearance: none; -webkit-appearance: none; background: #fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2316A085' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>") no-repeat right 14px center;
+  border: 2px solid #E9EEF5; border-radius: 12px; padding: 13px 42px 13px 18px; font-family: inherit; font-size: 1.2rem; font-weight: 700; color: #16A085; cursor: pointer; min-width: 240px; }
+.biy-konu-select:focus { outline: none; border-color: #20C997; }
+.biy-konu-select.secili { border-color: #16A085; background-color: #E9FBF4; color: #0E9E86; }
+
+/* soru seç (havuzdan elle) */
+.biy-soru-sec-secim { display: flex; flex-direction: column; gap: 8px; padding-left: 22px; border-left: 1px solid #EDF2F7; }
+.biy-soru-sec-btn { padding: 13px 22px; font-size: 1.15rem; border-radius: 12px; background: #fff; color: #16A085; border: 2px solid #E9EEF5; white-space: nowrap; }
+.biy-soru-sec-btn:hover { border-color: #20C997; }
+.biy-soru-sec-btn.biy-secili-var { background: #16A085; color: #fff; border-color: transparent; }
+.biy-soru-sec-btn b { font-weight: 800; }
+
+.biy-pdf-onizleme { display: flex; align-items: center; gap: 14px; padding-left: 22px; border-left: 1px solid #EDF2F7; }
+.biy-pdf-a4 { position: relative; width: 72px; height: 102px; background: #fff; border: 1px solid #E2E8F0; border-radius: 6px; box-shadow: 0 5px 14px rgba(0,0,0,.12); display: flex; flex-direction: column; padding: 9px 8px; text-decoration: none; overflow: hidden; transition: transform .15s, box-shadow .15s; }
+.biy-pdf-a4:hover { transform: translateY(-3px); box-shadow: 0 10px 22px rgba(0,0,0,.18); }
+.biy-pdf-a4:before { content: ""; position: absolute; top: 0; right: 0; border-width: 0 16px 16px 0; border-style: solid; border-color: #F7F9FC #F7F9FC #E2E8F0 #E2E8F0; border-radius: 0 0 0 4px; }
+.biy-pdf-rozet { align-self: flex-start; background: #EF5350; color: #fff; font-family: 'Marhey',sans-serif; font-weight: 800; font-size: .55rem; letter-spacing: .5px; padding: 2px 6px; border-radius: 4px; box-shadow: 0 2px 4px rgba(239,83,80,.35); }
+.biy-pdf-baslik { margin-top: 7px; font-weight: 800; font-size: .58rem; color: #334155; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.biy-pdf-cizgiler { margin-top: auto; display: flex; flex-direction: column; gap: 3px; }
+.biy-pdf-cizgiler i { height: 3px; border-radius: 2px; background: #EDF2F7; }
+.biy-pdf-cizgiler i:nth-child(1){ width: 100%; } .biy-pdf-cizgiler i:nth-child(2){ width: 92%; } .biy-pdf-cizgiler i:nth-child(3){ width: 96%; } .biy-pdf-cizgiler i:nth-child(4){ width: 78%; } .biy-pdf-cizgiler i:nth-child(5){ width: 88%; } .biy-pdf-cizgiler i:nth-child(6){ width: 60%; }
+.biy-pdf-a4.biy-pasif { opacity: .5; pointer-events: none; }
+.biy-pdf-indir { padding: 11px 18px; font-size: .95rem; border-radius: 11px; white-space: nowrap; }
+.biy-pdf-indir.gizli { display: none; }
+
+/* ---- ana menü ---- */
+.biy-menu { flex: 0 0 auto; display: flex; gap: 26px; align-items: center; justify-content: center; flex-wrap: wrap; padding: 20px 20px 44px; }
+.biy-menu-kart {
+  width: 300px; height: 220px; cursor: pointer; color: #333; font-family: inherit;
+  background: #fff; border: 1px solid #E9EEF5; border-radius: 20px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  transition: transform .15s ease, box-shadow .15s ease; position: relative; overflow: hidden;
+}
+.biy-menu-kart:before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px; }
+.biy-menu-kart:nth-child(1):before { background: #20C997; }
+.biy-menu-kart:nth-child(2):before { background: #F39C12; }
+.biy-menu-kart:hover { transform: translateY(-5px); box-shadow: 0 12px 26px rgba(0,0,0,0.14); }
+/* bağlı cihaz varken Dijital Yarışma kartı yeşil çerçeveli */
+.biy-menu-kart.biy-bagli-var { border: 2px solid #27AE60; box-shadow: 0 0 0 3px rgba(39,174,96,.22), 0 8px 22px rgba(39,174,96,.22); }
+.biy-bagli-rozet { position: absolute; top: 12px; right: 12px; background: #27AE60; color: #fff; font-family: 'Marhey',sans-serif; font-weight: 800; font-size: .8rem; padding: 5px 12px; border-radius: 999px; box-shadow: 0 3px 8px rgba(39,174,96,.35); z-index: 2; }
+.biy-final-butonlar { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+.biy-menu-emoji { font-size: 62px; }
+.biy-menu-ad { font-size: 1.5rem; font-weight: 700; color: #16A085; }
+.biy-menu-kart:nth-child(2) .biy-menu-ad { color: #F39C12; }
+.biy-menu-desc { font-size: .92rem; color: #64748b; }
+
+/* ---- üst bar (alt ekranlar) ---- */
+.biy-ust-bar { display: flex; align-items: center; gap: 16px; padding: 16px 22px; background: #fff; border-bottom: 1px solid #E9EEF5; box-shadow: 0 2px 6px rgba(0,0,0,.04); }
+.biy-ust-bar h2 { margin: 0; font-size: 1.7rem; font-weight: 700; color: #16A085; }
+.biy-geri { background: #F0F4F8; color: #475569; border: none; cursor: pointer; padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: .95rem; font-family: 'Marhey', sans-serif; }
+.biy-geri:hover { background: #e2e8f0; }
+
+/* ---- Sorular önizleme ---- */
+.biy-sorular-liste { padding: 24px; display: flex; flex-direction: column; gap: 18px; max-width: 840px; margin: 0 auto; width: 100%; }
+.biy-soru-kart { background: #fff; border: 1px solid #E9EEF5; border-radius: 16px; padding: 20px 22px; box-shadow: 0 6px 12px rgba(0,0,0,.06); }
+.biy-soru-tip { display: inline-flex; align-items: center; gap: 8px; font-size: .8rem; font-weight: 800; letter-spacing: .4px; color: #fff; background: #20C997; padding: 5px 14px; border-radius: 999px; }
+.biy-zorluk { float: right; font-size: .82rem; font-weight: 800; font-family: 'Marhey',sans-serif; }
+.z1 { color: #27AE60; } .z2 { color: #F39C12; } .z3 { color: #EF5350; }
+.biy-soru-metin { font-size: 1.2rem; font-weight: 700; margin: 14px 0 6px; color: #2c3e50; }
+.biy-soru-arapca { font-family: 'Harmattan','Traditional Arabic',serif; font-size: 2.6rem; direction: rtl; text-align: center; margin: 6px 0 14px; color: #16A085; font-weight: 700; }
+.biy-secenekler { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.biy-secenek { display: flex; align-items: center; gap: 12px; background: #fff; border: 1.5px solid #E9EEF5; border-radius: 14px; padding: 12px 16px; font-size: 1.05rem; color: #333; box-shadow: 0 2px 6px rgba(15,23,42,.05); transition: border-color .15s, box-shadow .15s, background .15s; }
+.biy-secenek:hover { border-color: #CFE0F0; box-shadow: 0 4px 12px rgba(15,23,42,.08); }
+.biy-secenek.dogru { background: #E9FBF4; border-color: #20C997; color: #0E9E86; font-weight: 700; box-shadow: 0 5px 16px rgba(32,201,151,.2); }
+/* A/B/C/D rozeti: her zaman solda, yuvarlak */
+.biy-secenek .biy-sik { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: #EAF1FA; color: #3498db; font-weight: 800; font-size: 1rem; font-family: 'Marhey',sans-serif; margin: 0; }
+.biy-secenek.dogru .biy-sik { background: #16A085; color: #fff; }
+/* şık metni: Türkçe kelime ortalı; Arapça cümle sağa yaslı (RTL) */
+.biy-secenek-metin { flex: 1 1 auto; text-align: left; min-width: 0; }
+.biy-arapca-secenek { font-family: 'Harmattan','Traditional Arabic',serif; font-size: 1.6rem; }
+.biy-arapca-secenek .biy-secenek-metin { direction: rtl; text-align: right; }
+
+/* ---- Takım oluştur ---- */
+.biy-takim-yap { display: flex; gap: 16px; padding: 30px 22px 12px; max-width: 860px; margin: 0 auto; width: 100%; }
+#takimAdiInput { flex: 1; padding: 20px 24px; border-radius: 16px; border: 2px solid #E9EEF5; background: #fff; color: #333; font-size: 1.5rem; font-family: inherit; }
+#takimAdiInput::placeholder { color: #94a3b8; }
+.biy-takim-yap .biy-btn { padding: 20px 32px; font-size: 1.4rem; border-radius: 16px; white-space: nowrap; }
+.biy-oda-bilgi { max-width: 860px; margin: 0 auto 6px; width: 100%; text-align: center; color: #64748b; font-size: 1.15rem; }
+.biy-oda-bilgi b { color: #16A085; }
+
+.biy-takimlar-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 40px; padding: 22px 40px 34px; max-width: 1400px; margin: 0 auto; width: 100%; }
+.biy-takim-kart { box-sizing: border-box; flex: 0 0 330px; background: #fff; border: 2px solid #E9EEF5; border-radius: 20px; padding: 24px 22px; text-align: center; position: relative; box-shadow: 0 6px 18px rgba(0,0,0,.08); transition: background .3s, border-color .3s; }
+.biy-takim-kart h3 { margin: 0 0 8px; font-size: 2.1rem; font-weight: 800; color: #27AE60; transition: color .3s; }
+/* bağlanana kadar kırmızı dolgulu, bağlanınca yeşile döner */
+.biy-kart-bekliyor { background: #FDE8E6; border-color: #EF9A93; }
+.biy-kart-bekliyor h3 { color: #E53935; }
+.biy-kart-bagli { background: #E4FBF1; border-color: #7FDDB8; }
+.biy-kart-bagli h3 { color: #159C72; }
+.biy-takim-durum { font-size: 1.1rem; font-weight: 800; margin-bottom: 14px; font-family: 'Marhey',sans-serif; }
+.biy-bekliyor { color: #E53935; } .biy-bagli { color: #159C72; }
+.biy-qr { background: #fff; padding: 12px; border-radius: 16px; display: inline-block; line-height: 0; border: 1px solid #E9EEF5; box-shadow: 0 3px 10px rgba(0,0,0,.06); }
+.biy-qr img, .biy-qr canvas { display: block; }
+.biy-takim-link { margin-top: 14px; display: flex; gap: 8px; }
+.biy-takim-link input { flex: 1; min-width: 0; font-size: .9rem; padding: 10px 12px; border-radius: 10px; border: 1px solid #E9EEF5; background: #F7F9FC; color: #475569; }
+.biy-kopya { background: #3498db; border: none; color: #fff; border-radius: 10px; padding: 0 18px; cursor: pointer; font-size: 1rem; font-weight: 700; }
+.biy-kopya:hover { filter: brightness(1.08); }
+.biy-sil { position: absolute; top: 12px; right: 14px; background: none; border: none; color: #cbd5e1; cursor: pointer; font-size: 1.4rem; }
+.biy-sil:hover { color: #EF5350; }
+.biy-baslat-alan { text-align: center; padding: 6px 20px 50px; }
+
+/* ---- takım modu ---- */
+.biy-bekle-nokta { display: inline-flex; gap: 8px; justify-content: center; margin-top: 10px; }
+.biy-bekle-nokta span { width: 12px; height: 12px; border-radius: 50%; background: #20C997; animation: biyZipla 1s infinite ease-in-out; }
+.biy-bekle-nokta span:nth-child(2) { animation-delay: .16s; background: #F39C12; }
+.biy-bekle-nokta span:nth-child(3) { animation-delay: .32s; background: #EF5350; }
+@keyframes biyZipla { 0%,80%,100%{ transform: translateY(0); opacity:.45;} 40%{ transform: translateY(-10px); opacity:1;} }
+
+/* ---- spinner ---- */
+.biy-spinner { width: 46px; height: 46px; border: 4px solid #E9EEF5; border-top-color: #20C997; border-radius: 50%; animation: biySpin 0.9s linear infinite; margin: 0 auto 16px; }
+@keyframes biySpin { to { transform: rotate(360deg); } }
+
+/* ---- mobil ---- */
+@media (max-width: 640px) {
+  .biy-menu { flex-direction: column; padding: 24px 16px; }
+  .biy-menu-kart { width: 100%; max-width: 340px; height: 180px; }
+  .biy-secenekler { grid-template-columns: 1fr; }
+  .biy-header { padding: 8px 14px; }
+  .biy-baslik { font-size: 1.15rem; }
+  .biy-takim-yap { flex-direction: column; }
+}
+
+/* ===========================================================
+   Seviye seçici + Canlı Oyun
+   =========================================================== */
+.biy-seviye-secim { max-width: 860px; margin: 12px auto 0; width: 100%; padding: 0 22px; display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
+.biy-seviye-label { color: #64748b; font-weight: 700; font-family: 'Marhey',sans-serif; font-size: 1.3rem; }
+.biy-seviye-btn { border: 2px solid #E9EEF5; background: #fff; color: #475569; padding: 9px 34px; border-radius: 999px; cursor: pointer; font-family: 'Marhey',sans-serif; font-weight: 700; font-size: 1.3rem; transition: all .15s; }
+.biy-seviye-btn:hover { border-color: #cbd5e1; }
+.biy-seviye-btn.secili { color: #fff; border-color: transparent; box-shadow: 0 4px 10px rgba(0,0,0,.12); }
+/* soru sayısı seçici */
+.biy-sorusayi-secim { margin-top: 20px; }
+.biy-ayar-not { max-width: 860px; margin: 10px auto 0; width: 100%; padding: 0 22px; text-align: center; color: #94a3b8; font-size: .92rem; }
+.biy-sayi-btn { border: 2px solid #E9EEF5; background: #fff; color: #475569; padding: 8px 24px; border-radius: 999px; cursor: pointer; font-family: 'Marhey',sans-serif; font-weight: 700; font-size: 1.2rem; transition: all .15s; }
+.biy-sayi-btn:hover { border-color: #cbd5e1; }
+.biy-sayi-btn.secili { color: #fff; border-color: transparent; background: #16A085; box-shadow: 0 4px 10px rgba(22,160,133,.25); }
+.biy-sayi-input { width: 96px; border: 2px solid #E9EEF5; border-radius: 12px; padding: 8px 14px; font-family: inherit; font-size: 1.1rem; font-weight: 700; color: #16A085; text-align: center; }
+.biy-sayi-input:focus { outline: none; border-color: #20C997; }
+.biy-sayi-input.biy-secili { border-color: #16A085; background: #E9FBF4; color: #0E9E86; }
+/* takım eklenince seviye/soru sayısı kilidi */
+.biy-seviye-btn:disabled, .biy-sayi-btn:disabled, .biy-sayi-input:disabled, .biy-pasif { opacity: .4; cursor: not-allowed; pointer-events: none; }
+/* beraberlik başlığı (aynı tasarım, kırmızı vurgu) */
+.biy-oyun-sira.biy-ber, .biy-sonuc-baslik.biy-ber { color: #EF5350 !important; }
+
+/* canlı yarışmadan çıkış tuşu */
+.biy-cikis-tus { position: fixed; top: 16px; right: 16px; z-index: 70; background: rgba(255,255,255,.92); color: #EF5350; border: 2px solid #F1C0C0; border-radius: 999px; padding: 10px 18px; font-family: 'Marhey',sans-serif; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,.1); transition: all .15s; }
+.biy-cikis-tus:hover { background: #EF5350; color: #fff; border-color: #EF5350; }
+@media (min-width: 900px){ .biy-cikis-tus { top: 22px; right: 22px; padding: 13px 24px; font-size: 1.2rem; } }
+
+/* onay penceresi */
+.biy-onay-ov { position: fixed; inset: 0; z-index: 90; background: rgba(15,23,42,.5); display: flex; align-items: center; justify-content: center; padding: 20px; animation: biyOnayGir .2s ease; }
+@keyframes biyOnayGir { from { opacity: 0; } to { opacity: 1; } }
+.biy-onay-kutu { background: #fff; border-radius: 20px; padding: 30px 28px; max-width: 440px; width: 100%; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,.28); }
+.biy-onay-kutu h3 { margin: 0 0 10px; color: #EF5350; font-size: 1.5rem; }
+.biy-onay-kutu p { margin: 0 0 22px; color: #475569; font-size: 1.1rem; line-height: 1.45; }
+.biy-onay-btnlar { display: flex; gap: 12px; justify-content: center; }
+/* v75a — onay katmani body'ye ekleniyor, '#biy-app *' kurali onu
+   kapsamiyordu; harekeler dogru gorunsun diye acikca Arakom. */
+.biy-onay-ov, .biy-onay-ov *,
+.biy-t-hayalet, .biy-t-hayalet * { font-family: 'Arakom', sans-serif !important; }
+.biy-onay-btnlar button { border: none; border-radius: 12px; padding: 14px 26px; font-weight: 800; font-size: 1.05rem; cursor: pointer; }
+.biy-onay-hayir { background: #EDF2F7; color: #475569; }
+.biy-onay-hayir:hover { background: #E2E8F0; }
+.biy-onay-evet { background: #EF5350; color: #fff; }
+.biy-onay-evet:hover { filter: brightness(1.06); }
+
+/* soru havuzu penceresi */
+.biy-soru-sec-ov { align-items: flex-start; justify-content: center; padding: calc(6vh + 30px) 0 6vh; }
+.biy-soru-sec-kutu { background: #fff; border-radius: 18px; width: 90vw; max-width: 90vw; margin: 0 auto; height: 88vh; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,.28); overflow: hidden; }
+.biy-soru-sec-bas { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid #EDF2F7; }
+.biy-soru-sec-bas h3 { margin: 0; color: #16A085; font-size: 1.4rem; }
+.biy-soru-sec-say { margin-left: auto; color: #16A085; font-weight: 800; font-size: 1.05rem; }
+.biy-soru-sec-kapat { background: #F0F4F8; border: none; border-radius: 10px; width: 40px; height: 40px; font-size: 1.1rem; cursor: pointer; color: #475569; }
+.biy-soru-sec-kapat:hover { background: #E2E8F0; }
+.biy-soru-sec-liste { overflow-y: auto; padding: 0 20px 14px; flex: 1; }
+.biy-hs-grup { margin-bottom: 12px; }
+.biy-hs-grup:first-child { margin-top: 5px; }
+.biy-hs-baslik { display: flex; align-items: center; gap: 12px; margin: 0; color: #334155; font-size: 1.6rem; background: #F7FAFC; padding: 14px 18px; cursor: pointer; user-select: none; transition: background .15s; border: 1px solid #E5EAF1; border-radius: 12px; position: sticky; top: 0; z-index: 2; }
+.biy-hs-baslik:hover { background: #EEF6F3; }
+.biy-hs-grup.acik .biy-hs-baslik { background: #EAFBF4; border-radius: 12px 12px 0 0; border-bottom: none; }
+.biy-hs-ok { color: #16A085; font-size: 1.2rem; flex: 0 0 auto; transition: transform .18s; }
+.biy-hs-grup.acik .biy-hs-ok { transform: rotate(90deg); }
+.biy-hs-govde { display: none; padding: 12px 14px 6px; border: 1px solid #E5EAF1; border-top: none; border-radius: 0 0 12px 12px; }
+.biy-hs-grup.acik .biy-hs-govde { display: block; }
+.biy-hs-baslik .biy-hs-say { color: #94a3b8; font-weight: 700; font-size: 1.15rem; }
+.biy-hs-tumu { margin-left: auto; background: #EEF6F3; color: #16A085; border: none; border-radius: 9px; padding: 10px 18px; font-weight: 700; cursor: pointer; font-size: 1.1rem; font-family: 'Arakom', sans-serif; }
+.biy-hs-satir { display: flex; align-items: center; gap: 16px; padding: 16px 20px; border-radius: 12px; cursor: pointer; border: 1px solid #EEF2F7; margin-bottom: 10px; }
+.biy-hs-satir:hover { background: #F7FAFC; }
+.biy-hs-satir.secili { background: #EAFBF4; border-color: #A7E8CF; }
+.biy-hs-satir input { width: 28px; height: 28px; flex: 0 0 auto; accent-color: #16A085; }
+.biy-hs-zor { flex: 0 0 auto; font-size: 1.1rem; font-weight: 800; padding: 6px 18px; border-radius: 999px; color: #fff; }
+.biy-hs-zor.z1 { background: #27AE60; } .biy-hs-zor.z2 { background: #F39C12; } .biy-hs-zor.z3 { background: #EF5350; }
+.biy-hs-metin { font-size: 2.1rem; color: #334155; line-height: 1.55; }
+.biy-hs-metin i { color: #16A085; font-style: normal; }
+.biy-hs-dogru { color: #0E9E86; font-weight: 700; }
+.biy-soru-sec-alt { display: flex; justify-content: space-between; gap: 12px; padding: 14px 20px; border-top: 1px solid #EDF2F7; }
+.biy-soru-sec-alt .biy-btn { padding: 12px 24px; font-size: 1.05rem; font-family: 'Arakom', sans-serif; }
+.biy-seviye-btn[data-seviye="kolay"].secili { background: #27AE60; }
+.biy-seviye-btn[data-seviye="orta"].secili  { background: #F39C12; }
+.biy-seviye-btn[data-seviye="zor"].secili   { background: #EF5350; }
+
+/* oyun ortası */
+.biy-oyun-orta { max-width: 900px; width: 94%; margin: 0 auto; padding: 26px 16px 60px; }
+#ekranTakim { align-items: stretch; justify-content: flex-start; padding-top: 4vh; }
+#ekranTakim #takimIcerik.biy-oyun-orta { align-self: center; }
+
+/* üst şerit + sayaç */
+.biy-oyun-ust { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; margin-bottom: 6px; }
+.biy-oyun-sira { justify-self: start; font-family: 'Marhey',sans-serif; font-weight: 700; font-size: 1.2rem; color: #16A085; }
+.biy-oyun-tip { justify-self: center; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center; }
+.biy-oyun-ust > .biy-sayac { justify-self: end; margin-right: 84px; }
+.biy-sayac { display: flex; align-items: baseline; gap: 4px; background: #EF5350; color: #fff; padding: 5px 16px; border-radius: 14px; font-family: 'Marhey',sans-serif; box-shadow: 0 4px 10px rgba(239,83,80,.35); }
+.biy-sayac span { font-size: 1.7rem; font-weight: 800; }
+.biy-sayac small { font-size: .8rem; opacity: .9; }
+.biy-sayac-bar { height: 8px; background: #E9EEF5; border-radius: 999px; overflow: hidden; margin: 4px 0 14px; }
+.biy-sayac-bar i { display: block; height: 100%; background: linear-gradient(90deg,#F39C12,#EF5350); transition: width .4s linear; }
+
+.biy-oyun-soru { font-size: 1.5rem; font-weight: 700; color: #2c3e50; text-align: center; margin: 8px 0; font-family: 'Marhey',sans-serif; }
+.biy-oyun-arapca { font-family: 'Harmattan','Traditional Arabic',serif; font-size: 3rem; direction: rtl; text-align: center; color: #16A085; font-weight: 700; margin: 6px 0 18px; }
+
+/* admin seçenekler */
+.biy-a-optlar { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.biy-a-opt { display: flex; align-items: center; gap: 12px; background: var(--c); color: #fff; border-radius: 14px; padding: 15px 18px; font-size: 1.2rem; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,.12); }
+.biy-a-opt.ar .biy-a-metin { font-family: 'Harmattan',serif; direction: rtl; font-size: 1.55rem; }
+.biy-a-harf { width: 34px; height: 34px; flex: 0 0 34px; background: rgba(255,255,255,.28); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+.biy-a-metin { flex: 1; }
+.biy-a-tik { font-size: 1.4rem; }
+.biy-a-opt.dogru { box-shadow: 0 0 0 4px #fff, 0 0 0 8px #27AE60, 0 6px 16px rgba(0,0,0,.2); }
+
+.biy-cevap-durum { text-align: center; font-family: 'Marhey',sans-serif; font-weight: 700; color: #16A085; margin: 16px 0 8px; font-size: 1.1rem; }
+.biy-cipler { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.biy-cip { background: #F0F4F8; color: #64748b; border-radius: 999px; padding: 6px 14px; font-weight: 700; font-size: .9rem; }
+.biy-cip.ok { background: #E6FAF5; color: #16A085; }
+.biy-oyun-kontrol { text-align: center; margin-top: 24px; }
+
+/* reveal tablosu */
+.biy-reveal { margin-top: 18px; overflow-x: auto; }
+.biy-reveal-tablo { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,.06); }
+.biy-reveal-tablo th { background: #16A085; color: #fff; padding: 10px; font-family: 'Marhey',sans-serif; font-size: .95rem; }
+.biy-reveal-tablo td { padding: 10px 12px; border-top: 1px solid #E9EEF5; text-align: center; font-weight: 600; }
+.biy-reveal-tablo td:first-child { text-align: left; font-weight: 700; }
+.biy-reveal-tablo .ar-hucre { font-family: 'Harmattan',serif; direction: rtl; font-size: 1.15rem; }
+.biy-reveal-tablo tr.dogru td { background: #E6FAF5; }
+.biy-reveal-tablo tr.yanlis td { background: #FFF0F0; }
+.biy-reveal-tablo tr.yok td { color: #94a3b8; }
+
+.biy-mini-lider { margin-top: 22px; }
+.biy-mini-lider h4 { font-family: 'Marhey',sans-serif; color: #F39C12; text-align: center; margin: 0 0 8px; font-size: 1.15rem; }
+.biy-lider-ol { list-style: none; padding: 0; max-width: 420px; margin: 0 auto; }
+.biy-lider-ol li { display: flex; justify-content: space-between; background: #fff; border: 1px solid #E9EEF5; border-radius: 10px; padding: 8px 14px; margin-bottom: 6px; font-weight: 700; }
+.biy-lider-ol li b { color: #16A085; }
+
+/* final */
+.biy-final { text-align: center; }
+.biy-final-ol { list-style: none; padding: 0; max-width: 620px; margin: 20px auto 0; }
+.biy-final-ol li { display: flex; align-items: center; gap: 14px; background: #fff; border: 1px solid #E9EEF5; border-radius: 14px; padding: 16px 20px; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,.05); opacity: 0; transform: translateY(18px) scale(.96); animation: biyFinalGir .55s cubic-bezier(.2,1.3,.4,1) both; animation-delay: calc(.15s + var(--i) * .18s); }
+@keyframes biyFinalGir { to { opacity: 1; transform: none; } }
+.biy-final-ol li.podyum { border-color: #F1C40F; background: #FFFDF5; }
+.biy-final-sira { font-size: 1.7rem; font-weight: 800; width: 50px; text-align: center; }
+.biy-final-ad { flex: 1; text-align: left; font-weight: 800; font-size: 1.6rem; }
+.biy-final-ol li b { color: #16A085; font-size: 1.5rem; }
+/* devasa sınıf isimleri — özellikle şampiyon */
+.biy-final-ol li.birinci { border-color: #F1C40F; background: linear-gradient(180deg,#FFFBEA,#FFF6D6); box-shadow: 0 8px 24px rgba(243,156,18,.28); padding: 22px 24px; }
+.biy-final-ol li.birinci .biy-final-sira { font-size: 2.6rem; }
+.biy-final-ol li.birinci .biy-final-ad { font-size: 2.6rem; color: #B9770B; text-shadow: 0 2px 0 rgba(255,255,255,.6); animation: biySampiyon 1.4s ease-in-out infinite; }
+.biy-final-ol li.birinci b { font-size: 2rem; color: #F39C12; }
+@keyframes biySampiyon { 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.06); } }
+
+/* konfeti */
+.biy-konfeti-kap { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 60; }
+.biy-konfeti-kap i { position: absolute; top: -24px; display: block; opacity: 0; will-change: transform; animation-name: biyKonfeti; animation-timing-function: cubic-bezier(.35,.05,.7,1); animation-fill-mode: both; }
+@keyframes biyKonfeti {
+  0%   { transform: translateY(-24px) translateX(0) rotate(0deg); opacity: 1; }
+  92%  { opacity: 1; }
+  100% { transform: translateY(104vh) translateX(var(--sx)) rotate(var(--don)); opacity: 0; }
+}
+
+/* takım oyun ekranı */
+.biy-t-kimlik { display: inline-flex; align-items: center; gap: 9px; background: linear-gradient(90deg,#FFC107,#F39C12 55%,#EF5350); color: #fff; padding: 7px 16px 7px 13px; border-radius: 999px; font-weight: 800; font-size: 1.05rem; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(243,156,18,.32); max-width: 100%; }
+.biy-t-kimlik-nokta { width: 11px; height: 11px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 4px rgba(255,255,255,.35); flex: 0 0 auto; animation: biyNabiz 1.6s ease-in-out infinite; }
+.biy-t-kimlik-ad { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@keyframes biyNabiz { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(.75); opacity: .55; } }
+.biy-t-ust { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.biy-t-sayac { background: #EF5350; color: #fff; min-width: 44px; height: 44px; padding: 0 6px; border-radius: 22px; display: flex; align-items: center; justify-content: center; font-family: 'Marhey',sans-serif; font-weight: 800; font-size: 1.3rem; }
+.biy-t-optlar { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 8px; }
+.biy-t-opt { display: flex; align-items: center; gap: 12px; background: var(--c); color: #fff; border: none; border-radius: 14px; padding: 18px; font-size: 1.2rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,.14); transition: transform .1s; text-align: left; width: 100%; }
+.biy-t-opt.ar { font-family: 'Harmattan',serif; direction: rtl; font-size: 1.5rem; }
+.biy-t-opt:active { transform: scale(.98); }
+.biy-t-opt:disabled { opacity: .45; cursor: default; }
+.biy-t-alindi { text-align: center; margin-top: 18px; font-family: 'Marhey',sans-serif; font-weight: 800; font-size: 1.25rem; color: #16A085; }
+.biy-t-alindi.biy-gec { color: #EF5350; }
+.biy-t-ipucu { text-align: center; margin-top: 14px; color: #94a3b8; }
+
+@media (max-width: 640px) {
+  .biy-a-optlar { grid-template-columns: 1fr; }
+  .biy-oyun-arapca { font-size: 2.3rem; }
+  .biy-seviye-secim { padding: 0 14px; }
+}
+
+/* Sorular sayfası — zorluk sekmeleri */
+.biy-sekme-bar { display: flex; gap: 8px; justify-content: center; padding: 18px 22px 0; flex-wrap: wrap; }
+.biy-sekme { border: 2px solid #E9EEF5; background: #fff; color: #475569; padding: 8px 22px; border-radius: 999px; cursor: pointer; font-family: 'Marhey',sans-serif; font-weight: 700; font-size: 1rem; transition: all .15s; }
+.biy-sekme:hover { border-color: #cbd5e1; }
+.biy-sekme.secili { color: #fff; border-color: transparent; box-shadow: 0 4px 10px rgba(0,0,0,.12); }
+.biy-sekme[data-z="1"].secili { background: #27AE60; }
+.biy-sekme[data-z="2"].secili { background: #F39C12; }
+.biy-sekme[data-z="3"].secili { background: #EF5350; }
+.biy-sekme[data-sz="1"].secili { background: #27AE60; }
+.biy-sekme[data-sz="2"].secili { background: #F39C12; }
+.biy-sekme[data-sz="3"].secili { background: #EF5350; }
+
+/* Sınıf Modu (çevrimdışı) */
+.biy-sinif-ipucu { text-align: center; color: #64748b; font-size: 1rem; margin: 14px 22px 0; line-height: 1.45; }
+.biy-sinif-kaynak { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; color: #0E9E86; font-weight: 800; font-family: 'Marhey',sans-serif; font-size: 1.1rem; background: linear-gradient(135deg,#E9FBF4,#D6F5EA); border: 1.5px solid #A7E8CF; border-radius: 999px; padding: 8px 18px; box-shadow: 0 3px 10px rgba(22,160,133,.15); white-space: nowrap; }
+.biy-sinif-kaynak::before { content: "📚"; font-size: 1rem; }
+.biy-sinif-kaynak:empty { display: none; }
+.biy-menu-not { text-align: center; color: #94a3b8; font-size: 1rem; margin: -20px 20px 30px; }
+.biy-sinif-kontrol { display: flex; align-items: center; justify-content: center; gap: 18px 26px; flex-wrap: wrap; padding: 8px 22px 0; }
+.biy-sinif-kontrol .biy-konu-select { min-width: 240px; }
+.biy-sinif-kontrol .biy-sekme-bar { padding: 0; }
+/* Sınıf Modu: kutusuz, iki sütun (sol şıklar / sağ soru), tek ekrana sığar (scroll yok) */
+#ekranSinif { height: 100vh; max-height: 100vh; overflow: hidden; }
+.biy-sinif-govde { flex: 1 1 0; min-height: 0; overflow: hidden; display: flex; flex-direction: row-reverse; align-items: stretch; gap: 3vw; padding: 2vh 4vw; }
+.biy-sinif-siklar { flex: 1 1 0; display: flex; flex-direction: column; justify-content: center; gap: 1.6vh; min-width: 0; min-height: 0; }
+.biy-sinif-soru { flex: 1 1 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2.2vh; text-align: center; min-width: 0; }
+.biy-sinif-soru .biy-soru-tip { font-size: clamp(.85rem, 1.8vh, 1.1rem); }
+.biy-sinif-arapca { font-family: 'Harmattan','Traditional Arabic',serif; direction: rtl; color: #16A085; font-weight: 700; font-size: clamp(2.6rem, 10vh, 7rem); line-height: 1.15; }
+.biy-sinif-metin { font-size: clamp(1.8rem, 4.6vh, 3.4rem); font-weight: 700; color: #2c3e50; line-height: 1.25; }
+.biy-sinif-siklar .biy-secenek { font-size: clamp(1.55rem, 3.9vh, 3rem); padding: clamp(10px, 2vh, 24px) 22px; }
+.biy-sinif-siklar .biy-arapca-secenek { font-size: clamp(2rem, 4.9vh, 3.7rem); }
+.biy-sinif-siklar .biy-sik { width: clamp(40px, 5.8vh, 58px); height: clamp(40px, 5.8vh, 58px); flex-basis: clamp(40px, 5.8vh, 58px); font-size: clamp(1.25rem, 3vh, 2.1rem); }
+@media (max-width: 780px){ #ekranSinif { height: auto; max-height: none; overflow: visible; } .biy-sinif-govde { flex-direction: column; gap: 1.6vh; overflow-y: auto; } }
+.biy-sinif-bos { text-align: center; color: #94a3b8; font-size: 1.25rem; padding: 50px 20px; }
+.biy-sinif-nav { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 14px 22px 28px; flex-wrap: wrap; }
+.biy-sinif-nav .biy-btn { padding: 12px 26px; font-size: 1.05rem; }
+.biy-sinif-sayac { font-family: 'Marhey',sans-serif; font-weight: 800; color: #16A085; font-size: 1.35rem; min-width: 92px; text-align: center; }
+
+/* 5. şık (tek kalan) ortalı ve diğerleriyle AYNI genişlikte (tek sütun) */
+.biy-secenekler > .biy-secenek:last-child:nth-child(odd) { grid-column: 1 / -1; width: calc(50% - 5px); justify-self: center; }
+.biy-a-optlar   > .biy-a-opt:last-child:nth-child(odd)   { grid-column: 1 / -1; width: calc(50% - 6px); justify-self: center; }
+@media (max-width: 640px) {
+  .biy-secenekler > .biy-secenek:last-child:nth-child(odd),
+  .biy-a-optlar   > .biy-a-opt:last-child:nth-child(odd) { grid-column: auto; width: auto; justify-self: stretch; }
+}
+
+/* ===========================================================
+   Admin oyun: gizle/göster butonu, gizli placeholder, büyük ekran
+   =========================================================== */
+.biy-gizle-alan { text-align: center; margin: 4px 0 10px; }
+.biy-gizle-btn { background: #F0F4F8; color: #475569; border: 2px solid #E9EEF5; border-radius: 999px; padding: 8px 20px; cursor: pointer; font-family: 'Arakom',sans-serif; font-weight: 700; font-size: 1rem; transition: all .15s; }
+.biy-gizle-btn:hover { background: #e2e8f0; border-color: #cbd5e1; }
+.biy-soru-gizli { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: #fff; border: 2px dashed #E9EEF5; border-radius: 18px; padding: 22px 20px; margin: 10px 0; color: #94a3b8; text-align: center; }
+.biy-soru-gizli b { color: #64748b; font-size: 1.3rem; }
+.biy-soru-gizli small { font-size: .95rem; }
+
+/* soru gizliyken: sınıf durumu ve geri sayım DEVASA; geri sayım aşağıda */
+.biy-cevap-durum.biy-dev { font-size: 1.9rem; margin: 24px 0 16px; }
+.biy-cipler.biy-dev { gap: 14px; }
+.biy-cipler.biy-dev .biy-cip { font-size: 1.7rem; padding: 15px 32px; }
+.biy-cipler.biy-dev .biy-cip.ok { box-shadow: 0 4px 12px rgba(39,174,96,.3); }
+.biy-alt-sayac { margin-top: 30px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.biy-alt-sayac .biy-sayac-bar { width: 100%; max-width: 620px; height: 14px; margin: 0; }
+.biy-sayac-dev { padding: 14px 44px; border-radius: 22px; }
+.biy-sayac-dev span { font-size: 4rem; }
+.biy-sayac-dev small { font-size: 1.4rem; }
+
+/* cevaplayan takım çipleri — daha büyük, tik belirgin */
+.biy-cip { font-size: 1.05rem; padding: 8px 18px; }
+.biy-cip.ok { background: #E6FAF5; color: #16A085; box-shadow: 0 3px 8px rgba(39,174,96,.2); }
+.biy-cip-tik { color: #27AE60; font-weight: 900; }
+
+/* MASAÜSTÜNDE admin oyun ekranı büyük — ekranı doldur */
+@media (min-width: 900px) {
+  #ekranOyunAdmin .biy-oyun-orta { max-width: 1180px; width: 96%; padding: clamp(10px,2.2vh,30px) 24px clamp(14px,3vh,40px); }
+  #ekranOyunAdmin .biy-oyun-ust > .biy-sayac { margin-right: 124px; }
+  #ekranOyunAdmin .biy-oyun-sira { font-size: clamp(1.2rem,3vh,1.8rem); }
+  #ekranOyunAdmin .biy-soru-tip { font-size: 1.1rem; padding: 7px 18px; }
+  #ekranOyunAdmin .biy-zorluk { font-size: 1.15rem; }
+  #ekranOyunAdmin .biy-sayac span { font-size: clamp(1.8rem,4.6vh,2.8rem); }
+  #ekranOyunAdmin .biy-sayac small { font-size: 1.1rem; }
+  #ekranOyunAdmin .biy-sayac-bar { height: 12px; }
+  #ekranOyunAdmin .biy-oyun-soru { font-size: clamp(1.4rem,3.6vh,2.5rem); margin: clamp(6px,1.6vh,16px) 0; }
+  #ekranOyunAdmin .biy-oyun-arapca { font-size: clamp(2.6rem,8.5vh,5rem); margin: clamp(4px,1.2vh,12px) 0 clamp(10px,2.6vh,26px); }
+  #ekranOyunAdmin .biy-a-optlar { gap: clamp(8px,1.6vh,18px); }
+  #ekranOyunAdmin .biy-a-opt { font-size: clamp(1.15rem,2.8vh,2rem); padding: clamp(9px,2.1vh,24px) 26px; border-radius: 18px; }
+  #ekranOyunAdmin .biy-a-opt.ar .biy-a-metin { font-size: clamp(1.5rem,3.6vh,2.7rem); }
+  #ekranOyunAdmin .biy-a-harf { width: clamp(34px,4.6vh,46px); height: clamp(34px,4.6vh,46px); flex-basis: clamp(34px,4.6vh,46px); font-size: clamp(1.1rem,2.6vh,1.5rem); }
+  #ekranOyunAdmin .biy-cevap-durum { font-size: clamp(1.2rem,2.8vh,1.7rem); margin: clamp(8px,2.2vh,24px) 0 clamp(6px,1.4vh,14px); }
+  #ekranOyunAdmin .biy-cipler { gap: 14px; }
+  #ekranOyunAdmin .biy-cip { font-size: clamp(1.1rem,2.6vh,1.6rem); padding: clamp(8px,1.6vh,14px) 28px; }
+  #ekranOyunAdmin .biy-cip.ok { transform: scale(1.08); box-shadow: 0 5px 14px rgba(39,174,96,.3); }
+  #ekranOyunAdmin .biy-cip-tik { font-size: 1.9rem; }
+  #ekranOyunAdmin .biy-gizle-btn { font-size: 1.2rem; padding: 12px 30px; }
+  #ekranOyunAdmin .biy-btn-buyuk { font-size: 1.7rem; padding: 22px 60px; }
+  #ekranOyunAdmin .biy-reveal-tablo th { font-size: 1.35rem; padding: 15px; }
+  #ekranOyunAdmin .biy-reveal-tablo td { font-size: 1.35rem; padding: 15px 16px; }
+  #ekranOyunAdmin .biy-reveal-tablo .ar-hucre { font-size: 1.7rem; }
+  #ekranOyunAdmin .biy-mini-lider h4 { font-size: 1.6rem; }
+  #ekranOyunAdmin .biy-lider-ol li { font-size: 1.5rem; padding: 14px 22px; }
+  #ekranOyunAdmin .biy-soru-gizli { padding: 26px 20px; }
+  #ekranOyunAdmin .biy-soru-gizli b { font-size: 2rem; }
+  /* soru gizliyken devasa sınıf durumu + aşağıda devasa geri sayım */
+  #ekranOyunAdmin .biy-cevap-durum.biy-dev { font-size: 3.2rem; margin: 40px 0 26px; }
+  #ekranOyunAdmin .biy-cipler.biy-dev { gap: 22px; }
+  #ekranOyunAdmin .biy-cipler.biy-dev .biy-cip { font-size: 3rem; padding: 26px 52px; }
+  #ekranOyunAdmin .biy-cipler.biy-dev .biy-cip-tik { font-size: 3.4rem; }
+  #ekranOyunAdmin .biy-alt-sayac { margin-top: 54px; gap: 24px; }
+  #ekranOyunAdmin .biy-alt-sayac .biy-sayac-bar { max-width: 900px; height: 22px; }
+  #ekranOyunAdmin .biy-sayac-dev { padding: 22px 74px; border-radius: 30px; }
+  #ekranOyunAdmin .biy-sayac-dev span { font-size: 8rem; }
+  #ekranOyunAdmin .biy-sayac-dev small { font-size: 2.4rem; }
+}
+
+/* ===========================================================
+   Sonuç ekranı — devasa öğeler; yenisi gelince önceki YUKARI kayıp kaybolur
+   =========================================================== */
+.biy-sonuc-ekran { display: flex; flex-direction: column; }
+.biy-sonuc-baslik { text-align: center; font-size: 1.6rem; color: #16A085; font-weight: 800; margin-bottom: 6px; }
+/* beraberlik başlığı */
+.biy-ber-baslik { text-align: center; font-size: 1.7rem; font-weight: 800; color: #EF5350; margin-bottom: 16px; }
+@media (min-width: 900px){ #ekranOyunAdmin .biy-ber-baslik { font-size: 2.6rem; margin-bottom: 24px; } }
+
+/* SAHNE — öğeler aynı hücrede üst üste; tek seferde biri görünür */
+.biy-sonuc-sahne { display: grid; justify-items: center; align-items: start; margin-top: 22px; }
+.biy-sonuc-sahne > .biy-sahne-oge { grid-area: 1 / 1; width: 100%; display: flex; flex-direction: column; align-items: center;
+  opacity: 0; transform: translateY(48px); pointer-events: none;
+  transition: opacity .5s cubic-bezier(.22,1,.36,1), transform .5s cubic-bezier(.22,1,.36,1); }
+/* aktif sahne */
+.biy-sonuc-ekran[data-step="0"] .oge-dogru,
+.biy-sonuc-ekran[data-step="1"] .oge-reveal,
+.biy-sonuc-ekran[data-step="2"] .oge-lider { opacity: 1; transform: translateY(0); pointer-events: auto; }
+/* geçmiş sahne — yukarı çıkıp kaybolur */
+.biy-sonuc-ekran[data-step="1"] .oge-dogru,
+.biy-sonuc-ekran[data-step="2"] .oge-dogru,
+.biy-sonuc-ekran[data-step="2"] .oge-reveal { opacity: 0; transform: translateY(-70px); pointer-events: none; }
+
+/* doğru cevap (devasa) */
+.biy-dogru-buyuk { display: flex; flex-direction: column; align-items: center; gap: 14px;
+  background: var(--c); color: #fff; border-radius: 24px; padding: 40px 56px; max-width: 94%;
+  box-shadow: 0 16px 38px rgba(0,0,0,.20); }
+.biy-db-etiket { font-size: 1.3rem; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; opacity: .92; }
+.biy-db-sik { display: flex; align-items: center; gap: 18px; }
+.biy-db-harf { width: 60px; height: 60px; border-radius: 15px; background: rgba(255,255,255,.24); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 2rem; }
+.biy-db-metin { font-size: 3rem; font-weight: 800; }
+.biy-dogru-buyuk.ar .biy-db-metin { direction: rtl; font-size: 3.6rem; }
+
+/* sınıfların cevapları (devasa) */
+.biy-reveal { width: 100%; overflow-x: auto; }
+.biy-reveal-tablo th { font-size: 1.5rem; padding: 18px; }
+.biy-reveal-tablo td { font-size: 1.7rem; padding: 20px 16px; }
+
+/* liderlik tablosu (devasa) */
+.biy-sonuc-lider { width: 100%; }
+.biy-sonuc-lider h4 { text-align: center; color: #F39C12; font-size: 1.9rem; margin: 0 0 18px; }
+.biy-sonuc-lider .biy-lider-ol { list-style: none; padding: 0; max-width: 720px; margin: 0 auto; }
+.biy-sonuc-lider li { display: flex; align-items: center; gap: 16px; background: #fff; border: 1px solid #E9EEF5; border-radius: 16px; padding: 20px 26px; margin-bottom: 12px; font-weight: 700; font-size: 1.6rem; box-shadow: 0 4px 12px rgba(0,0,0,.06); }
+.biy-lider-sira { min-width: 46px; text-align: center; color: #94a3b8; font-weight: 800; font-size: 1.7rem; }
+.biy-lider-ad { flex: 1; }
+.biy-sonuc-lider li b { color: #16A085; font-size: 1.8rem; }
+.biy-ok { min-width: 28px; text-align: center; font-weight: 900; font-size: 1.5rem; }
+.biy-ok-yukari { color: #27AE60; } .biy-ok-asagi { color: #EF5350; } .biy-ok-sabit { color: transparent; }
+/* liderliğe doğru yükselen / aşağı satırlara inen sınıflar */
+.biy-lider-yukari { border-color: #27AE60 !important; background: #F0FBF6; }
+.biy-lider-asagi { border-color: #F1B0B0 !important; background: #FEF5F5; }
+.biy-sonuc-ekran[data-step="2"] .biy-lider-yukari { animation: biyYuksel .6s cubic-bezier(.22,1,.36,1) both; }
+.biy-sonuc-ekran[data-step="2"] .biy-lider-asagi { animation: biyIn .6s cubic-bezier(.22,1,.36,1) both; }
+@keyframes biyYuksel { 0%{ transform: translateY(30px); opacity: .2; } 100%{ transform: translateY(0); opacity: 1; } }
+@keyframes biyIn { 0%{ transform: translateY(-30px); opacity: .2; } 100%{ transform: translateY(0); opacity: 1; } }
+/* seçilen şık hücresi */
+.biy-rev-sik { white-space: nowrap; }
+.biy-rev-harf { display: inline-flex; align-items: center; justify-content: center; min-width: 1.7em; height: 1.7em; padding: 0 .35em; border-radius: 7px; background: #EEF2F7; color: #475569; font-weight: 900; }
+.biy-rev-metin.ar { direction: rtl; }
+.biy-rev-yok { color: #94a3b8; }
+
+/* sahne 1 — soru cümlesi + şıklar */
+.biy-sonuc-soru-cumle { text-align: center; font-weight: 800; color: #334155; font-size: 1.8rem; margin: 4px 0 14px; }
+.oge-dogru .biy-a-optlar { width: 100%; max-width: 900px; }
+
+/* aşağıda üç ilerleme çizgisi (kaybolan sayfalar) — her biri kendi ikonuyla:
+   cevap (konuşma balonu + tik) · durum (katılımcı satırları) · puan (kürsü + yıldız) */
+.biy-sonuc-nokta { display: flex; justify-content: center; align-items: flex-end; gap: 26px; margin-top: 26px; }
+.biy-nokta { display: flex; flex-direction: column; align-items: center; gap: 7px; border: none;
+  background: none; cursor: pointer; padding: 0; color: #AEBBC9; transition: color .25s; }
+.biy-nk-ikon { display: block; line-height: 0; }
+.biy-nk-svg { width: 26px; height: 26px; display: block; transition: transform .25s ease; }
+.biy-nk-cizgi { display: block; width: 30px; height: 7px; border-radius: 999px;
+  background: #D9E2EC; transition: background .25s, width .25s; }
+.biy-nokta:hover { color: #7C8CA0; }
+.biy-nokta:hover .biy-nk-cizgi { background: #B7C4D3; }
+.biy-sonuc-ekran[data-step="0"] .biy-nokta[data-adim="0"],
+.biy-sonuc-ekran[data-step="1"] .biy-nokta[data-adim="1"],
+.biy-sonuc-ekran[data-step="2"] .biy-nokta[data-adim="2"] { color: #16A085; }
+.biy-sonuc-ekran[data-step="0"] .biy-nokta[data-adim="0"] .biy-nk-cizgi,
+.biy-sonuc-ekran[data-step="1"] .biy-nokta[data-adim="1"] .biy-nk-cizgi,
+.biy-sonuc-ekran[data-step="2"] .biy-nokta[data-adim="2"] .biy-nk-cizgi { background: #16A085; width: 52px; }
+.biy-sonuc-ekran[data-step="0"] .biy-nokta[data-adim="0"] .biy-nk-svg,
+.biy-sonuc-ekran[data-step="1"] .biy-nokta[data-adim="1"] .biy-nk-svg,
+.biy-sonuc-ekran[data-step="2"] .biy-nokta[data-adim="2"] .biy-nk-svg { transform: scale(1.18); }
+
+/* buton — sadece son sahnede (liderlik göründükten sonra) */
+.biy-sonuc-ekran .biy-oyun-kontrol { opacity: 0; transform: translateY(8px); pointer-events: none; transition: opacity .4s ease, transform .4s ease; margin-top: 20px; }
+.biy-sonuc-ekran[data-step="2"] .biy-oyun-kontrol { opacity: 1; transform: none; pointer-events: auto; }
+
+@media (min-width: 900px) {
+  #ekranOyunAdmin .biy-sonuc-baslik { font-size: 2.4rem; }
+  #ekranOyunAdmin .biy-sonuc-sahne { min-height: 46vh; }
+  #ekranOyunAdmin .biy-dogru-buyuk { padding: 56px 84px; gap: 20px; }
+  #ekranOyunAdmin .biy-db-etiket { font-size: 1.8rem; }
+  #ekranOyunAdmin .biy-db-harf { width: 84px; height: 84px; font-size: 2.6rem; border-radius: 18px; }
+  #ekranOyunAdmin .biy-db-metin { font-size: 4.4rem; }
+  #ekranOyunAdmin .biy-dogru-buyuk.ar .biy-db-metin { font-size: 5.4rem; }
+  #ekranOyunAdmin .biy-reveal-tablo th { font-size: 2.2rem; padding: 24px; }
+  #ekranOyunAdmin .biy-reveal-tablo td { font-size: 2.6rem; padding: 28px 20px; }
+  #ekranOyunAdmin .biy-sonuc-lider { max-width: 960px; margin-left: auto; margin-right: auto; }
+  #ekranOyunAdmin .biy-sonuc-lider .biy-lider-ol { max-width: 960px; }
+  #ekranOyunAdmin .biy-sonuc-lider h4 { font-size: 2.6rem; margin-bottom: 24px; }
+  #ekranOyunAdmin .biy-sonuc-lider li { font-size: 2.7rem; padding: 28px 40px; border-radius: 22px; margin-bottom: 18px; gap: 24px; }
+  #ekranOyunAdmin .biy-sonuc-lider li b { font-size: 2.9rem; }
+  #ekranOyunAdmin .biy-ok { font-size: 2.4rem; min-width: 44px; }
+  #ekranOyunAdmin .biy-lider-sira { min-width: 70px; font-size: 2.7rem; }
+  #ekranOyunAdmin .biy-sonuc-soru-cumle { font-size: 2.8rem; margin: 8px 0 22px; }
+  #ekranOyunAdmin .biy-sonuc-nokta { gap: 44px; }
+  #ekranOyunAdmin .biy-nk-cizgi { width: 46px; height: 10px; }
+  #ekranOyunAdmin .biy-nk-svg { width: 42px; height: 42px; }
+  #ekranOyunAdmin .biy-sonuc-ekran[data-step="0"] .biy-nokta[data-adim="0"] .biy-nk-cizgi,
+  #ekranOyunAdmin .biy-sonuc-ekran[data-step="1"] .biy-nokta[data-adim="1"] .biy-nk-cizgi,
+  #ekranOyunAdmin .biy-sonuc-ekran[data-step="2"] .biy-nokta[data-adim="2"] .biy-nk-cizgi { width: 76px; }
+  /* final — yansıtılan ekranda devasa sınıf isimleri */
+  #ekranOyunAdmin .biy-final h1 { font-size: 3.2rem; }
+  #ekranOyunAdmin .biy-final-ol { max-width: 1000px; }
+  #ekranOyunAdmin .biy-final-ol li { padding: 22px 30px; }
+  #ekranOyunAdmin .biy-final-sira { font-size: 3rem; width: 80px; }
+  #ekranOyunAdmin .biy-final-ad { font-size: 3.2rem; }
+  #ekranOyunAdmin .biy-final-ol li b { font-size: 2.8rem; }
+  #ekranOyunAdmin .biy-final-ol li.birinci { padding: 34px 34px; }
+  #ekranOyunAdmin .biy-final-ol li.birinci .biy-final-sira { font-size: 5rem; }
+  #ekranOyunAdmin .biy-final-ol li.birinci .biy-final-ad { font-size: 5.4rem; }
+  #ekranOyunAdmin .biy-final-ol li.birinci b { font-size: 3.6rem; }
+}
+
+/* soru gizle göz ikonu (tur sırası yanında) */
+.biy-gizle-svg { background: none; border: none; cursor: pointer; color: #94a3b8; padding: 3px; margin-inline-start: 8px; vertical-align: middle; border-radius: 8px; display: inline-flex; align-items: center; }
+.biy-gizle-svg:hover { color: #EF5350; background: #F0F4F8; }
+@media (min-width: 900px){
+  #ekranOyunAdmin .biy-gizle-svg svg { width: 34px; height: 34px; }
+}
+
+/* ===========================================================
+   YENİ SORU BİÇİMLERİ — sürükle-bırak · eşleştirme · klavyeyle yazma
+   (test biçimi eski stilleri aynen kullanmaya devam eder)
+   =========================================================== */
+
+/* --- rozet: sorunun biçimini gösteren küçük etiket --- */
+.biy-bicim-rozet { display: inline-flex; align-items: center; gap: 5px; background: #EEF2FF; color: #4F46E5;
+  border-radius: 999px; padding: 4px 12px; font-weight: 800; font-size: .85rem; margin-inline-start: 6px; }
+
+/* --- soru havuzu / sınıf modu kartında biçim kutusu --- */
+.biy-bicim-kutu .biy-secenek-metin { direction: rtl; font-family: 'Harmattan','Traditional Arabic',serif; font-size: 1.35rem; }
+.biy-bicim-kutu .biy-sik { background: #EEF2FF; color: #4F46E5; }
+
+/* =============== TAHTA (admin / sonuç ekranı) =============== */
+
+/* sürükle-bırak: kelime dizisi */
+.biy-a-dizi { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; direction: rtl; margin: 6px 0; }
+.biy-a-parca { background: #fff; border: 2px solid #C7D2FE; color: #312E81; border-radius: 14px;
+  padding: 10px 18px; font-family: 'Harmattan','Traditional Arabic',serif; font-size: 1.9rem; font-weight: 700;
+  box-shadow: 0 3px 8px rgba(0,0,0,.08); }
+.biy-a-dizi.dogru .biy-a-parca { border-color: #27AE60; background: #F0FCF6; }
+.biy-a-cevapcubuk { margin: 14px auto 0; max-width: 900px; text-align: center; direction: rtl;
+  background: #E6FAF5; color: #0E7C66; border-radius: 14px; padding: 12px 18px; font-weight: 800;
+  font-family: 'Harmattan','Traditional Arabic',serif; font-size: 2rem; }
+
+/* eşleştirme */
+.biy-a-cift { display: flex; gap: 26px; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
+.biy-a-cift.dogru { display: block; }
+.biy-a-sutun { display: flex; flex-direction: column; gap: 10px; }
+.biy-a-sol, .biy-a-sag { display: block; background: #fff; border: 2px solid #D9E2EC; border-radius: 12px;
+  padding: 9px 16px; font-weight: 700; color: #334155; text-align: center; }
+.biy-a-sol { border-color: #C7D2FE; }
+.biy-a-sol.ar, .biy-a-sag.ar { direction: rtl; font-family: 'Harmattan','Traditional Arabic',serif; font-size: 1.7rem; }
+.biy-a-cift-satir { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 8px 0; }
+.biy-a-cift-satir .biy-a-sol, .biy-a-cift-satir .biy-a-sag { min-width: 190px; }
+.biy-a-cift.dogru .biy-a-sol, .biy-a-cift.dogru .biy-a-sag { border-color: #27AE60; background: #F0FCF6; color: #0E7C66; }
+.biy-a-ok { color: #94a3b8; font-size: 1.4rem; font-weight: 900; }
+
+/* klavyeyle yazma */
+.biy-a-tuslar { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; direction: rtl; }
+.biy-a-tus { display: inline-flex; align-items: center; justify-content: center; min-width: 62px; height: 62px;
+  background: #fff; border: 2px solid #D9E2EC; border-radius: 14px; color: #334155;
+  font-family: 'Harmattan','Traditional Arabic',serif; font-size: 2rem; font-weight: 700; box-shadow: 0 3px 8px rgba(0,0,0,.06); }
+
+@media (min-width: 900px){
+  #ekranOyunAdmin .biy-a-parca { font-size: clamp(1.8rem,4vh,3rem); padding: clamp(8px,1.6vh,16px) 24px; }
+  #ekranOyunAdmin .biy-a-sol.ar { font-size: clamp(1.6rem,3.4vh,2.6rem); }
+  #ekranOyunAdmin .biy-a-sag   { font-size: clamp(1.1rem,2.4vh,1.8rem); }
+  #ekranOyunAdmin .biy-a-tus   { min-width: clamp(62px,8vh,96px); height: clamp(62px,8vh,96px); font-size: clamp(2rem,4.4vh,3.2rem); }
+  #ekranOyunAdmin .biy-a-cevapcubuk { font-size: clamp(2rem,4.4vh,3rem); }
+}
+
+/* sonuç tablosunda eşleştirme cevabı */
+.biy-rev-cift { display: inline-flex; flex-direction: column; gap: 2px; }
+.biy-rev-cift i { font-style: normal; font-family: 'Harmattan','Traditional Arabic',serif; font-size: 1.15rem; color: #475569; }
+
+/* =============== TAKIM CİHAZI (etkileşimli) =============== */
+
+.biy-t-calisma { margin-top: 10px; }
+.biy-t-calisma.kilitli { pointer-events: none; opacity: .55; }
+
+/* yuvalar (sürükle-bırak sırası) */
+.biy-t-slotlar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+  background: #F8FAFC; border: 2px dashed #CBD5E1; border-radius: 16px; padding: 12px; min-height: 74px; }
+.biy-t-slot { min-width: 74px; min-height: 50px; display: flex; align-items: center; justify-content: center;
+  border: 2px dashed #CBD5E1; border-radius: 12px; background: #fff; color: #312E81; padding: 6px 12px;
+  font-size: 1.05rem; font-weight: 700;
+  cursor: pointer; touch-action: none; -webkit-user-select: none; user-select: none; transition: border-color .15s, background .15s; }
+.biy-t-slot.dolu { border-style: solid; border-color: #6366F1; background: #EEF2FF; box-shadow: 0 2px 6px rgba(0,0,0,.08); }
+.biy-t-slot.hedef { border-color: #16A085; background: #E6FAF5; }
+.biy-t-slot-no { color: #CBD5E1; font-family: 'Marhey',sans-serif; font-size: .95rem; font-weight: 800; }
+
+/* havuz (henüz yerleştirilmemiş parçalar) */
+.biy-t-havuz { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 12px;
+  border: 2px dashed #E2E8F0; border-radius: 16px; padding: 12px; min-height: 74px; }
+.biy-t-havuz.hedef { border-color: #16A085; background: #E6FAF5; }
+.biy-t-parca { background: #fff; border: 2px solid #C7D2FE; color: #312E81; border-radius: 12px;
+  padding: 8px 16px; min-height: 50px; display: flex; align-items: center; justify-content: center;
+  font-size: 1.05rem; font-weight: 700;
+  cursor: pointer; touch-action: none; -webkit-user-select: none; user-select: none;
+  box-shadow: 0 3px 8px rgba(0,0,0,.08); transition: transform .1s, box-shadow .15s; }
+.biy-t-parca:active { transform: scale(.96); }
+.biy-t-parca.secili { border-color: #16A085; background: #E6FAF5; box-shadow: 0 0 0 3px rgba(22,160,133,.25); }
+.biy-t-parca.suruk, .biy-t-slot.suruk { opacity: .35; }
+.biy-t-bos { color: #94a3b8; font-weight: 700; align-self: center; }
+
+/* eşleştirme satırları */
+.biy-t-ciftler { display: flex; flex-direction: column; gap: 10px; }
+.biy-t-cift-satir { display: flex; align-items: stretch; gap: 10px; }
+.biy-t-sol { flex: 1 1 0; display: flex; align-items: center; justify-content: center; text-align: center;
+  background: #F1F5F9; border-radius: 12px; padding: 8px 12px; color: #334155; font-weight: 700; }
+.biy-t-ok { align-self: center; color: #94a3b8; font-weight: 900; }
+.biy-t-cift-satir .biy-t-slot { flex: 1 1 0; }
+/* Arapça içerikli kutular: sağdan sola + Arapça yazı tipi */
+.biy-t-parca.ar, .biy-t-slot.ar, .biy-t-sol.ar {
+  direction: rtl; font-family: 'Harmattan','Traditional Arabic',serif; font-size: 1.6rem; }
+.biy-a-sol:not(.ar), .biy-a-sag:not(.ar) { direction: ltr; font-family: inherit; font-size: 1.05rem; }
+
+/* klavyeyle yazma */
+.biy-t-yazma { margin-top: 10px; }
+.biy-t-yazekran { min-height: 76px; display: flex; align-items: center; justify-content: center;
+  background: #F8FAFC; border: 2px solid #C7D2FE; border-radius: 16px; padding: 10px 16px; color: #312E81;
+  font-family: 'Harmattan','Traditional Arabic',serif; font-size: 2.6rem; font-weight: 700; letter-spacing: 1px; }
+.biy-t-sayi { text-align: center; color: #94a3b8; font-weight: 700; font-size: .9rem; margin-top: 6px; }
+.biy-t-klavye { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 12px; }
+.biy-t-tus { min-width: 58px; height: 58px; background: #fff; border: 2px solid #D9E2EC; border-radius: 14px;
+  color: #334155; font-family: 'Harmattan','Traditional Arabic',serif; font-size: 1.9rem; font-weight: 700;
+  cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,.07); transition: transform .1s; }
+.biy-t-tus:active { transform: scale(.94); }
+.biy-t-tus:disabled { opacity: .45; cursor: default; }
+.biy-t-tus.sil { background: #FEF2F2; border-color: #FECACA; color: #DC2626; font-size: 1.5rem; }
+
+/* gönder düğmesi */
+.biy-t-gonder-sar { margin-top: 16px; text-align: center; }
+.biy-t-gonder { background: linear-gradient(135deg,#16A085,#0E7C66); color: #fff; border: none; border-radius: 14px;
+  padding: 16px 40px; font-family: 'Marhey',sans-serif; font-weight: 800; font-size: 1.15rem; cursor: pointer;
+  box-shadow: 0 6px 16px rgba(22,160,133,.32); transition: transform .1s; width: 100%; }
+.biy-t-gonder:active { transform: scale(.98); }
+.biy-t-gonder:disabled { background: #CBD5E1; box-shadow: none; cursor: default; }
+
+/* parmağı takip eden hayalet kopya — pointer-events YOK olmalı,
+   yoksa elementFromPoint bırakma hedefi yerine hayaleti bulur */
+.biy-t-hayalet { position: fixed; z-index: 9999; pointer-events: none; transform: translate(-50%,-50%);
+  opacity: .92; box-shadow: 0 10px 24px rgba(0,0,0,.25) !important; }
+
+/* ===========================================================
+   ÜÇ MOD — Takım / Birey / Okul
+   Birey ve okul modunda tek karekod, isim onay kuyruğu ve
+   kalabalık listeler için kaydırmalı düzen kullanılır.
+   =========================================================== */
+
+/* ---- kalabalık listeler: kesme yok, kaydırma var ---- */
+.biy-kaydir { max-height: min(52vh, 460px); overflow-y: auto; overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch; padding-right: 6px; scrollbar-width: thin; scrollbar-color: #CBD5E1 transparent; }
+.biy-kaydir::-webkit-scrollbar { width: 8px; }
+.biy-kaydir::-webkit-scrollbar-track { background: transparent; }
+.biy-kaydir::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
+.biy-kaydir::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+/* ---- 4 menü kartı: renk şeridi + başlık rengi ---- */
+.biy-menu-kart:nth-child(3):before { background: #3498db; }
+.biy-menu-kart:nth-child(4):before { background: #9B59B6; }
+.biy-menu-kart:nth-child(3) .biy-menu-ad { color: #3498db; }
+.biy-menu-kart:nth-child(4) .biy-menu-ad { color: #9B59B6; }
+.biy-menu-kart.biy-pasif { opacity: .45; pointer-events: none; filter: grayscale(.5); }
+
+/* ---- tek karekod kartı (birey / okul lobisi) ---- */
+.biy-oda-alan { max-width: 860px; margin: 0 auto; width: 100%; padding: 20px 22px 6px; }
+.biy-oda-kart { display: flex; align-items: center; gap: 28px; background: #fff; border: 2px solid #E9EEF5;
+  border-radius: 20px; padding: 22px 26px; box-shadow: 0 6px 18px rgba(0,0,0,.08); }
+.biy-oda-sol { flex: 1; min-width: 0; }
+.biy-oda-etiket { display: block; font-size: .85rem; font-weight: 800; letter-spacing: .6px; color: #94a3b8; text-transform: uppercase; }
+.biy-oda-kod { display: block; font-family: 'Marhey',sans-serif; font-size: 3.2rem; font-weight: 800;
+  color: #16A085; letter-spacing: 6px; line-height: 1.1; margin: 2px 0 8px; }
+.biy-oda-ipucu { margin: 12px 0 0; color: #64748b; font-size: .95rem; line-height: 1.45; }
+.biy-oda-qr { flex: 0 0 auto; }
+
+/* ---- okul modu: sınıf tanımlama ---- */
+.biy-sinif-yap { display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
+  max-width: 860px; margin: 0 auto; width: 100%; padding: 24px 22px 4px; }
+#sinifAdiInput { flex: 1 1 220px; min-width: 0; padding: 16px 20px; border-radius: 14px; border: 2px solid #E9EEF5;
+  background: #fff; color: #333; font-size: 1.25rem; font-family: inherit; }
+#sinifAdiInput::placeholder { color: #94a3b8; }
+.biy-sinif-yap .biy-btn { padding: 16px 26px; font-size: 1.15rem; border-radius: 14px; white-space: nowrap; }
+.biy-siniflar-kutu { flex: 1 1 100%; display: flex; flex-wrap: wrap; gap: 10px; min-height: 34px; }
+.biy-sinif-cip { display: inline-flex; align-items: center; gap: 8px; background: #EDE7F6; color: #6A3FA0;
+  border: 1.5px solid #D6C7EE; border-radius: 999px; padding: 8px 8px 8px 16px; font-weight: 800; font-size: 1rem; }
+.biy-sinif-cip button { background: none; border: none; color: #A78BC9; cursor: pointer; font-size: 1rem;
+  line-height: 1; padding: 2px 6px; border-radius: 50%; }
+.biy-sinif-cip button:hover { background: #fff; color: #EF5350; }
+.biy-sinif-bos-not { color: #94a3b8; font-size: .95rem; }
+
+/* ---- onay bekleyenler kuyruğu ---- */
+.biy-bekleyen-alan { max-width: 860px; margin: 0 auto; width: 100%; padding: 18px 22px 0; }
+.biy-bek-bos { background: #FFFDF3; border: 1.5px dashed #F5D98B; border-radius: 14px;
+  padding: 16px 20px; color: #96751F; font-size: .98rem; text-align: center; }
+.biy-bek-ust { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.biy-bek-ust h3 { margin: 0; font-size: 1.2rem; color: #D68910; font-weight: 800; }
+.biy-bek-liste { display: flex; flex-wrap: wrap; gap: 10px; }
+.biy-bek-kart { display: inline-flex; align-items: center; gap: 10px; background: #FFF8E9;
+  border: 2px solid #F7D794; border-radius: 14px; padding: 8px 10px 8px 6px;
+  animation: biyBekGir .3s cubic-bezier(.2,1.3,.4,1) both; }
+@keyframes biyBekGir { from { opacity: 0; transform: translateY(-8px) scale(.94); } to { opacity: 1; transform: none; } }
+.biy-bek-ad { background: none; border: none; cursor: pointer; font-family: inherit; font-weight: 800;
+  font-size: 1.1rem; color: #7D5A0B; padding: 4px 8px; border-radius: 8px; max-width: 200px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.biy-bek-ad:hover { background: #fff; text-decoration: underline; }
+.biy-bek-sinif { background: #fff; border: 1px solid #EBD9A8; border-radius: 999px; padding: 3px 10px;
+  font-size: .82rem; font-weight: 800; color: #96751F; }
+.biy-bek-btnlar { display: inline-flex; gap: 6px; }
+.biy-onay-ok, .biy-onay-red { border: none; cursor: pointer; width: 38px; height: 38px; border-radius: 11px;
+  font-size: 1.15rem; font-weight: 800; color: #fff; line-height: 1; }
+.biy-onay-ok { background: #27AE60; box-shadow: 0 3px 8px rgba(39,174,96,.3); }
+.biy-onay-red { background: #EF5350; box-shadow: 0 3px 8px rgba(239,83,80,.3); }
+.biy-onay-ok:hover, .biy-onay-red:hover { filter: brightness(1.1); }
+.biy-btn-mini { padding: 8px 16px !important; font-size: .92rem !important; border-radius: 10px !important; }
+
+/* ---- onaylanan katılımcı listesi (takım kartlarının yerine) ---- */
+.biy-kat-liste { max-width: 860px; margin: 0 auto; width: 100%; padding: 18px 22px 24px;
+  display: block; }
+.biy-kat-ust { display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  margin-bottom: 10px; font-weight: 800; font-size: 1.2rem; color: #16A085; }
+.biy-kat-ipucu { font-size: .85rem; font-weight: 600; color: #94a3b8; }
+.biy-kat-satirlar { display: flex; flex-direction: column; gap: 8px; }
+.biy-kat-satir { display: flex; align-items: center; gap: 12px; background: #fff; border: 1.5px solid #E9EEF5;
+  border-radius: 12px; padding: 10px 14px; box-shadow: 0 2px 6px rgba(15,23,42,.05); }
+.biy-kat-satir.bagli { border-color: #A8E6CF; background: #F4FDFA; }
+.biy-kat-satir.kopuk { border-color: #F1C7C4; background: #FFF7F6; }
+.biy-kat-nokta { flex: 0 0 auto; width: 11px; height: 11px; border-radius: 50%; background: #E53935; }
+.biy-kat-satir.bagli .biy-kat-nokta { background: #27AE60; box-shadow: 0 0 0 4px rgba(39,174,96,.16); }
+.biy-kat-ad { flex: 1; min-width: 0; text-align: left; background: none; border: none; cursor: pointer;
+  font-family: inherit; font-size: 1.15rem; font-weight: 700; color: #334155; padding: 4px 8px;
+  border-radius: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.biy-kat-ad:hover { background: #EAF1FA; color: #3498db; }
+.biy-kat-sinif { flex: 0 0 auto; background: #EDE7F6; color: #6A3FA0; border-radius: 999px;
+  padding: 3px 12px; font-size: .84rem; font-weight: 800; }
+.biy-kat-at { flex: 0 0 auto; background: none; border: none; color: #CBD5E1; cursor: pointer;
+  font-size: 1.2rem; line-height: 1; padding: 4px 8px; border-radius: 8px; }
+.biy-kat-at:hover { background: #FEF2F2; color: #EF5350; }
+.biy-kat-bos { text-align: center; color: #94a3b8; padding: 26px 16px; font-size: 1rem; }
+
+/* ---- isim düzeltme penceresi (metin girişli onay kutusu) ---- */
+.biy-onay-input { width: 100%; padding: 14px 18px; border-radius: 12px; border: 2px solid #E9EEF5;
+  background: #F7F9FC; color: #333; font-size: 1.25rem; font-family: inherit; margin-bottom: 20px; text-align: center; }
+.biy-onay-input:focus { outline: none; border-color: #20C997; background: #fff; }
+.biy-onay-kutu h3 { color: #16A085; }
+
+/* ---- öğrenci: tek karekodla katılım ekranı ---- */
+#ekranKatil { align-items: center; justify-content: center; text-align: center; padding: 20px; }
+.biy-katil-kart { max-width: 440px; width: 92%; }
+.biy-katil-input { width: 100%; padding: 18px 20px; border-radius: 16px; border: 2px solid #E9EEF5;
+  background: #F7F9FC; color: #333; font-size: 1.4rem; font-family: inherit; text-align: center; }
+.biy-katil-input:focus { outline: none; border-color: #20C997; background: #fff;
+  box-shadow: 0 0 0 4px rgba(32,201,151,.16); }
+.biy-katil-input::placeholder { color: #b0bccb; }
+.biy-katil-sinif { margin-top: 14px; }
+.biy-katil-select { width: 100%; padding: 16px 18px; border-radius: 16px; border: 2px solid #E9EEF5;
+  background: #F7F9FC; color: #333; font-size: 1.2rem; font-family: inherit; cursor: pointer; }
+.biy-katil-btn { width: 100%; margin-top: 18px; padding: 18px 24px !important; font-size: 1.25rem !important; }
+.biy-katil-bekle { width: 100%; display: flex; align-items: center; justify-content: center; }
+.biy-not-hata { color: #EF5350 !important; font-weight: 700; }
+
+/* ---- okul modu: sınıf ortalaması tablosu ---- */
+.biy-okul-lider { display: flex; gap: 26px; align-items: flex-start; justify-content: center; flex-wrap: wrap; }
+.biy-okul-sol { flex: 1 1 380px; min-width: 0; max-width: 520px; }
+.biy-okul-sag { flex: 0 1 300px; min-width: 0; }
+.biy-okul-lider h4 { margin: 0 0 10px; font-size: 1.15rem; color: #16A085; }
+.biy-sinif-kisi { color: #94a3b8; font-weight: 600; font-size: .8rem; }
+.biy-iyi-ol { list-style: none; padding: 0; margin: 0; }
+.biy-iyi-ol li { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid #E9EEF5;
+  border-radius: 10px; padding: 8px 14px; margin-bottom: 6px; font-weight: 700; }
+.biy-iyi-sira { flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%; background: #FFF4D6;
+  color: #C08A00; display: inline-flex; align-items: center; justify-content: center; font-size: .9rem; font-weight: 800; }
+.biy-iyi-ad { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
+.biy-iyi-ad small { color: #94a3b8; font-weight: 600; }
+.biy-iyi-ol li b { color: #16A085; }
+.biy-final-iyiler { max-width: 620px; margin: 26px auto 0; }
+.biy-final-iyiler h4 { font-size: 1.15rem; color: #16A085; margin: 0 0 10px; }
+
+/* ---- tahtadaki cip şeridinde sınıf etiketi ---- */
+.biy-cip-sinif { display: inline-block; margin-left: 6px; opacity: .7; font-size: .78rem; font-weight: 800; }
+
+/* ---- mobil ---- */
+@media (max-width: 700px) {
+  .biy-oda-kart { flex-direction: column; text-align: center; gap: 18px; }
+  .biy-oda-alan, .biy-bekleyen-alan, .biy-kat-liste, .biy-sinif-yap { padding-left: 14px; padding-right: 14px; }
+  .biy-oda-kod { font-size: 2.4rem; }
+  .biy-sinif-yap { flex-direction: column; align-items: stretch; }
+  .biy-okul-lider { flex-direction: column; }
+  .biy-okul-sol, .biy-okul-sag { flex: 1 1 auto; max-width: 100%; width: 100%; }
+  .biy-kat-ust { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .biy-kaydir { max-height: 46vh; }
+}
+
+/* ===================================================================== */
+/* ==  ARAPÇA ARAYÜZ — RTL DÜZENİ + ÖZEL SVG ANİMASYONLARI  (v60)      == */
+/* ===================================================================== */
+
+/* ---- 1) Yön çevirmeleri: soldan sağa kurulmuş kuralların RTL karşılığı */
+[dir="rtl"] .biy-soru-sec-secim,
+[dir="rtl"] .biy-pdf-onizleme { padding-left: 0; padding-right: 22px; border-left: none; border-right: 1px solid #EDF2F7; }
+[dir="rtl"] .biy-pdf-a4:before { right: auto; left: 0; border-width: 0 0 16px 16px; border-radius: 0 0 4px 0; }
+[dir="rtl"] .biy-bagli-rozet { right: auto; left: 12px; }
+[dir="rtl"] .biy-zorluk { float: left; }
+[dir="rtl"] .biy-secenek-metin,
+[dir="rtl"] .biy-reveal-tablo td:first-child,
+[dir="rtl"] .biy-final-ad,
+[dir="rtl"] .biy-t-opt,
+[dir="rtl"] .biy-kat-ad,
+[dir="rtl"] .biy-iyi-ad { text-align: right; }
+[dir="rtl"] .biy-sil { right: auto; left: 14px; }
+[dir="rtl"] .biy-cikis-tus { right: auto; left: 16px; }
+@media (min-width: 900px){ [dir="rtl"] .biy-cikis-tus { right: auto; left: 22px; } }
+[dir="rtl"] .biy-soru-sec-say,
+[dir="rtl"] .biy-hs-tumu,
+[dir="rtl"] .biy-sinif-kaynak { margin-left: 0; margin-right: auto; }
+[dir="rtl"] .biy-oyun-ust > .biy-sayac { margin-right: 0; margin-left: 84px; }
+@media (min-width: 900px){ [dir="rtl"] #ekranOyunAdmin .biy-oyun-ust > .biy-sayac { margin-right: 0; margin-left: 124px; } }
+[dir="rtl"] .biy-kaydir { padding-right: 0; padding-left: 6px; }
+[dir="rtl"] .biy-cip-sinif { margin-left: 0; margin-right: 6px; }
+[dir="rtl"] .biy-konu-select { padding: 13px 18px 13px 42px; background-position: left 14px center; }
+/* geri okunu RTL'de sağa çevir */
+[dir="rtl"] .biy-geri-tus svg { transform: scaleX(-1); }
+[dir="rtl"] .biy-sinif-govde { flex-direction: row; }
+
+/* ---- 2) Soldan sağa kalması gereken adacıklar (kod, bağlantı, sayı) --- */
+.biy-oda-kod,
+.biy-takim-link input,
+.biy-katil-input,
+.biy-sayi-input,
+.biy-final-ol b,
+.biy-sayac { direction: ltr; unicode-bidi: isolate; }
+/* Türkçe test içeriği LTR kalır — mevcut kural korunur */
+
+/* ---- 3) Özel SVG simgeleri: ölçü ------------------------------------- */
+.biy-logo .biy-svg, .biy-logo .biy-anim { display: inline-block; }
+.biy-logo .biy-svg { width: 72px; height: 72px; }
+.biy-menu-emoji .biy-svg { width: 62px; height: 62px; display: block; margin: 0 auto; }
+.biy-menu-emoji { line-height: 1; }
+.biy-anim { display: inline-block; line-height: 0; }
+
+/* ---- 4) Animasyonlar ------------------------------------------------- */
+@keyframes biyNefes   { 0%,100%{ transform: scale(1); opacity:.14 } 50%{ transform: scale(1.12); opacity:.28 } }
+@keyframes biySalla   { 0%,100%{ transform: translateY(0) }        50%{ transform: translateY(-3px) } }
+@keyframes biyDon     { to { transform: rotate(360deg) } }
+@keyframes biyDus     { 0%{ transform: translateY(-9px); opacity:0 } 30%{ opacity:1 } 100%{ transform: translateY(9px); opacity:0 } }
+@keyframes biyCiz     { to { stroke-dashoffset: 0 } }
+@keyframes biyPatla   { 0%{ transform: scale(.4); opacity:0 } 60%{ transform: scale(1.15) } 100%{ transform: scale(1); opacity:1 } }
+@keyframes biyIsilda  { 0%,100%{ opacity:.25 } 50%{ opacity:1 } }
+@keyframes biyKay     { 0%{ transform: translateX(-6px) } 100%{ transform: translateX(46px) } }
+@keyframes biyTara    { 0%,100%{ transform: translateY(-13px); opacity:.35 } 50%{ transform: translateY(13px); opacity:1 } }
+@keyframes biyYuksel  { from { transform: translateY(14px); opacity:0 } to { transform: none; opacity:1 } }
+
+.biy-hale { transform-origin: 32px 32px; animation: biyNefes 3.2s ease-in-out infinite; }
+
+/* mod kartları */
+.biy-svg-takim .biy-tk-a   { transform-origin: 20px 34px; animation: biySalla 2.4s ease-in-out infinite; }
+.biy-svg-takim .biy-tk-b   { transform-origin: 44px 34px; animation: biySalla 2.4s ease-in-out infinite .5s; }
+.biy-svg-takim .biy-tk-bag { stroke-dasharray: 34; stroke-dashoffset: 34; animation: biyCiz 1.4s ease-out .3s forwards; }
+.biy-svg-birey .biy-br-el   { transform-origin: 46px 29px; animation: biySalla 1.6s ease-in-out infinite; }
+.biy-svg-birey .biy-br-nokta{ animation: biyIsilda 1.6s ease-in-out infinite; }
+.biy-svg-okul .biy-ok-bayrak { transform-origin: 32px 16px; animation: biySalla 2.8s ease-in-out infinite; }
+.biy-svg-okul .biy-ok-cam rect { animation: biyIsilda 2.6s ease-in-out infinite; }
+.biy-svg-okul .biy-ok-cam rect:last-child { animation-delay: .9s; }
+.biy-svg-okul .biy-ok-kapi { transform-origin: 27px 44px; animation: biySalla 4s ease-in-out infinite; }
+.biy-menu-kart:hover .biy-svg { transform: scale(1.06); transition: transform .2s; }
+
+/* katılım ekranı — karekod taraması */
+.biy-svg-katil .biy-kt-tarama { animation: biyTara 2.2s ease-in-out infinite; }
+.biy-svg-katil .biy-kt-kare path { stroke-dasharray: 20; stroke-dashoffset: 20; animation: biyCiz 1s ease-out forwards; }
+
+/* bekleme / sonuç simgeleri */
+.biy-sv-kum   { transform-origin: 32px 32px; animation: biyDon 4.5s cubic-bezier(.7,0,.3,1) infinite; }
+.biy-sv-tane  { animation: biyDus 1.5s linear infinite; }
+.biy-sv-tik   { stroke-dasharray: 40; stroke-dashoffset: 40; animation: biyCiz .55s ease-out .15s forwards; }
+.biy-sv-halka { transform-origin: 32px 32px; animation: biyPatla .45s ease-out both; }
+.biy-sv-carpi { transform-origin: 32px 32px; animation: biyPatla .4s ease-out both; }
+.biy-sv-uyari { animation: biyIsilda 1.1s ease-in-out infinite; }
+.biy-sv-serpme line { animation: biyIsilda 1.2s ease-in-out infinite; }
+.biy-sv-serpme line:nth-child(2){ animation-delay: .2s } .biy-sv-serpme line:nth-child(3){ animation-delay: .4s } .biy-sv-serpme line:nth-child(4){ animation-delay: .6s }
+.biy-sv-madalya { transform-origin: 32px 42px; animation: biyPatla .5s ease-out both; }
+.biy-sv-kurdele { transform-origin: 32px 10px; animation: biySalla 2.6s ease-in-out infinite; }
+.biy-sv-bayrak  { transform-origin: 18px 22px; animation: biySalla 2s ease-in-out infinite; }
+.biy-sv-parlama { animation: biyKay 2.6s ease-in-out infinite; }
+.biy-sv-el      { transform-origin: 32px 40px; animation: biySalla 1.4s ease-in-out infinite; }
+.biy-sv-kol     { animation: biyIsilda 2s ease-in-out infinite; }
+.biy-sv-kupa    { transform-origin: 32px 34px; animation: biyPatla .55s ease-out both; }
+.biy-sv-parilti circle { animation: biyIsilda 1.5s ease-in-out infinite; }
+.biy-sv-parilti circle:nth-child(2){ animation-delay: .5s } .biy-sv-parilti circle:nth-child(3){ animation-delay: 1s }
+
+/* karekod kartları — canlı çerçeve + nabız noktası */
+.biy-takim-kart .biy-qr { position: relative; }
+.biy-takim-kart .biy-qr:after {
+  content: ""; position: absolute; inset: -9px; border-radius: 14px; pointer-events: none;
+  border: 2px dashed rgba(99,102,241,.45); animation: biyCerceve 2.6s ease-in-out infinite;
+}
+@keyframes biyCerceve { 0%,100%{ opacity:.5 } 50%{ opacity:1 } }
+.biy-takim-kart.biy-kart-bagli .biy-qr:after { border-color: rgba(16,185,129,.6); border-style: solid; animation: none; }
+.biy-takim-durum.biy-bagli { position: relative; }
+.biy-takim-durum.biy-bagli:before {
+  content: ""; position: absolute; inset: -4px; border-radius: 999px;
+  box-shadow: 0 0 0 0 rgba(16,185,129,.5); animation: biyNabiz 1.8s ease-out infinite;
+}
+@keyframes biyNabiz { to { box-shadow: 0 0 0 12px rgba(16,185,129,0); } }
+.biy-takim-kart { animation: biyYuksel .35s ease-out both; }
+
+/* sonuç / sıralama — madalya sallanır, sıra numarası taşmaz */
+.biy-final-ol li.birinci .biy-final-sira { display: inline-block; animation: biySalla 1.8s ease-in-out infinite; }
+.biy-final-sira { flex: 0 0 auto; }
+.biy-final-ol li.birinci .biy-final-sira { width: auto; min-width: 56px; }
+#ekranOyunAdmin .biy-final-ol li.birinci .biy-final-sira { width: auto; min-width: 96px; }
+#ekranOyunAdmin .biy-logo .biy-svg { width: 112px; height: 112px; }
+
+/* ---- 5) Hareket azaltma tercihi -------------------------------------- */
+@media (prefers-reduced-motion: reduce){
+  #biy-app *, #biy-app *:before, #biy-app *:after { animation: none !important; transition: none !important; }
+  .biy-sv-tik, .biy-kt-kare path, .biy-svg-takim .biy-tk-bag { stroke-dashoffset: 0 !important; }
+}
+
+
+/* isim alanlari: yon ilk guclu harften belirlensin — "7-A" tersten yazilmasin */
+.biy-takim-kart h3, .biy-final-ad, .biy-kat-ad, .biy-bek-ad,
+.biy-t-ad, .biy-takim-durum, #takimIcerik h1, #takimIcerik h2 { unicode-bidi: plaintext; }
+
+
+/* ============================================================
+   KONU / HAVUZ ALANI — buyutulmus duzen + ozel SVG hareketleri
+   ============================================================ */
+
+/* Iki secim sutunu artik ikon + etiket + kontrol seklinde dikey
+   yiginlanir; bu yuzden panel yukselir ve sutunlar ortalanir. */
+.biy-konu-panel { align-items: stretch; gap: 26px; padding: 24px 30px; }
+.biy-konu-secim,
+.biy-soru-sec-secim { align-items: center; justify-content: center; gap: 10px; text-align: center; }
+.biy-pdf-onizleme { justify-content: center; }
+
+.biy-sec-ikon { display: block; line-height: 0; }
+.biy-sec-ikon .biy-svg { width: 88px; height: 88px; display: block; margin: 0 auto; }
+
+.biy-konu-label { font-size: 1.12rem; }
+.biy-konu-select { min-width: 268px; font-size: 1.26rem; padding: 15px 44px 15px 20px; }
+[dir="rtl"] .biy-konu-select { padding: 15px 20px 15px 44px; }
+.biy-soru-sec-btn { padding: 15px 26px; font-size: 1.2rem; }
+.biy-soru-sec-secim { padding-left: 26px; }
+[dir="rtl"] .biy-soru-sec-secim { padding-left: 0; padding-right: 26px; }
+
+/* Menu kartlarindaki (takim / birey / sinif) ikonlar belirgin sekilde buyur */
+.biy-menu-emoji .biy-svg { width: 92px; height: 92px; }
+
+/* Havuz penceresinin basligindaki klonlanmis kucuk ikon */
+.biy-soru-sec-bas h3 { display: flex; align-items: center; gap: 8px; }
+.biy-hs-bas-ikon { display: inline-flex; line-height: 0; }
+.biy-hs-bas-ikon .biy-svg { width: 36px; height: 36px; display: block; }
+
+/* --- KONU SVG'si: imlec iner, satira basar, satir secilir (4 sn) --- */
+.biy-kn-imlec { animation: biyKnImlec 4s ease-in-out infinite; }
+@keyframes biyKnImlec {
+  0%, 6%    { transform: translateY(-10px); }
+  34%, 88%  { transform: translateY(7px); }
+  100%      { transform: translateY(-10px); }
+}
+.biy-kn-bas { transform-box: fill-box; transform-origin: 0% 0%;
+              animation: biyKnBas 4s ease-out infinite; }
+@keyframes biyKnBas {
+  0%, 34%   { transform: scale(1); }
+  39%       { transform: scale(.8); }
+  46%, 100% { transform: scale(1); }
+}
+.biy-kn-halka { transform-box: fill-box; transform-origin: center; opacity: 0;
+                animation: biyKnHalka 4s ease-out infinite; }
+@keyframes biyKnHalka {
+  0%, 35%   { opacity: 0;  transform: scale(.3); }
+  44%       { opacity: .8; }
+  62%, 100% { opacity: 0;  transform: scale(1.7); }
+}
+.biy-kn-vurgu { transform-box: fill-box; transform-origin: center; opacity: 0;
+                animation: biyKnVurgu 4s ease-out infinite; }
+@keyframes biyKnVurgu {
+  0%, 36%   { opacity: 0; transform: scaleX(.85); }
+  46%       { opacity: 1; transform: scaleX(1.04); }
+  54%, 86%  { opacity: 1; transform: scaleX(1); }
+  100%      { opacity: 0; transform: scaleX(1); }
+}
+.biy-kn-tik { stroke-dasharray: 12; stroke-dashoffset: 12;
+              animation: biyKnTik 4s ease-out infinite; }
+@keyframes biyKnTik {
+  0%, 40%   { stroke-dashoffset: 12; }
+  56%, 100% { stroke-dashoffset: 0; }
+}
+
+/* --- HAVUZ SVG'si: uc farkli listeden sirayla secim (3 sn, 1 sn arayla) --- */
+.biy-hv-nok { opacity: 0; }
+.biy-hv-n1 { animation: biyHvUcSol  3s ease-in-out infinite; }
+.biy-hv-n2 { animation: biyHvUcOrta 3s ease-in-out 1s infinite; }
+.biy-hv-n3 { animation: biyHvUcSag  3s ease-in-out 2s infinite; }
+@keyframes biyHvUcSol {
+  0%        { transform: translate(0,0);      opacity: 0; }
+  8%        { opacity: 1; }
+  46%       { opacity: 1; }
+  47%, 100% { transform: translate(20px,21px); opacity: 0; }
+}
+@keyframes biyHvUcOrta {
+  0%        { transform: translate(0,0);     opacity: 0; }
+  8%        { opacity: 1; }
+  46%       { opacity: 1; }
+  47%, 100% { transform: translate(0,21px);  opacity: 0; }
+}
+@keyframes biyHvUcSag {
+  0%        { transform: translate(0,0);       opacity: 0; }
+  8%        { opacity: 1; }
+  46%       { opacity: 1; }
+  47%, 100% { transform: translate(-20px,21px); opacity: 0; }
+}
+.biy-hv-sec { opacity: .28; }
+.biy-hv-s1 { animation: biyHvSec 3s ease-in-out infinite; }
+.biy-hv-s2 { animation: biyHvSec 3s ease-in-out 1s infinite; }
+.biy-hv-s3 { animation: biyHvSec 3s ease-in-out 2s infinite; }
+@keyframes biyHvSec {
+  0%        { opacity: .28; }
+  8%, 34%   { opacity: 1; }
+  50%, 100% { opacity: .28; }
+}
+/* Sepet, her nokta icine dustugu anda (1.38 / 2.38 / 3.38 sn) esnetilir */
+.biy-hv-sepet { transform-box: fill-box; transform-origin: center bottom;
+                animation: biyHvSepet 1s ease-out .9s infinite; }
+@keyframes biyHvSepet {
+  0%, 38%   { transform: scale(1); }
+  48%       { transform: scale(1.08, .94); }
+  62%, 100% { transform: scale(1); }
+}
+
+@media (max-width: 640px) {
+  .biy-konu-panel { flex-direction: column; gap: 14px; padding: 18px 16px; }
+  .biy-konu-secim,
+  .biy-soru-sec-secim,
+  .biy-pdf-onizleme { width: 100%; }
+  .biy-soru-sec-secim,
+  .biy-pdf-onizleme,
+  [dir="rtl"] .biy-soru-sec-secim,
+  [dir="rtl"] .biy-pdf-onizleme {
+    padding: 14px 0 0; border-left: none; border-right: none; border-top: 1px solid #EDF2F7; }
+  .biy-sec-ikon .biy-svg { width: 66px; height: 66px; }
+  .biy-konu-select { min-width: 0; width: 100%; font-size: 1.12rem; }
+  .biy-menu-emoji .biy-svg { width: 76px; height: 76px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .biy-kn-tik { stroke-dashoffset: 0 !important; }
+  .biy-kn-vurgu { opacity: 1; transform: none; }
+  .biy-kn-halka { opacity: 0; }
+  .biy-kn-imlec, .biy-kn-bas { transform: none; }
+  .biy-hv-nok { opacity: .9; transform: none; }
+  .biy-hv-sec { opacity: 1; }
+}
+
+
+/* =====================================================================
+   v63 — Türkçe şık yönü · sürükle-bırak sıra numarası
+   ===================================================================== */
+
+/* ---- 1) Şık metni Türkçe ise her koşulda soldan sağa okunur.
+   [dir="rtl"] .biy-secenek-metin (0,2,0) kuralını aşmak için seçiciler
+   bilerek aynı ağırlıkta ve daha sonra yazılmıştır.                    */
+.biy-secenek-metin.biy-ltr,
+[dir="rtl"] .biy-secenek-metin.biy-ltr,
+.biy-arapca-secenek .biy-secenek-metin.biy-ltr {
+  direction: ltr; text-align: left; font-family: inherit; font-size: 1.05rem; }
+.biy-a-opt.biy-ltr .biy-a-metin { direction: ltr; text-align: left; font-family: inherit; }
+.biy-t-opt.biy-ltr,
+[dir="rtl"] .biy-t-opt.biy-ltr { direction: ltr; text-align: left; font-family: inherit; font-size: 1.15rem; }
+.biy-rev-metin.biy-ltr { direction: ltr; }
+[dir="rtl"] .biy-reveal-tablo td.biy-rev-sik { text-align: right; }
+
+/* ---- 2) Sürükle-bırak yuvası: sıra numarası yuva dolduktan sonra da
+   köşede kalır. Mobilde yuvalar alt alta dizildiği için cümledeki sıra
+   ancak bu rozetten okunur.                                            */
+.biy-t-slot { position: relative; }
+.biy-t-slot-metin { display: block; }
+.biy-t-slot-no.dolu {
+  position: absolute; top: -9px; inset-inline-start: -7px;
+  width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: #6366F1; color: #fff; font-size: .8rem; font-weight: 900;
+  font-family: 'Marhey', sans-serif; direction: ltr;
+  box-shadow: 0 2px 5px rgba(49,46,129,.32); }
+.biy-t-slot.dolu { padding: 10px 14px; }
+
+@media (max-width: 640px) {
+  /* dar ekranda cümle yatay sığmaz → yuvalar tam genişlikte alt alta */
+  .biy-t-slotlar { flex-direction: column; align-items: stretch; gap: 12px; padding: 14px 12px 12px; }
+  .biy-t-slot { width: 100%; min-height: 54px; }
+  .biy-t-slot-no.dolu { top: -8px; inset-inline-start: 8px; width: 24px; height: 24px; font-size: .86rem; }
+  .biy-sonuc-nokta { gap: 18px; }
+  .biy-nk-svg { width: 22px; height: 22px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .biy-nk-svg { transition: none; }
+}
+
+
+/* =====================================================================
+   v63 — KARAKTERLER (avatarlar)
+   Katılımcı adının yanında görünen özel SVG'ler. Her avatarı yalnız bir
+   kişi alabilir; kapılmış olanlar soluk ve kilitli görünür.
+   ===================================================================== */
+
+/* ---- ada eşlik eden küçük avatar ---- */
+.biy-krk { display: inline-flex; align-items: center; justify-content: center;
+  flex: 0 0 auto; line-height: 0; vertical-align: middle; }
+.biy-krk svg { display: block; width: 100%; height: 100%; }
+.biy-krk-mini { width: 24px; height: 24px; margin-inline-end: 7px; }
+.biy-krk-cip  { width: 26px; height: 26px; margin-inline-end: 8px; }
+.biy-krk-kart-ikon { width: 40px; height: 40px; margin-inline-end: 10px; }
+.biy-krk-buyuk { width: 86px; height: 86px;
+  filter: drop-shadow(0 6px 14px rgba(15,23,42,.22)); animation: biySalla 2.6s ease-in-out infinite; }
+
+.biy-cip { display: inline-flex; align-items: center; }
+.biy-takim-kart h3 { display: flex; align-items: center; justify-content: center; }
+.biy-lider-ad { display: flex; align-items: center; min-width: 0; }
+.biy-kat-ad, .biy-bek-ad { display: inline-flex; align-items: center; }
+.biy-reveal-tablo td .biy-krk-mini { vertical-align: -6px; }
+
+/* daha büyük ekranlarda (yansıtılan tahta) avatar da büyür */
+.biy-cipler.biy-dev .biy-krk-cip { width: 46px; height: 46px; margin-inline-end: 12px; }
+@media (min-width: 900px) {
+  #ekranOyunAdmin .biy-krk-cip  { width: 40px; height: 40px; }
+  #ekranOyunAdmin .biy-cipler.biy-dev .biy-krk-cip { width: 66px; height: 66px; }
+  #ekranOyunAdmin .biy-krk-mini { width: 32px; height: 32px; }
+}
+
+/* ---- lobide "senin karakterin" rozeti ---- */
+.biy-krk-benim { display: flex; flex-direction: column; align-items: center; gap: 6px; margin: 14px 0 4px; }
+.biy-krk-benim span { font-family: 'Marhey', sans-serif; font-weight: 800; color: #16A085; font-size: 1.05rem; }
+
+/* ---- seçim ızgarası ---- */
+.biy-krk-baslik { margin: 16px 0 8px; font-family: 'Marhey', sans-serif;
+  font-weight: 800; color: #334155; font-size: 1.05rem; text-align: center; }
+.biy-krk-alan { width: 100%; }
+.biy-krk-izgara {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: 10px; max-height: 44vh; overflow-y: auto; padding: 6px;
+  border-radius: 16px; background: #F7FAFC; }
+.biy-krk-btn {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 8px 4px 6px; border: 2px solid transparent; border-radius: 14px;
+  background: #fff; cursor: pointer; font-family: inherit;
+  box-shadow: 0 1px 3px rgba(15,23,42,.08);
+  transition: transform .18s ease, border-color .18s, box-shadow .18s, background .18s;
+  animation: biyPatla .32s ease both; }
+.biy-krk-btn .biy-krk-resim { display: block; width: 46px; height: 46px; line-height: 0; }
+.biy-krk-btn .biy-krk-resim svg { width: 100%; height: 100%; display: block;
+  transform-box: fill-box; transform-origin: center; transition: transform .2s ease; }
+.biy-krk-ad { font-family: 'Marhey', sans-serif; font-size: .74rem; font-weight: 700;
+  color: #64748b; line-height: 1.25; max-width: 100%;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: rtl; }
+.biy-krk-btn:hover:not(.kapali) { transform: translateY(-3px); box-shadow: 0 6px 14px rgba(15,23,42,.14); }
+.biy-krk-btn:hover:not(.kapali) .biy-krk-resim svg { transform: scale(1.1); }
+
+/* seçili olan: yeşil çerçeve + köşede tik */
+.biy-krk-btn.secili { border-color: #16A085; background: #E8F8F4;
+  box-shadow: 0 6px 16px rgba(22,160,133,.28); }
+.biy-krk-btn.secili .biy-krk-ad { color: #0E7C67; }
+.biy-krk-btn.secili .biy-krk-resim svg { transform: scale(1.12); }
+.biy-krk-tik { position: absolute; top: 3px; inset-inline-end: 3px;
+  width: 19px; height: 19px; border-radius: 50%; background: #16A085; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .82rem; font-weight: 900; box-shadow: 0 2px 6px rgba(22,160,133,.45);
+  animation: biyPatla .28s ease both; }
+
+/* başkası kapmış: soluk, gri ve tıklanamaz */
+.biy-krk-btn.kapali { cursor: not-allowed; opacity: .42; background: #EEF2F6;
+  box-shadow: none; animation: none; }
+.biy-krk-btn.kapali .biy-krk-resim svg { filter: grayscale(1); }
+.biy-krk-kilit { position: absolute; top: 3px; inset-inline-end: 3px;
+  width: 19px; height: 19px; border-radius: 50%; background: #94A3B8; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .78rem; font-weight: 900; }
+
+/* takım / sınıf cihazının arma seçme kartı */
+.biy-krk-kart { max-width: 560px; width: 100%; }
+.biy-krk-kart h1 { font-size: 1.5rem; margin-bottom: 4px; }
+.biy-krk-kart .biy-btn { margin-top: 14px; }
+.biy-krk-kart .biy-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+@media (max-width: 640px) {
+  .biy-krk-izgara { grid-template-columns: repeat(auto-fill, minmax(66px, 1fr)); gap: 8px; max-height: 38vh; }
+  .biy-krk-btn .biy-krk-resim { width: 40px; height: 40px; }
+  .biy-krk-ad { font-size: .68rem; }
+  .biy-krk-buyuk { width: 68px; height: 68px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .biy-krk-btn, .biy-krk-tik { animation: none; }
+  .biy-krk-buyuk { animation: none; }
+  .biy-krk-btn:hover:not(.kapali) { transform: none; }
+}
+
+
+/* =====================================================================
+   v68 — KURULUM EKRANLARI YAZI BOYU (+%38)
+   Yalnızca öğretmenin oda kurduğu ve soru seçtiği ekranlar büyütüldü:
+   ana sayfa (konu/havuz/soru sayısı/mod kartları), örnek sorular
+   önizlemesi, takım-sınıf oluşturma + lobi, soru havuzu penceresi ve
+   onay pencereleri. Canlı yarışma ekranları (tahta, öğrenci cihazı,
+   katılım) bilerek eski boyutunda bırakıldı.
+   rem birimi köke bağlı olduğu için kök büyütülmedi; her kural
+   kapsamlı biçimde yeniden yazıldı.
+   ===================================================================== */
+
+/* ---- ana sayfa: başlık şeridi ---- */
+#ekranAnasayfa .biy-baslik { font-size: 2.06rem; }
+#ekranAnasayfa .biy-baslik small { font-size: 1.08rem; }
+#ekranAnasayfa .biy-admin-ad { font-size: 1.27rem; }
+
+/* ---- ana sayfa: konu ve havuz seçimi ---- */
+#ekranAnasayfa .biy-konu-label { font-size: 1.54rem; }
+#ekranAnasayfa .biy-konu-select { font-size: 2.05rem; }
+#ekranAnasayfa .biy-soru-sec-btn { font-size: 2.05rem; }   /* v80: ders seç ile aynı */
+#ekranAnasayfa .biy-pdf-rozet { font-size: 0.77rem; }
+#ekranAnasayfa .biy-pdf-baslik { font-size: 0.8rem; }
+#ekranAnasayfa .biy-pdf-indir { font-size: 1.31rem; }
+
+/* ---- ana sayfa: soru sayısı ---- */
+#ekranAnasayfa .biy-seviye-label { font-size: 1.8rem; }
+#ekranAnasayfa .biy-sayi-btn { font-size: 1.65rem; }
+#ekranAnasayfa .biy-sayi-input { font-size: 1.52rem; }
+
+/* ---- ana sayfa: mod kartları ---- */
+#ekranAnasayfa .biy-menu-ad { font-size: 2.06rem; }
+#ekranAnasayfa .biy-menu-desc { font-size: 1.27rem; }
+#ekranAnasayfa .biy-menu-not { font-size: 1.38rem; }
+#ekranAnasayfa .biy-bagli-rozet { font-size: 1.11rem; }
+
+/* ---- üst bar (örnek sorular + lobi) ---- */
+#ekranSorular .biy-ust-bar h2,
+#ekranTakimlar .biy-ust-bar h2 { font-size: 2.34rem; }
+
+/* ---- örnek sorular önizlemesi ---- */
+#ekranSorular .biy-sekme { font-size: 1.38rem; }
+#ekranSorular .biy-soru-tip { font-size: 1.11rem; }
+#ekranSorular .biy-zorluk { font-size: 1.13rem; }
+#ekranSorular .biy-soru-metin { font-size: 1.65rem; }
+#ekranSorular .biy-soru-arapca { font-size: 3.59rem; }
+#ekranSorular .biy-secenek { font-size: 1.45rem; }
+#ekranSorular .biy-secenek .biy-sik { font-size: 1.38rem; }
+#ekranSorular .biy-arapca-secenek { font-size: 2.21rem; }
+#ekranSorular .biy-bicim-rozet { font-size: 1.17rem; }
+#ekranSorular .biy-bicim-kutu .biy-secenek-metin { font-size: 1.86rem; }
+#ekranSorular .biy-secenek-metin.biy-ltr,
+#ekranSorular [dir="rtl"] .biy-secenek-metin.biy-ltr { font-size: 1.45rem; }
+
+/* ---- oda kurma: takım / sınıf adı girişi ---- */
+#ekranTakimlar #takimAdiInput { font-size: 2.06rem; }
+#ekranTakimlar .biy-takim-yap .biy-btn { font-size: 1.93rem; }
+#ekranTakimlar #sinifAdiInput { font-size: 1.72rem; }
+#ekranTakimlar .biy-sinif-yap .biy-btn { font-size: 1.59rem; }
+#ekranTakimlar .biy-sinif-cip,
+#ekranTakimlar .biy-sinif-cip button { font-size: 1.38rem; }
+#ekranTakimlar .biy-sinif-bos-not { font-size: 1.31rem; }
+
+/* ---- oda kurma: karekod ve oda kodu ---- */
+#ekranTakimlar .biy-oda-etiket { font-size: 1.17rem; }
+#ekranTakimlar .biy-oda-kod { font-size: 4.41rem; }
+#ekranTakimlar .biy-oda-ipucu { font-size: 1.31rem; }
+#ekranTakimlar .biy-oda-bilgi { font-size: 1.59rem; }
+
+/* ---- oda kurma: takım / sınıf kartları ---- */
+#ekranTakimlar .biy-takim-kart h3 { font-size: 2.9rem; }
+#ekranTakimlar .biy-takim-durum { font-size: 1.52rem; }
+#ekranTakimlar .biy-takim-link input { font-size: 1.24rem; }
+#ekranTakimlar .biy-kopya { font-size: 1.38rem; }
+#ekranTakimlar .biy-sil { font-size: 1.93rem; }
+
+/* ---- oda kurma: onay kuyruğu ve katılımcı listesi ---- */
+#ekranTakimlar .biy-bek-ust h3 { font-size: 1.65rem; }
+#ekranTakimlar .biy-bek-ad { font-size: 1.52rem; }
+#ekranTakimlar .biy-bek-sinif { font-size: 1.13rem; }
+#ekranTakimlar .biy-bek-bos { font-size: 1.35rem; }
+#ekranTakimlar .biy-onay-ok,
+#ekranTakimlar .biy-onay-red { font-size: 1.59rem; }
+#ekranTakimlar .biy-kat-ust { font-size: 1.65rem; }
+#ekranTakimlar .biy-kat-ipucu { font-size: 1.17rem; }
+#ekranTakimlar .biy-kat-ad { font-size: 1.59rem; }
+#ekranTakimlar .biy-kat-sinif { font-size: 1.15rem; }
+#ekranTakimlar .biy-kat-at { font-size: 1.65rem; }
+#ekranTakimlar .biy-kat-bos { font-size: 1.38rem; }
+#ekranTakimlar .biy-btn-mini { font-size: 1.27rem !important; }
+
+/* ---- oda kurma: başlat şeridi ---- */
+#ekranTakimlar .biy-btn-buyuk { font-size: 2.21rem; }
+#ekranTakimlar .biy-not { font-size: 1.22rem; }
+#ekranTakimlar .biy-btn { font-size: 1.45rem; }
+
+/* ---- soru havuzu penceresi ---- */
+#biySoruSec .biy-soru-sec-bas h3 { font-size: 1.93rem; }
+#biySoruSec .biy-soru-sec-say { font-size: 1.45rem; }
+#biySoruSec .biy-soru-sec-kapat { font-size: 1.52rem; }
+#biySoruSec .biy-hs-baslik { font-size: 2.21rem; }
+#biySoruSec .biy-hs-ok { font-size: 1.65rem; }
+#biySoruSec .biy-hs-baslik .biy-hs-say { font-size: 1.59rem; }
+#biySoruSec .biy-hs-tumu { font-size: 1.52rem; }
+#biySoruSec .biy-hs-zor { font-size: 1.52rem; }
+#biySoruSec .biy-hs-metin { font-size: 2.9rem; }
+#biySoruSec .biy-soru-sec-alt .biy-btn { font-size: 1.45rem; }
+#biySoruSec .biy-alt { font-size: 1.41rem; }
+
+/* ---- onay / isim düzeltme pencereleri ---- */
+#biyOnay .biy-onay-kutu h3 { font-size: 2.06rem; }
+#biyOnay .biy-onay-kutu p { font-size: 1.52rem; }
+#biyOnay .biy-onay-btnlar button { font-size: 1.45rem; }
+#biyOnay .biy-onay-input { font-size: 1.72rem; }
+
+/* ---- dar ekran: aynı oranı koru, ama taşmayı engelle ---- */
+@media (max-width: 640px) {
+  #ekranAnasayfa .biy-konu-select { font-size: 1.78rem; }
+  #ekranAnasayfa .biy-soru-sec-btn { font-size: 1.78rem; }   /* v80: ders seç ile aynı */
+  #ekranAnasayfa .biy-baslik { font-size: 1.72rem; }
+  #ekranAnasayfa .biy-menu-ad { font-size: 1.75rem; }
+  #ekranAnasayfa .biy-seviye-label { font-size: 1.58rem; }
+  #ekranSorular .biy-soru-arapca { font-size: 2.95rem; }
+  #ekranSorular .biy-ust-bar h2,
+  #ekranTakimlar .biy-ust-bar h2 { font-size: 1.98rem; }
+  #ekranTakimlar #takimAdiInput { font-size: 1.72rem; }
+  #ekranTakimlar .biy-takim-yap .biy-btn { font-size: 1.6rem; }
+  #ekranTakimlar .biy-takim-kart h3 { font-size: 2.34rem; }
+  #ekranTakimlar .biy-oda-kod { font-size: 3.32rem; }
+  #ekranTakimlar .biy-btn-buyuk { font-size: 1.85rem; }
+  #biySoruSec .biy-hs-metin { font-size: 2.34rem; }
+  #biySoruSec .biy-hs-baslik { font-size: 1.85rem; }
+}
+
+
+/* =====================================================================
+   v66 — KONU/HAVUZ YAN YANA
+   Ana sayfadaki iki secim sutununda SVG artik etiketin ustunde degil,
+   etiket + kontrol ikilisinin yaninda duruyor. Izgara iki sutun:
+   sol sutun ikon (iki satir boyunca), sag sutun ustte etiket altta
+   kontrol. Panel boylece alcalir, satirlar yan yana okunur.
+   ===================================================================== */
+
+#ekranAnasayfa .biy-konu-secim,
+#ekranAnasayfa .biy-soru-sec-secim {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: 18px;
+  row-gap: 8px;
+  text-align: start;
+  justify-content: start;
+}
+#ekranAnasayfa .biy-sec-ikon {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  align-self: center;
+}
+#ekranAnasayfa .biy-sec-ikon .biy-svg { margin: 0; }
+#ekranAnasayfa .biy-konu-secim > .biy-konu-label,
+#ekranAnasayfa .biy-soru-sec-secim > .biy-konu-label {
+  grid-column: 2;
+  grid-row: 1;
+  margin: 0;
+  align-self: end;
+}
+#ekranAnasayfa .biy-konu-select,
+#ekranAnasayfa .biy-soru-sec-btn {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: start;
+}
+#ekranAnasayfa .biy-soru-sec-btn { justify-self: start; }
+
+@media (max-width: 640px) {
+  #ekranAnasayfa .biy-konu-secim,
+  #ekranAnasayfa .biy-soru-sec-secim { column-gap: 12px; row-gap: 6px; }
+  #ekranAnasayfa .biy-soru-sec-btn { justify-self: stretch; }
+}
+
+
+/* =====================================================================
+   v67 — KONU/HAVUZ SVG BUYUTME
+   Yan yana duzende satir kisaldigi icin iki secim ikonu belirgin
+   sekilde buyutuldu: 88 -> 128 px (dar ekranda 66 -> 96 px).
+   Yalnizca ana sayfadaki konu/havuz ikonlari; mod kartlari ve
+   yarisma ekranlari etkilenmez.
+   ===================================================================== */
+
+#ekranAnasayfa .biy-sec-ikon .biy-svg { width: 128px; height: 128px; }
+#ekranAnasayfa .biy-konu-secim,
+#ekranAnasayfa .biy-soru-sec-secim { column-gap: 22px; }
+
+@media (max-width: 640px) {
+  #ekranAnasayfa .biy-sec-ikon .biy-svg { width: 96px; height: 96px; }
+  #ekranAnasayfa .biy-konu-secim,
+  #ekranAnasayfa .biy-soru-sec-secim { column-gap: 14px; }
+}
+
+
+/* =====================================================================
+   v69 — SORU SAYISI ETIKETI SVG
+   "عَدَدُ الأَسْئِلَةِ (بِحَدٍّ أَقْصَى 50)" yazisi yerine kagit yigini +
+   rakam rozeti olan animasyonlu bir simge. Rakam JS ile sayarak
+   degisir (_sayiAnim); havuzdan secim varsa rozet yesile doner ve
+   onay isareti belirir. Tam metin SVG basligi (title/aria-label)
+   olarak korunur.
+   ===================================================================== */
+
+.biy-sayi-etiket { display: inline-flex; line-height: 0; flex: 0 0 auto; }
+.biy-sayi-etiket .biy-svg-sayi { width: 78px; height: 78px; display: block; }
+#ekranAnasayfa .biy-sayi-etiket .biy-svg-sayi { width: 86px; height: 86px; }
+.biy-ss-rakam { font-family: 'Marhey', sans-serif; font-weight: 700; font-size: 17px;
+                direction: ltr; unicode-bidi: isolate; }
+
+/* Satirlar sirayla parlar — "sayiliyor" hissi */
+.biy-ss-satir { opacity: .34; }
+.biy-ss-s1 { animation: biySsSatir 2.4s ease-in-out infinite; }
+.biy-ss-s2 { animation: biySsSatir 2.4s ease-in-out .30s infinite; }
+.biy-ss-s3 { animation: biySsSatir 2.4s ease-in-out .60s infinite; }
+@keyframes biySsSatir { 0%, 70%, 100% { opacity: .34 } 20%, 45% { opacity: 1 } }
+
+/* Rozet yavasca nefes alir */
+.biy-ss-rozet-g { transform-box: fill-box; transform-origin: center;
+                  animation: biySsRozet 2.4s ease-in-out infinite; }
+@keyframes biySsRozet { 0%, 100% { transform: scale(1) } 50% { transform: scale(1.05) } }
+
+/* Rakam degistiginde tek seferlik sicrama (JS sinifi ekler/kaldirir) */
+.biy-svg-sayi.biy-ss-atar .biy-ss-rozet-g {
+  animation: biySsAtar .5s cubic-bezier(.34,1.56,.64,1) 1;
+}
+@keyframes biySsAtar {
+  0%   { transform: scale(.55) rotate(-12deg) }
+  60%  { transform: scale(1.20) rotate(5deg) }
+  100% { transform: scale(1)    rotate(0) }
+}
+
+/* Havuzdan secim yapildiysa: yesil rozet + onay isareti */
+.biy-ss-secim { opacity: 0; transform-box: fill-box; transform-origin: center;
+                transform: scale(.4); transition: opacity .25s ease, transform .25s ease; }
+.biy-svg-sayi.biy-ss-havuz .biy-ss-secim { opacity: 1; transform: scale(1); }
+.biy-svg-sayi.biy-ss-havuz .biy-ss-rozet { fill: url(#biyGrYesil); }
+
+@media (max-width: 640px) {
+  .biy-sayi-etiket .biy-svg-sayi,
+  #ekranAnasayfa .biy-sayi-etiket .biy-svg-sayi { width: 64px; height: 64px; }
+}
+
+/* --- v70 — ROZET SECILI KIPI ---------------------------------------
+   turuncu: konudaki ust sinir · mavi: ogretmenin sectigi sayi
+   yesil (+onay): havuzdan secilen sorular                            */
+.biy-svg-sayi.biy-ss-secili .biy-ss-rozet { fill: url(#biyGrMavi); }
+.biy-ss-rozet { transition: fill .3s ease; }
+
+/* --- v71 — BOSTA RAKAM CEVIRME -------------------------------------
+   bosta yarim saniyede bir yeni sayi gelir; rozetin tamami degil
+   yalnizca rakam cevrilir, boylece nefes animasyonu kesilmez.        */
+.biy-ss-rakam { transform-box: fill-box; transform-origin: center; }
+.biy-ss-rakam.biy-ss-cevir { animation: biySsCevir .42s cubic-bezier(.34,1.4,.64,1) 1; }
+@keyframes biySsCevir {
+  0%   { opacity: .3; transform: translateY(5px) scale(.72) }
+  55%  { opacity: 1; transform: translateY(0)   scale(1.14) }
+  100% { opacity: 1; transform: translateY(0)   scale(1) }
+}
+
+/* =====================================================================
+   v71 — ETIKETSIZ SATIR + SIK HAVUZ SAYACI
+   Konu ve havuz satirlarindaki yazili etiketler kaldirildi (ikon +
+   kontrolun kendisi zaten anlatiyor), metin aria-label/title'a tasindi.
+   Iki satirli izgara tek satira indi. Havuz sayaci parantez yerine
+   yuvarlak rozet; sifirken hic gorunmuyor.
+   ===================================================================== */
+
+#ekranAnasayfa .biy-konu-secim,
+#ekranAnasayfa .biy-soru-sec-secim { row-gap: 0; }
+#ekranAnasayfa .biy-sec-ikon { grid-row: 1; }
+#ekranAnasayfa .biy-konu-select,
+#ekranAnasayfa .biy-soru-sec-btn { grid-row: 1; align-self: center; }
+
+/* havuz sayaci — yuvarlak rozet */
+.biy-soru-sec-btn { display: inline-flex; align-items: center; gap: .5em; }
+#soruSecSayi {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 1.85em; height: 1.85em; padding: 0 .45em;
+  border-radius: 999px; background: #16A085; color: #fff;
+  font-size: .8em; font-weight: 800; line-height: 1;
+  direction: ltr; unicode-bidi: isolate;
+  transition: background .25s ease, color .25s ease;
+}
+.biy-soru-sec-btn.biy-secili-var #soruSecSayi { background: #fff; color: #16A085; }
+#soruSecSayi[hidden] { display: none; }
+
+/* =====================================================================
+   v72 — DERS SECIMI: KENDI ACILIR LISTEMIZ
+   Isletim sisteminin gri <select> listesi yerine tasarimin devami olan
+   bir panel: yuvarlak koseler, yumusak golge, her konuya bir renk
+   noktasi, secilide yesil tik, ogeler sirayla suzulerek geliyor.
+   Eski <select> ekran okuyucu/uyumluluk icin gizli duruyor.
+   ===================================================================== */
+
+.biy-gizli-alan {
+  position: absolute; width: 1px; height: 1px; margin: -1px;
+  padding: 0; border: 0; overflow: hidden; opacity: 0;
+  pointer-events: none; clip-path: inset(50%);
+}
+
+.biy-ds { position: relative; display: block; }
+#ekranAnasayfa .biy-ds { grid-column: 2; grid-row: 1; align-self: center; }
+
+/* tetik: eski secici gorunumunu korur, oku kendi SVG'miz */
+.biy-ds-btn {
+  background-image: none; width: 100%;
+  display: inline-flex; align-items: center; justify-content: space-between;
+  gap: 16px; padding: 13px 20px; text-align: start;
+}
+#ekranAnasayfa .biy-ds-btn { padding: 15px 22px; }
+[dir="rtl"] .biy-ds-btn { padding: 13px 20px; }
+[dir="rtl"] #ekranAnasayfa .biy-ds-btn { padding: 15px 22px; }
+.biy-ds-btn:hover:not(:disabled) { border-color: #20C997; }
+.biy-ds-ad { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.biy-ds-ok {
+  width: 1em; height: 1em; flex: 0 0 auto;
+  transition: transform .25s ease;
+}
+.biy-ds-btn.biy-ds-acik { border-color: #20C997; }
+.biy-ds-btn.biy-ds-acik .biy-ds-ok { transform: rotate(180deg); }
+
+/* panel */
+.biy-ds-liste {
+  position: absolute; z-index: 60; top: calc(100% + 10px);
+  inset-inline-start: 0; width: 100%; max-width: none;   /* v78: panel tetige sabit */
+  max-height: 330px; overflow-y: auto; overscroll-behavior: contain;
+  background: #fff; border: 2px solid #E9EEF5; border-radius: 18px;
+  box-shadow: 0 20px 44px rgba(15, 23, 42, .16);
+  padding: 8px; text-align: start;
+  animation: biyDsPanel .2s ease both;
+}
+.biy-ds-liste[hidden] { display: none; }
+@keyframes biyDsPanel {
+  from { opacity: 0; transform: translateY(-10px) scale(.97) }
+  to   { opacity: 1; transform: translateY(0)     scale(1) }
+}
+
+/* ogeler */
+.biy-ds-oge {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 12px 14px; border: 0; border-radius: 12px; background: transparent;
+  font-family: 'Marhey', sans-serif; font-weight: 700; font-size: .82em;
+  color: #334155; cursor: pointer; text-align: start; line-height: 1.5;
+  transition: background .18s ease, color .18s ease;
+  animation: biyDsOge .26s ease both; animation-delay: calc(var(--i, 0) * 28ms);
+}
+@keyframes biyDsOge {
+  from { opacity: 0; transform: translateY(-6px) }
+  to   { opacity: 1; transform: translateY(0) }
+}
+.biy-ds-oge:hover:not(:disabled) { background: #F1F5F9; }
+.biy-ds-oge.secili { background: #E9FBF4; color: #0E9E86; }
+.biy-ds-oge:disabled, .biy-ds-pasif { cursor: default; color: #94A3B8; }
+.biy-ds-ad2 { flex: 1 1 auto; }
+
+/* her konuya bir renk noktasi — panelin geri kalani ile ayni palet */
+.biy-ds-nokta {
+  width: 11px; height: 11px; border-radius: 50%; flex: 0 0 auto;
+  background: #A78BFA;
+}
+.biy-ds-oge:nth-child(6n+2) .biy-ds-nokta { background: #38BDF8; }
+.biy-ds-oge:nth-child(6n+3) .biy-ds-nokta { background: #FBBF24; }
+.biy-ds-oge:nth-child(6n+4) .biy-ds-nokta { background: #34D399; }
+.biy-ds-oge:nth-child(6n+5) .biy-ds-nokta { background: #F472B6; }
+.biy-ds-oge:nth-child(6n)   .biy-ds-nokta { background: #60A5FA; }
+.biy-ds-oge:disabled .biy-ds-nokta { background: #CBD5E1; }
+
+.biy-ds-tik {
+  width: 1.05em; height: 1.05em; flex: 0 0 auto; color: #16A085;
+  opacity: 0; transform: scale(.5);
+  transition: opacity .22s ease, transform .22s cubic-bezier(.34,1.56,.64,1);
+}
+.biy-ds-oge.secili .biy-ds-tik { opacity: 1; transform: scale(1); }
+.biy-ds-yakinda {
+  flex: 0 0 auto; font-size: .78em; font-weight: 700; color: #94A3B8;
+  background: #F1F5F9; border-radius: 999px; padding: 3px 10px;
+}
+
+@media (max-width: 640px) {
+  .biy-ds-liste { max-height: 60vh; }
+  .biy-ds-oge { padding: 11px 12px; }
+}
+
+/* =====================================================================
+   v73 — ACILIR LISTE: DAHA BUYUK BASLIKLAR
+   Panel icindeki ders adlari tetik dugmesine gore cok kucuk kaliyordu.
+   Satir yazisi tetiğe yaklastirildi; satir yuksekligi, renk noktasi ve
+   tik da ayni oranda buyudu. Satirlar buyudugu icin panelin yuksekligi
+   de artirildi ki liste yine bir bakista gorulsun.
+   ===================================================================== */
+
+/* v74a */
+.biy-ds-oge {
+  font-size: 1.95em;
+  gap: 14px;
+  padding: 13px 16px;
+  border-radius: 14px;
+  line-height: 1.45;
+}
+.biy-ds-nokta { width: 14px; height: 14px; }
+.biy-ds-tik   { width: 1.1em; height: 1.1em; }
+
+/* v78: panel TETIGE SABIT — uzun ilk baslik paneli genisletemez; tetik
+   masaustunde zaten genis (560px), uzun adlar gerekirse ikinci satira sarar. */
+.biy-ds-liste {
+  width: 100%;
+  max-width: none;
+  max-height: min(600px, calc(100vh - 280px));
+  padding: 10px;
+}
+
+@media (max-width: 640px) {
+  /* v73d — dar ekranda panel tetigin sag kenarina degil sol kenarina
+     tutunur; boylece icerige gore buyurken ekranin disina tasmaz. */
+  .biy-ds-liste {
+    inset-inline-start: auto; inset-inline-end: 0;
+    max-width: calc(100vw - 44px); max-height: 62vh;
+  }
+  .biy-ds-oge   { font-size: 1.62em; padding: 12px 13px; }
+}
+
+/* =====================================================================
+   v73c — MOD KARTLARININ RENGI SIRAYA DEGIL KENDINE BAGLI
+   Kartlar yeniden siralaninca (birey sol · takim orta · okul sag)
+   nth-child ile verilen ust serit ve baslik renkleri de kaymisti.
+   Renkler artik id ile sabitlendi: her mod kendi SVG'sinin rengini
+   tasiyor. Dar ekranda da ayni sira alt alta korunuyor.
+   ===================================================================== */
+
+#kartBirey:before { background: #20C997; }
+#kartTakim:before { background: #9B59B6; }
+#kartOkul:before  { background: #F39C12; }
+
+#kartBirey .biy-menu-ad { color: #16A085; }
+#kartTakim .biy-menu-ad { color: #9B59B6; }
+#kartOkul  .biy-menu-ad { color: #F39C12; }
+
+@media (max-width: 640px) {
+  #kartBirey { order: 1; }
+  #kartTakim { order: 2; }
+  #kartOkul  { order: 3; }
+}
+
+/* ===================== v77 — etiket rozetleri & masaüstü soru düzeni ===================== */
+/* soru tipi/biçim/zorluk: yazı değil animasyonlu SVG rozet, soru cümlesinin üstünde */
+.biy-etiketler { display: flex; justify-content: center; align-items: center; gap: 12px; margin: 2px 0 10px; }
+.biy-etiket { width: 46px; height: 46px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; color: #fff; box-shadow: 0 3px 8px rgba(0,0,0,.14); }
+.biy-etiket svg { width: 30px; height: 30px; display: block; }
+.biy-et-tip { background: #16A085; }
+.biy-et-bicim { background: #6366F1; }
+.biy-et-zorluk.z1 { background: #27AE60; }
+.biy-et-zorluk.z2 { background: #F39C12; }
+.biy-et-zorluk.z3 { background: #EF5350; }
+.biy-soru-kart .biy-etiketler { justify-content: flex-start; margin: 0 0 8px; }
+.biy-soru-kart .biy-etiket { width: 38px; height: 38px; border-radius: 11px; }
+.biy-soru-kart .biy-etiket svg { width: 24px; height: 24px; }
+/* etiket animasyonları */
+.biy-ea-don { transform-box: view-box; transform-origin: 12px 12px; animation: biyEaDon 9s linear infinite; }
+.biy-ea-saat { transform-box: view-box; transform-origin: 12px 12px; animation: biyEaDon 6s linear infinite; }
+@keyframes biyEaDon { to { transform: rotate(360deg); } }
+.biy-ea-puls { transform-box: fill-box; transform-origin: center; animation: biyEaPuls 1.8s ease-in-out infinite; }
+@keyframes biyEaPuls { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.45); opacity: .55; } }
+.biy-ea-ciz { stroke-dasharray: 26; animation: biyEaCiz 2.6s ease-in-out infinite; }
+@keyframes biyEaCiz { 0% { stroke-dashoffset: 26; } 45%,70% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -26; } }
+.biy-ea-buhar { animation: biyEaBuhar 2.2s ease-in-out infinite; }
+@keyframes biyEaBuhar { 0%,100% { transform: translateY(0); opacity: .45; } 50% { transform: translateY(-1.6px); opacity: 1; } }
+.biy-ea-kay { transform-box: fill-box; transform-origin: center; animation: biyEaKay 2.4s ease-in-out infinite; }
+@keyframes biyEaKay { 0%,100% { transform: translateX(-5px); } 50% { transform: translateX(5px); } }
+.biy-ea-zip { animation: biyEaZip 1.9s ease-in-out infinite; }
+.biy-ea-zip2 { animation: biyEaZip 1.9s ease-in-out .95s infinite; }
+@keyframes biyEaZip { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-1.4px); } }
+.biy-ea-bas { transform-box: fill-box; transform-origin: center; animation: biyEaBas 1.6s ease-in-out infinite; }
+@keyframes biyEaBas { 0%,100% { transform: scale(1); } 50% { transform: scale(.82); } }
+.biy-ea-parla { animation: biyEaParla 2s ease-in-out infinite; }
+@keyframes biyEaParla { 0%,100% { opacity: .35; } 50% { opacity: 1; } }
+.biy-ea-y1 { animation: biyEaParla 1.8s ease-in-out infinite; }
+.biy-ea-y2 { animation: biyEaParla 1.8s ease-in-out .3s infinite; }
+.biy-ea-y3 { animation: biyEaParla 1.8s ease-in-out .6s infinite; }
+@media (prefers-reduced-motion: reduce){
+  .biy-ea-don, .biy-ea-saat, .biy-ea-puls, .biy-ea-ciz, .biy-ea-buhar, .biy-ea-kay,
+  .biy-ea-zip, .biy-ea-zip2, .biy-ea-bas, .biy-ea-parla, .biy-ea-y1, .biy-ea-y2, .biy-ea-y3 { animation: none; }
+}
+/* v77b — test dışı biçimler (eşleştir/sırala/yaz) .biy-a-optlar ızgarasının
+   tek sütununa sıkışıyordu; tam satıra yayılıp ortalanırlar. */
+.biy-a-optlar > .biy-a-cift, .biy-a-optlar > .biy-a-dizi,
+.biy-a-optlar > .biy-a-tuslar, .biy-a-optlar > .biy-a-cevapcubuk { grid-column: 1 / -1; }
+/* soru cümlesindeki «Türkçe» bölümler soldan sağa okunur */
+.biy-ltr-ic { direction: ltr; unicode-bidi: isolate; }
+/* masaüstü: etiketler tahtada büyük; eşleştirme/sıralama ortalı ve çok daha büyük */
+@media (min-width: 900px){
+  #ekranOyunAdmin .biy-etiketler { gap: 16px; margin: 4px 0 14px; }
+  #ekranOyunAdmin .biy-etiket { width: 60px; height: 60px; border-radius: 18px; }
+  #ekranOyunAdmin .biy-etiket svg { width: 40px; height: 40px; }
+  #ekranOyunAdmin .biy-a-cift { gap: 70px; }
+  #ekranOyunAdmin .biy-a-sutun { gap: 14px; }
+  #ekranOyunAdmin .biy-a-sol, #ekranOyunAdmin .biy-a-sag { min-width: 280px; padding: 12px 24px; }
+  /* oyuncu (takım/birey) ekranı: başka bilgisayardan bağlananlara büyük düzen */
+  #ekranTakim #takimIcerik.biy-oyun-orta { max-width: 1100px; }
+  #ekranTakim .biy-oyun-soru { font-size: 2rem; }
+  #ekranTakim .biy-oyun-arapca { font-size: 3.6rem; }
+  #ekranTakim .biy-t-calisma, #ekranTakim .biy-t-optlar, #ekranTakim .biy-t-yazma { max-width: 960px; margin-left: auto; margin-right: auto; }
+  #ekranTakim .biy-t-slotlar { gap: 14px; padding: 18px; min-height: 100px; }
+  #ekranTakim .biy-t-slot { min-width: 130px; min-height: 80px; font-size: 1.45rem; padding: 10px 20px; }
+  #ekranTakim .biy-t-parca { min-height: 80px; padding: 12px 28px; font-size: 1.45rem; }
+  #ekranTakim .biy-t-parca.ar, #ekranTakim .biy-t-slot.ar, #ekranTakim .biy-t-sol.ar { font-size: 2.3rem; }
+  #ekranTakim .biy-t-ciftler { gap: 16px; }
+  #ekranTakim .biy-t-cift-satir { gap: 20px; }
+  #ekranTakim .biy-t-sol { font-size: 1.35rem; padding: 12px 18px; min-height: 80px; }
+  #ekranTakim .biy-t-ok { font-size: 1.7rem; }
+  #ekranTakim .biy-t-havuz { gap: 14px; padding: 16px; min-height: 100px; margin-top: 16px; }
+  #ekranTakim .biy-t-tus { min-width: 78px; height: 78px; font-size: 2.5rem; }
+  #ekranTakim .biy-t-yazekran { font-size: 3.2rem; min-height: 100px; }
+  #ekranTakim .biy-t-optlar { grid-template-columns: 1fr 1fr; gap: 16px; }
+  #ekranTakim .biy-t-opt { padding: 22px; font-size: 1.4rem; }
+  #ekranTakim .biy-t-opt.ar { font-size: 1.9rem; }
+}
+
+/* ===================== v78 — kurulum ekranı: sabit konu paneli, rakam akordiyonu,
+   tümünü-seç SVG'si ve soru tipi filtresi ===================== */
+/* masaüstünde konu seçme alanı daha geniş (yer zaten var) */
+@media (min-width: 900px){
+  #ekranAnasayfa .biy-ds { width: 560px; max-width: 100%; justify-self: center; }
+}
+/* rakam SVG'si artık düğme */
+button.biy-sayi-etiket { background: none; border: 0; padding: 0; cursor: pointer; }
+button.biy-sayi-etiket:hover .biy-svg-sayi { transform: scale(1.05); }
+button.biy-sayi-etiket .biy-svg-sayi { transition: transform .2s ease; }
+/* akordiyon: kapalıyken yalnız rakam animasyonu görünür */
+.biy-sayi-akordiyon { display: flex; align-items: center; gap: 12px; overflow: hidden;
+  max-width: 0; opacity: 0; transition: max-width .45s ease, opacity .3s ease; }
+.biy-sayi-akordiyon.acik { max-width: 480px; opacity: 1; }
+.biy-sayi-akordiyon .biy-sayi-btn { flex: 0 0 auto; }
+/* تحديد الكل — yazı yerine çizilen tik */
+.biy-hs-tumu { padding: 8px 12px; line-height: 0; }
+.biy-hs-tumu-svg { width: 30px; height: 30px; display: block; }
+#biySoruSec .biy-hs-tumu-svg { width: 36px; height: 36px; }
+/* soru tipi filtresi */
+.biy-bicim-sec { position: relative; display: inline-flex; }
+.biy-bicim-btn { background: none; border: 0; padding: 0; cursor: pointer; line-height: 0; }
+.biy-bicim-btn .biy-svg-bicim { width: 66px; height: 66px; display: block; transition: transform .2s ease; }
+#ekranAnasayfa .biy-bicim-btn .biy-svg-bicim { width: 74px; height: 74px; }
+.biy-bicim-btn:hover .biy-svg-bicim { transform: scale(1.05); }
+.biy-bicim-btn[aria-expanded="true"] .biy-svg-bicim { transform: scale(1.08); }
+/* filtre düğmesi animasyonu: topuzlar kayar */
+.biy-bf-k1 { animation: biyBfK1 3.6s ease-in-out infinite; }
+.biy-bf-k2 { animation: biyBfK2 3.6s ease-in-out infinite; }
+.biy-bf-k3 { animation: biyBfK3 3.6s ease-in-out infinite; }
+@keyframes biyBfK1 { 0%,100% { transform: translateX(0); } 40%,60% { transform: translateX(14px); } }
+@keyframes biyBfK2 { 0%,100% { transform: translateX(0); } 40%,60% { transform: translateX(-14px); } }
+@keyframes biyBfK3 { 0%,100% { transform: translateX(0); } 40%,60% { transform: translateX(10px); } }
+/* açılır tip paneli */
+.biy-bs-panel { position: absolute; z-index: 60; top: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%); display: flex; gap: 10px; padding: 12px;
+  background: #fff; border: 2px solid #E9EEF5; border-radius: 18px;
+  box-shadow: 0 20px 44px rgba(15,23,42,.16); animation: biyDsPanel .2s ease both; }
+.biy-bs-panel[hidden] { display: none; }
+.biy-bs-oge { position: relative; width: 60px; height: 60px; border-radius: 16px;
+  border: 2px solid #E2E8F0; background: #F8FAFC; color: #94A3B8; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: background .18s, color .18s, border-color .18s, box-shadow .18s; }
+.biy-bs-oge svg:first-child { width: 36px; height: 36px; }
+.biy-bs-oge:hover { border-color: #C7D2FE; }
+.biy-bs-oge.secili { background: #6366F1; border-color: #6366F1; color: #fff;
+  box-shadow: 0 4px 12px rgba(99,102,241,.3); }
+.biy-bs-tik { position: absolute; top: -8px; inset-inline-end: -8px; width: 22px; height: 22px;
+  border-radius: 50%; background: #16A085; color: #fff; display: flex; align-items: center;
+  justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,.2);
+  opacity: 0; transform: scale(.5); transition: opacity .2s, transform .2s; }
+.biy-bs-tik svg { width: 13px; height: 13px; display: block; }
+.biy-bs-oge.secili .biy-bs-tik { opacity: 1; transform: scale(1); }
+@media (prefers-reduced-motion: reduce){
+  .biy-bf-k1, .biy-bf-k2, .biy-bf-k3 { animation: none; }
+  .biy-sayi-akordiyon { transition: none; }
+}
+
+/* ===================== v79 — hizalama ===================== */
+/* Lobi (birey): baglanirken yazilan isimler ortali */
+.biy-kat-ad, [dir="rtl"] .biy-kat-ad { text-align: center; }
+/* masaustunde katilimci listesi 2 sutun */
+@media (min-width: 900px){
+  .biy-kat-satirlar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+}
+/* Sonuc ekrani: isim ve verilen cevap sutunlari ortali */
+.biy-reveal-tablo td:first-child,
+[dir="rtl"] .biy-reveal-tablo td:first-child { text-align: center; }
+.biy-reveal-tablo td.biy-rev-sik,
+[dir="rtl"] .biy-reveal-tablo td.biy-rev-sik { text-align: center; }
+.biy-rev-cift { align-items: center; }
+
+/* ===================== v80 — havuz sayaç rozetleri & tümünü-seç durumu ===================== */
+/* grup sayacı: (0/87) yerine parantezsiz şık rozet */
+.biy-hs-baslik .biy-hs-say {
+  display: inline-flex; align-items: baseline; gap: 3px;
+  background: #F1F5F9; color: #94A3B8; border-radius: 999px; padding: 3px 14px 5px;
+  font-weight: 800; line-height: 1.25; direction: ltr; unicode-bidi: isolate;
+  transition: background .25s ease, color .25s ease;
+}
+.biy-hs-say b { color: #16A085; font-size: 1.18em; font-weight: 800; }
+.biy-hs-say i { font-style: normal; opacity: .55; }
+.biy-hs-say.dolu { background: #E9FBF4; color: #0E9E86; }
+.biy-hs-say.tam { background: #16A085; color: #fff; }
+.biy-hs-say.tam b { color: #fff; }
+/* üstteki المُحَدَّد sayısı da yuvarlak rozet */
+.biy-say-rozet {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 1.75em; height: 1.75em; padding: 0 .45em; margin-inline-start: 6px;
+  border-radius: 999px; background: #16A085; color: #fff;
+  font-size: .92em; font-weight: 800; line-height: 1;
+  direction: ltr; unicode-bidi: isolate;
+}
+/* tümünü-seç: normalde gri ve tik çizilip siliniyor; grup TAM seçilince
+   o başlıkta animasyon durur, tik çizili kalır ve yeşil olur */
+.biy-hs-tumu { background: #F1F5F9; color: #94A3B8; transition: background .25s ease, color .25s ease; }
+.biy-hs-tumu:hover { color: #64748B; }
+.biy-hs-tumu.tam { background: #E9FBF4; color: #16A085; }
+.biy-hs-tumu.tam .biy-ea-ciz { animation: none; stroke-dashoffset: 0; }
+
+/* ===================== v81 — çıkış düğmesi: yazı yok, animasyonlu SVG ===================== */
+.biy-cikis-tus { padding: 10px; line-height: 0; }
+@media (min-width: 900px){ .biy-cikis-tus { padding: 12px; } }
+.biy-cikis-svg { width: 30px; height: 30px; display: block; }
+@media (min-width: 900px){ .biy-cikis-svg { width: 36px; height: 36px; } }
+/* ok kapıdan dışarı süzülür */
+.biy-ck-ok { animation: biyCkOk 1.8s ease-in-out infinite; }
+@keyframes biyCkOk {
+  0%, 100% { transform: translateX(0); opacity: 1; }
+  55%      { transform: translateX(2.6px); opacity: .75; }
+}
+/* RTL'de çıkış yönü sola bakar (düğme solda durur) */
+[dir="rtl"] .biy-cikis-svg { transform: scaleX(-1); }
+@media (prefers-reduced-motion: reduce){ .biy-ck-ok { animation: none; } }
+
+/* ===================== v83 — etiket ad balonu ===================== */
+.biy-et-balon { position: fixed; z-index: 120; transform: translateX(-50%);
+  background: #1E293B; color: #fff; font-family: 'Arakom', sans-serif;
+  font-size: 1.2rem; font-weight: 700; padding: 8px 18px; border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0,0,0,.25); pointer-events: none; direction: rtl;
+  white-space: nowrap; animation: biyEtBalon .18s ease both; }
+@keyframes biyEtBalon {
+  from { opacity: 0; transform: translateX(-50%) translateY(-4px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.biy-etiket { cursor: pointer; }

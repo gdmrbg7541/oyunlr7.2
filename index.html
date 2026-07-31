@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>وَقْت التَّسَوُّق - أَلْعاب</title>
     <style>
+    h1, h2, h3, h4, h5, h6, strong, b { font-weight: normal !important; }
+
         @font-face { 
             font-family: 'Arakom'; 
             src: url('arakom.ttf') format('truetype'); 
@@ -34,7 +36,7 @@
                 radial-gradient(circle at 20% 80%, rgba(191, 219, 254, 0.7) 0%, transparent 50%); 
             background-attachment: fixed;
             color: var(--text-main); 
-            min-height: 100vh; 
+            min-height: 100dvh; 
             display: flex;
             flex-direction: column; 
             align-items: center; 
@@ -48,7 +50,7 @@
         .floating-emojis {
             position: fixed;
             top: 0; left: 0; 
-            width: 100vw; height: 100vh;
+            width: 100vw; height: 100dvh;
             pointer-events: none; 
             z-index: -2;
             overflow: hidden;
@@ -81,21 +83,21 @@
 
          .main-container {
             width: 100%;
-            max-width: 950px; /* 3 kartın rahat sığması için 850'den 950'ye çıkarıldı */
+            max-width: 1050px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: clamp(15px, 4vh, 45px);
+            gap: clamp(8px, 3.5vh, 34px);
             z-index: 10;
         }
 
         .header { 
             text-align: center; 
-            background: rgba(255, 255, 255, 0.85); 
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
-            padding: clamp(15px, 4vw, 35px) clamp(15px, 6vw, 60px);
-            border-radius: 40px;
+            padding: clamp(10px, 2.7vh, 26px) clamp(15px, 6vw, 60px);
+            border-radius: clamp(22px, 4vh, 36px);
             border: 1px solid rgba(255, 255, 255, 0.9);
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
             width: 100%;
@@ -108,18 +110,18 @@
             display: inline-block;
             background: linear-gradient(135deg, #0ba360 0%, #3cbab2 100%);
             color: white;
-            padding: clamp(8px, 2vw, 12px) clamp(20px, 5vw, 40px); /* Daha dolgun padding */
-            border-radius: 30px;
-            font-size: clamp(1.4rem, 4vw, 2.2rem); /* Çok daha büyük font */
+            padding: clamp(3px, 0.8vh, 7px) clamp(14px, 3.2vw, 28px);
+            border-radius: 999px;
+            font-size: clamp(0.8rem, 2.5vh, 1.3rem);
             font-weight: normal;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 15px rgba(11, 163, 96, 0.35);
+            margin-bottom: clamp(5px, 1.5vh, 14px);
+            box-shadow: 0 4px 15px rgba(211, 84, 0, 0.35);
             letter-spacing: 0.5px;
             text-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
 
         .header h1 { 
-            font-size: clamp(1.8rem, 7vw, 4.5rem); 
+            font-size: clamp(1.35rem, min(6.6vw, 6.2vh), 3.6rem);
             color: var(--primary); 
             line-height: 1.2;
             margin-bottom: 5px;
@@ -138,18 +140,18 @@
             justify-content: center; 
             align-items: stretch;
             width: 100%;
-            gap: clamp(10px, 3vw, 25px); 
+            gap: clamp(7px, 2.4vh, 22px);
         }
 
         .game-card {
             position: relative;
             overflow: hidden; 
-            background: rgba(255, 255, 255, 0.85); 
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 2px solid rgba(255, 255, 255, 1);
-            border-radius: clamp(20px, 4vw, 30px); 
-            padding: clamp(10px, 4vw, 25px); 
+            border-radius: clamp(16px, 3vh, 28px);
+            padding: clamp(8px, 2.3vh, 20px) clamp(8px, 2vw, 18px);
             text-align: center;
             text-decoration: none; 
             color: var(--primary); 
@@ -157,16 +159,13 @@
             flex-direction: column; 
             align-items: center;
             justify-content: center;
-            box-shadow: 0 8px 30px rgba(14, 165, 233, 0.04);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.03);
             transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             
-            /* --- YENİ EKLENEN/DEĞİŞEN KISIM --- */
-            flex: 0 0 30%; /* Kartların esnemesini durdurup ilk satıra tam 3 adet sığdırır */
-            max-width: 280px; /* Kartın aşırı büyümesini engeller */
-            min-width: 200px; /* Kartın aşırı küçülmesini engeller */
-            /* --------------------------------- */
-
-            min-height: clamp(120px, 18vh, 190px);
+            flex: 1 1 calc(25% - 25px);
+            max-width: 320px;
+            min-width: clamp(120px, 22%, 220px); /* 4 kart yan yana sığabilmesi için küçültüldü */
+            min-height: clamp(74px, 20.8vh, 190px);
             z-index: 1;
         }
 
@@ -174,12 +173,12 @@
             content: attr(data-num);
             position: absolute;
             bottom: -5%;
-            left: 3%; 
-            font-size: clamp(4rem, 12vw, 10rem); 
+            left: 2%; 
+            font-size: clamp(2.6rem, 9vh, 8rem);
             font-family: 'Georgia', 'Times New Roman', serif;
             font-style: italic;
             font-weight: 400;
-            background: linear-gradient(135deg, rgba(15, 76, 92, 0.08), rgba(15, 76, 92, 0.01));
+            background: linear-gradient(135deg, rgba(44, 62, 80, 0.08), rgba(44, 62, 80, 0.01));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             z-index: -1; 
@@ -203,17 +202,17 @@
         }
 
         .icon-circle {
-            width: clamp(45px, 10vw, 85px); 
-            height: clamp(45px, 10vw, 85px); 
+            width: clamp(34px, 9.9vh, 80px);
+            height: clamp(34px, 9.9vh, 80px);
             background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.5));
             border: 2px solid rgba(255,255,255,1);
-            border-radius: clamp(15px, 4vw, 24px); 
+            border-radius: clamp(11px, 2.6vh, 22px);
             display: flex; 
             align-items: center;
             justify-content: center; 
-            margin-bottom: clamp(8px, 2vw, 15px); 
-            font-size: clamp(1.6rem, 5vw, 3.2rem); 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.06);
+            margin-bottom: clamp(4px, 1.5vh, 13px);
+            font-size: clamp(1.15rem, 5.2vh, 2.9rem);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
             transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
@@ -224,104 +223,292 @@
         }
 
         .game-card h2 { 
-            font-size: clamp(0.95rem, 8vw, 2.5rem); 
+            font-size: clamp(0.8rem, min(3.6vh, 3.4vw), 1.9rem);
             font-weight: normal;
             line-height: 1.3;
         }
 
         /* MOBİL EKRANLAR */
         @media (max-width: 768px) {
-            .game-card { 
+            .game-card {
                 flex-basis: calc(50% - 10px);
+                min-height: clamp(66px, 13vh, 150px);
+                padding: clamp(7px, 1.2vh, 16px) clamp(8px, 2.5vw, 16px);
             }
             .game-card::before {
                 bottom: -8%;
             }
+            .icon-circle {
+                width: clamp(30px, 6.5vh, 62px);
+                height: clamp(30px, 6.5vh, 62px);
+                margin-bottom: clamp(3px, 1vh, 10px);
+                font-size: clamp(1rem, 3.4vh, 2rem);
+            }
+            .game-card h2 { font-size: clamp(0.78rem, min(2.2vh, 4.5vw), 1.4rem); }
+            .header { padding: clamp(8px, 1.8vh, 20px) clamp(12px, 5vw, 40px); }
+            .unit-badge { margin-bottom: clamp(4px, 1.2vh, 11px); }
+            .main-container { gap: clamp(7px, 2.5vh, 24px); }
+            .grid-container { gap: clamp(6px, 1.6vh, 16px); }
+            .quiz-card { min-height: clamp(58px, 13.5vh, 120px);
+                         padding: clamp(7px, 1.4vh, 16px) clamp(12px, 4vw, 30px); }
+            .quiz-ikon { width: clamp(40px, 11vh, 86px); height: clamp(40px, 11vh, 86px); }
         }
 
         /* ÇOK DAR EKRANLAR */
         @media (max-width: 400px) {
+            /* v-unite2: 1. ünite gibi — dar ekranda da 2 sütun, tek ekrana sığar */
             .game-card {
-                flex-basis: 100%;
-                max-width: 100%;
-                min-height: 80px;
-                flex-direction: row; 
-                gap: 12px;
-                padding: 12px 15px;
-                justify-content: flex-start;
-                text-align: right;
+                flex-basis: calc(50% - 5px);
+                border-radius: 16px;
             }
-            .icon-circle {
-                margin-bottom: 0;
-                flex-shrink: 0;
-                width: 45px;
-                height: 45px;
-                font-size: 1.5rem;
-                border-radius: 14px;
-            }
-            .game-card h2 {
-                margin-top: 0;
-                font-size: 1rem;
-            }
+            .icon-circle { border-radius: 12px; }
             .game-card::before {
                 left: 5%;
-                bottom: -25%;
-                font-size: 4.5rem;
+                bottom: -12%;
+                font-size: 3.2rem;
             }
+            .grid-container { gap: 8px; }
         }
     
-        /* --- CİHAZ DÖNDÜRME UYARISI VE MOBİL YATAY KLAVYE DESTEĞİ --- */
-        #rotate-message {
-            display: none; 
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #2c3e50; 
-            z-index: 99999; 
+        
+
+        /* ==================================================================
+           OZEL KART - CANLI BILGI YARISMASI
+           Diger kartlar cam beyazi ve emoji ikonlu; bu kart kasten farkli:
+           kendi satirini bastan sona kaplar, koyu mor gradyan zemin ve altin
+           cerceve kullanir, ikon yerine animasyonlu SVG kupa tasir.
+           Tum animasyonlar salt gorseldir; en altta "hareketi azalt" sistem
+           ayari icin kapatma blogu vardir.
+           ================================================================== */
+        .quiz-card {
+            flex: 1 1 100%;
+            max-width: 100%;
+            min-width: 0;
+            min-height: clamp(66px, 18.8vh, 158px);
+            flex-direction: row;
+            justify-content: center;
+            gap: clamp(10px, 3.5vw, 34px);
+            padding: clamp(8px, 2.1vh, 20px) clamp(14px, 4vw, 42px);
+            background: linear-gradient(115deg, #221a4a 0%, #3a2a78 46%, #5c40a8 100%);
+            border: 2px solid rgba(255, 214, 120, 0.5);
+            box-shadow: 0 14px 40px rgba(50, 35, 110, 0.32);
+            color: #fff;
+            overflow: hidden;
+        }
+
+        /* Dev rakam: beyaz kartlarda gri, burada altin tonunda */
+        .quiz-card::before {
+            background: linear-gradient(135deg, rgba(255, 215, 120, 0.30), rgba(255, 215, 120, 0.03));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Kartin uzerinden yavasca gecen isik seridi */
+        .quiz-card::after {
+            content: "";
+            position: absolute;
+            top: -60%;
+            bottom: -60%;
+            width: 60px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent);
+            transform: rotate(14deg);
+            animation: quizSerit 6.5s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        @keyframes quizSerit {
+            0%        { left: -20%; opacity: 0; }
+            12%       { opacity: 1; }
+            55%       { opacity: 1; }
+            70%, 100% { left: 110%; opacity: 0; }
+        }
+
+        .quiz-card:hover {
+            background: linear-gradient(115deg, #2a1f5c 0%, #45318d 46%, #6c4cc4 100%);
+            border-color: rgba(255, 214, 120, 0.95);
+            box-shadow: 0 20px 50px rgba(50, 35, 110, 0.45);
+        }
+
+        .quiz-ikon {
+            flex-shrink: 0;
+            width: clamp(46px, 14vh, 112px);
+            height: clamp(46px, 14vh, 112px);
+            z-index: 1;
+        }
+        .quiz-ikon svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+        .quiz-yazi {
+            display: flex;
             flex-direction: column;
-            align-items: center; justify-content: center;
-            color: white; text-align: center;
+            align-items: center;
+            gap: clamp(4px, 1vw, 9px);
+            z-index: 1;
         }
-        .phone-animation {
-            width: 60px; height: 100px;
-            border: 4px solid white; border-radius: 10px;
-            animation: rotate-phone 2s infinite ease-in-out;
-            margin-bottom: 20px; position: relative;
+        .quiz-card h2 {
+            color: #fff;
+            font-size: clamp(0.95rem, min(4.3vh, 4.2vw), 2.2rem);
+            line-height: 1.25;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.25);
         }
-        .phone-animation::before {
-            content: ''; position: absolute;
-            top: 10px; left: 50%; transform: translateX(-50%);
-            width: 20%; height: 4px; background: white; border-radius: 2px;
-        }
-        @keyframes rotate-phone {
-            0% { transform: rotate(0deg); opacity: 1; }
-            25% { transform: rotate(90deg); opacity: 1; }
-            70% { transform: rotate(90deg); opacity: 1; }
-            100% { transform: rotate(90deg); opacity: 0; }
-        }
-        .rotate-text { font-size: 2.5rem; font-family: 'Arakom', Tahoma, sans-serif; }
-
-        @media only screen and (max-width: 900px) and (orientation: portrait) {
-            /* #rotate-message { display: flex !important; } */
+        .quiz-alt {
+            font-size: clamp(0.65rem, min(2.1vh, 2.4vw), 1.05rem);
+            color: rgba(255, 231, 178, 0.9);
         }
 
-        @media screen and (max-height: 500px) {
-            body {
-                overflow-y: auto !important;
-                height: auto !important;
-                min-height: 100vh;
-                align-items: flex-start;
-                padding-top: 15px; padding-bottom: 15px;
+        /* "Canli" rozeti: kirmizi nokta disa dogru nabiz atar */
+        .quiz-rozet {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.13);
+            border: 1px solid rgba(255, 214, 120, 0.45);
+            border-radius: 999px;
+            padding: 2px 12px 3px;
+            font-size: clamp(0.6rem, min(1.9vh, 2.2vw), 0.95rem);
+            color: #FFE7B2;
+        }
+        .quiz-nokta {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #FF5A5A;
+            animation: quizNabiz 1.8s ease-out infinite;
+        }
+        @keyframes quizNabiz {
+            0%   { box-shadow: 0 0 0 0 rgba(255, 90, 90, 0.75); }
+            70%  { box-shadow: 0 0 0 9px rgba(255, 90, 90, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 90, 90, 0); }
+        }
+
+        /* --- "Iki telefon karekoda baglaniyor" hareketleri ---
+           4 saniyelik dongu: karekod hafifce nefes alir, uzerinden turuncu
+           tarama cizgisi gecer, iki telefondan altin noktalar kareye dogru
+           akar, sonunda yesil onay halkasi ve tik belirir. */
+        .q-qr { transform-box: fill-box; transform-origin: center;
+                animation: qrNefes 4s ease-in-out infinite; }
+        @keyframes qrNefes {
+            0%, 100% { transform: scale(1); }
+            44%      { transform: scale(1.06); }
+            60%      { transform: scale(1); }
+        }
+
+        .q-tarama { animation: qrTara 4s cubic-bezier(.5, 0, .5, 1) infinite; }
+        @keyframes qrTara {
+            0%        { transform: translateY(-26px); opacity: 0; }
+            10%       { opacity: 0.95; }
+            42%       { transform: translateY(26px);  opacity: 0.95; }
+            50%, 100% { transform: translateY(26px);  opacity: 0; }
+        }
+
+        .q-halka { transform-box: fill-box; transform-origin: center;
+                   animation: qrHalka 4s ease-out infinite; }
+        @keyframes qrHalka {
+            0%, 46%   { opacity: 0;    transform: scale(0.7); }
+            56%       { opacity: 0.85; }
+            82%, 100% { opacity: 0;    transform: scale(1.25); }
+        }
+
+        .q-onay { transform-box: fill-box; transform-origin: center;
+                  animation: qrOnay 4s ease-out infinite; }
+        @keyframes qrOnay {
+            0%, 48%  { opacity: 0; transform: scale(0.4); }
+            58%      { opacity: 1; transform: scale(1.12); }
+            66%, 86% { opacity: 1; transform: scale(1); }
+            100%     { opacity: 0; transform: scale(1); }
+        }
+
+        /* telefonlar yavasca nefes alir gibi inip kalkar */
+        .q-tel   { animation: qrTelSalin 4s ease-in-out infinite; }
+        .q-tel-b { animation-delay: 0.55s; }
+        @keyframes qrTelSalin {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-3px); }
+        }
+
+        /* telefondan kareye akan veri noktalari */
+        .q-nok { opacity: 0; }
+        .q-ns  { animation: qrAkisSol 2s ease-in-out infinite; }
+        .q-ng  { animation: qrAkisSag 2s ease-in-out infinite; }
+        .q-n2  { animation-delay: 0.4s; }
+        .q-n3  { animation-delay: 0.8s; }
+        @keyframes qrAkisSol {
+            0%   { transform: translate(0, 0);       opacity: 0; }
+            18%  { opacity: 1; }
+            72%  { opacity: 1; }
+            100% { transform: translate(10px, -7px); opacity: 0; }
+        }
+        @keyframes qrAkisSag {
+            0%   { transform: translate(0, 0);        opacity: 0; }
+            18%  { opacity: 1; }
+            72%  { opacity: 1; }
+            100% { transform: translate(-10px, -7px); opacity: 0; }
+        }
+
+        /* kesikli baglanti izi kareye dogru kayar */
+        .q-iz { animation: qrIz 1.6s linear infinite; }
+        @keyframes qrIz { to { stroke-dashoffset: -12; } }
+
+        @media (max-width: 400px) {
+            .quiz-card {
+                gap: 10px;
+                padding: 8px 12px;
+                min-height: clamp(58px, 12vh, 100px);
             }
+            .quiz-card h2 { font-size: clamp(0.9rem, 2.6vh, 1.15rem); }
         }
 
+        /* Cok basik ekranlar (yatay tutulan telefon): sekiz kart yine de
+           tek ekrana sigsin diye butun dikey olculer bir kademe daha kisilir.
+           Diger sorgulardan sonra geldigi icin sira geregi ustun gelir. */
+        @media (max-height: 470px) {
+            body { padding: 1vh 2vw; }
+            .main-container { gap: clamp(6px, 2vh, 16px); }
+            .header { padding: clamp(6px, 1.6vh, 14px) clamp(12px, 5vw, 40px); }
+            .unit-badge {
+                font-size: clamp(0.7rem, 2.2vh, 1rem);
+                margin-bottom: clamp(3px, 1vh, 8px);
+            }
+            .header h1 { font-size: clamp(1.1rem, min(5vw, 5.4vh), 2rem); }
+            .game-card {
+                min-height: clamp(58px, 18vh, 90px);
+                padding: clamp(5px, 1.6vh, 12px) clamp(6px, 1.6vw, 12px);
+            }
+            .icon-circle {
+                width: clamp(26px, 8vh, 44px);
+                height: clamp(26px, 8vh, 44px);
+                margin-bottom: clamp(2px, 1vh, 6px);
+                font-size: clamp(0.9rem, 4.4vh, 1.6rem);
+            }
+            .game-card h2 { font-size: clamp(0.72rem, min(3.2vh, 3vw), 1.1rem); }
+            .game-card::before { font-size: clamp(2rem, 7vh, 4rem); }
+            .grid-container { gap: clamp(5px, 1.8vh, 12px); }
+            .quiz-card {
+                min-height: clamp(50px, 16vh, 84px);
+                padding: clamp(5px, 1.5vh, 12px) clamp(10px, 3vw, 26px);
+            }
+            .quiz-ikon { width: clamp(34px, 12vh, 66px); height: clamp(34px, 12vh, 66px); }
+        }
+
+        /* Kullanici sistem ayarinda hareketi azaltmissa kart sabit dursun */
+        @media (prefers-reduced-motion: reduce) {
+            .quiz-card::after, .quiz-nokta, .q-qr, .q-tarama, .q-halka,
+            .q-onay, .q-tel, .q-nok, .q-iz { animation: none; }
+            .q-tarama { opacity: 0; }
+            .q-halka  { opacity: 0.45; transform: none; }
+            .q-onay   { opacity: 1;    transform: none; }
+            .q-nok    { opacity: 0.9;  transform: none; }
+        }
+        
     </style>
+
+    
+
+    
 </head>
 <body>
 
-    <!-- CİHAZ DÖNDÜRME UYARISI (TÜM OYUNLAR ORTAK) -->
-    <div id="rotate-message">
-        <div class="phone-animation"></div>
-        <div class="rotate-text">يُرْجى تَدْوير الجِهاز</div> 
+    
+ 
     </div>
 
 
@@ -361,7 +548,7 @@
 
             <a href="evethayir.html" class="game-card" data-num="3">
                 <div class="icon-circle">✅</div>
-                <h2>مُسابَقَة نَعَم أَو لا</h2>
+                <h2>مُسابَقَة نَعَمْ أَوْ لا</h2>
             </a>
 
             <a href="mukayese.html" class="game-card" data-num="4">
@@ -378,6 +565,160 @@
             <a href="hafizakarti.html" class="game-card" data-num="6">
                 <div class="icon-circle">🧠</div>
                 <h2>لُعْبَة الذّاكِرَة</h2>
+            </a>
+
+<!-- Canlı bilgi yarışması (Firebase). Öğretmen odayı kurar,
+                 öğrenciler karekodla ya da bağlantıyla katılır. İnternet gerekir. -->
+            <a href="bilgiyarismasi.html" class="game-card quiz-card" data-num="7">
+                <div class="quiz-ikon">
+                    <!-- İki telefon ortadaki karekoda bağlanmaya çalışır:
+                         karekod nefes alır, turuncu tarama çizgisi üzerinden geçer,
+                         telefonlardan altın veri noktaları kareye doğru akar ve
+                         döngünün sonunda yeşil onay halkası ile tik belirir. -->
+                    <svg viewBox="0 0 120 120" role="img" aria-label="رَمْزُ الاِسْتِجابَةِ">
+                        <defs>
+                            <linearGradient id="qAltin" x1="0" y1="0" x2="0.3" y2="1">
+                                <stop offset="0%"   stop-color="#FFF0C2"/>
+                                <stop offset="45%"  stop-color="#FFC94A"/>
+                                <stop offset="100%" stop-color="#DE8F0E"/>
+                            </linearGradient>
+                            <linearGradient id="qGovde" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%"   stop-color="#54429f"/>
+                                <stop offset="100%" stop-color="#1e1746"/>
+                            </linearGradient>
+                            <linearGradient id="qEkran" x1="0" y1="0" x2="0.6" y2="1">
+                                <stop offset="0%"   stop-color="#a9deff"/>
+                                <stop offset="100%" stop-color="#4aa3e8"/>
+                            </linearGradient>
+                            <linearGradient id="qTaraGr" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%"   stop-color="#FF8A3D" stop-opacity="0"/>
+                                <stop offset="100%" stop-color="#FF8A3D" stop-opacity="0.45"/>
+                            </linearGradient>
+                            <clipPath id="qKirp">
+                                <rect x="36" y="12" width="48" height="48" rx="9"/>
+                            </clipPath>
+                        </defs>
+
+                        <!-- baglanti kuruldugunda disa acilan halka -->
+                        <circle class="q-halka" cx="60" cy="36" r="30"
+                                fill="none" stroke="#7CE7A8" stroke-width="2.5"/>
+
+                        <!-- kesikli baglanti izleri -->
+                        <g class="q-iz" stroke="url(#qAltin)" stroke-width="1.6"
+                           stroke-linecap="round" stroke-dasharray="1.5 4.5" opacity="0.55">
+                            <line x1="38" y1="68" x2="48" y2="61"/>
+                            <line x1="82" y1="68" x2="72" y2="61"/>
+                        </g>
+
+                        <!-- KAREKOD -->
+                        <g class="q-qr">
+                            <rect x="36" y="12" width="48" height="48" rx="9"
+                                  fill="#ffffff" stroke="url(#qAltin)" stroke-width="2.6"/>
+                            <!-- uc kose isareti (halka + ic kare) -->
+                            <path fill="#2b1c5e" fill-rule="evenodd"
+                                  d="M40.5,16.5 h14 v14 h-14 Z M43.5,19.5 h8 v8 h-8 Z
+                                     M65.5,16.5 h14 v14 h-14 Z M68.5,19.5 h8 v8 h-8 Z
+                                     M40.5,41.5 h14 v14 h-14 Z M43.5,44.5 h8 v8 h-8 Z"/>
+                            <g fill="#2b1c5e">
+                                <rect x="45.5" y="21.5" width="4" height="4"/>
+                                <rect x="70.5" y="21.5" width="4" height="4"/>
+                                <rect x="45.5" y="46.5" width="4" height="4"/>
+                                <!-- veri kareleri -->
+                                <rect x="55.5" y="16.5" width="4" height="4"/>
+                                <rect x="60.5" y="21.5" width="4" height="4"/>
+                                <rect x="55.5" y="26.5" width="4" height="4"/>
+                                <rect x="60.5" y="26.5" width="4" height="4"/>
+                                <rect x="40.5" y="31.5" width="4" height="4"/>
+                                <rect x="50.5" y="31.5" width="4" height="4"/>
+                                <rect x="60.5" y="31.5" width="4" height="4"/>
+                                <rect x="70.5" y="31.5" width="4" height="4"/>
+                                <rect x="45.5" y="36.5" width="4" height="4"/>
+                                <rect x="55.5" y="36.5" width="4" height="4"/>
+                                <rect x="65.5" y="36.5" width="4" height="4"/>
+                                <rect x="75.5" y="36.5" width="4" height="4"/>
+                                <rect x="55.5" y="41.5" width="4" height="4"/>
+                                <rect x="65.5" y="41.5" width="4" height="4"/>
+                                <rect x="75.5" y="41.5" width="4" height="4"/>
+                                <rect x="60.5" y="46.5" width="4" height="4"/>
+                                <rect x="70.5" y="46.5" width="4" height="4"/>
+                                <rect x="55.5" y="51.5" width="4" height="4"/>
+                                <rect x="65.5" y="51.5" width="4" height="4"/>
+                                <rect x="75.5" y="51.5" width="4" height="4"/>
+                            </g>
+                            <!-- kareye kirpilmis tarama cizgisi -->
+                            <g clip-path="url(#qKirp)">
+                                <g class="q-tarama">
+                                    <rect x="36" y="24" width="48" height="12" fill="url(#qTaraGr)"/>
+                                    <rect x="36" y="35" width="48" height="2" rx="1" fill="#FF8A3D"/>
+                                </g>
+                            </g>
+                        </g>
+
+                        <!-- SOL TELEFON -->
+                        <g transform="rotate(9 22 86)">
+                            <g class="q-tel">
+                                <rect x="6" y="62" width="32" height="50" rx="7"
+                                      fill="url(#qGovde)" stroke="#FFD678" stroke-width="1.6"
+                                      stroke-opacity="0.75"/>
+                                <rect x="9.5" y="66.5" width="25" height="38" rx="3.5" fill="url(#qEkran)"/>
+                                <rect x="17" y="64" width="10" height="1.8" rx="0.9" fill="#fff" opacity="0.45"/>
+                                <rect x="17" y="106.5" width="10" height="2" rx="1" fill="#fff" opacity="0.45"/>
+                                <g fill="none" stroke="#22406b" stroke-width="1.8"
+                                   stroke-linecap="round" opacity="0.7">
+                                    <path d="M14,76 v-3.5 h4"/>
+                                    <path d="M30,76 v-3.5 h-4"/>
+                                    <path d="M14,95 v3.5 h4"/>
+                                    <path d="M30,95 v3.5 h-4"/>
+                                </g>
+                                <rect x="18.5" y="81" width="7" height="7" rx="1.4"
+                                      fill="#22406b" opacity="0.5"/>
+                            </g>
+                        </g>
+
+                        <!-- SAG TELEFON -->
+                        <g transform="rotate(-9 98 86)">
+                            <g class="q-tel q-tel-b">
+                                <rect x="82" y="62" width="32" height="50" rx="7"
+                                      fill="url(#qGovde)" stroke="#FFD678" stroke-width="1.6"
+                                      stroke-opacity="0.75"/>
+                                <rect x="85.5" y="66.5" width="25" height="38" rx="3.5" fill="url(#qEkran)"/>
+                                <rect x="93" y="64" width="10" height="1.8" rx="0.9" fill="#fff" opacity="0.45"/>
+                                <rect x="93" y="106.5" width="10" height="2" rx="1" fill="#fff" opacity="0.45"/>
+                                <g fill="none" stroke="#22406b" stroke-width="1.8"
+                                   stroke-linecap="round" opacity="0.7">
+                                    <path d="M90,76 v-3.5 h4"/>
+                                    <path d="M106,76 v-3.5 h-4"/>
+                                    <path d="M90,95 v3.5 h4"/>
+                                    <path d="M106,95 v3.5 h-4"/>
+                                </g>
+                                <rect x="94.5" y="81" width="7" height="7" rx="1.4"
+                                      fill="#22406b" opacity="0.5"/>
+                            </g>
+                        </g>
+
+                        <!-- telefonlardan kareye akan veri noktalari -->
+                        <g fill="url(#qAltin)">
+                            <circle class="q-nok q-ns"      cx="38" cy="68" r="2.6"/>
+                            <circle class="q-nok q-ns q-n2" cx="38" cy="68" r="2.1"/>
+                            <circle class="q-nok q-ns q-n3" cx="38" cy="68" r="1.7"/>
+                            <circle class="q-nok q-ng"      cx="82" cy="68" r="2.6"/>
+                            <circle class="q-nok q-ng q-n2" cx="82" cy="68" r="2.1"/>
+                            <circle class="q-nok q-ng q-n3" cx="82" cy="68" r="1.7"/>
+                        </g>
+
+                        <!-- baglandi onayi -->
+                        <g class="q-onay">
+                            <circle cx="60" cy="36" r="13" fill="#2FB865"/>
+                            <path d="M53.5,36.5 l4.5,4.5 l8.5,-9" fill="none" stroke="#fff"
+                                  stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+                        </g>
+                    </svg>
+                </div>
+                <div class="quiz-yazi">
+                    <span class="quiz-rozet"><i class="quiz-nokta"></i>مُباشِر</span>
+                    <h2>مُسابَقَة المَعْلومات</h2>
+                    <span class="quiz-alt">اِلْعَبْ مَعَ أَصْدِقائِكَ</span>
+                </div>
             </a>
         </div>
     </div>
