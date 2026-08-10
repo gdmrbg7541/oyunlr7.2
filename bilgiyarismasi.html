@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>مُسابَقَة المَعْلومات — الصَّفّ السّابِع · الوَحْدَة الثّانِيَة</title>
+<title>مُسابَقَة المَعْلومات — الصَّفّ السّابِع</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Harmattan:wght@400;700&family=Marhey:wght@400;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="bilgiyarismasi.css?v=83">
+<link rel="stylesheet" href="bilgiyarismasi.css?v=88">
 
-<!-- Firebase 8.10.1 (compat) — proje: bilgiyarismasi7sinif2unite -->
+<!-- Firebase 8.10.1 (compat) — proje: bilgiyarismasi7sinif1unite -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <!-- firebase-auth.js kaldirildi: ogretmen girisi ve anonim giris artik yok -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -212,7 +212,30 @@
         </button>
         <div class="biy-bs-panel" id="bicimSecPanel" aria-label="أَنْواع الأَسْئِلَة" hidden></div>
       </div>
+
+      <!-- zorluga gore sure: 1/2/3 yildiz akordiyonu -->
+      <div class="biy-sure-sec" id="sureSec">
+        <button type="button" class="biy-sure-btn biy-anim" id="sureBtn"
+                aria-expanded="false" aria-controls="sureAkordiyon"
+                title="مُدَّة السُّؤال حَسَب الصُّعوبَة" onclick="BIY.sureAcKapat()">
+          <svg viewBox="0 0 64 64" class="biy-svg biy-svg-sure" role="img" aria-label="مُدَّة السُّؤال حَسَب الصُّعوبَة">
+            <title>مُدَّة السُّؤال حَسَب الصُّعوبَة</title>
+            <circle class="biy-hale" cx="32" cy="32" r="26" fill="url(#biyGrTuruncu)" opacity=".14"/>
+            <circle cx="32" cy="34" r="19" fill="#fff" stroke="url(#biyGrTuruncu)" stroke-width="3"/>
+            <path d="M25 11h14" stroke="url(#biyGrTuruncu)" stroke-width="3.4" stroke-linecap="round"/>
+            <path d="M32 11v4" stroke="url(#biyGrTuruncu)" stroke-width="3.4" stroke-linecap="round"/>
+            <g class="biy-sr-yelkovan"><path d="M32 34V21" stroke="#334155" stroke-width="3" stroke-linecap="round"/></g>
+            <g class="biy-sr-akrep"><path d="M32 34v-8" stroke="#334155" stroke-width="3.6" stroke-linecap="round"/></g>
+            <circle cx="32" cy="34" r="2.4" fill="#334155"/>
+            <g class="biy-sr-yildiz" fill="url(#biyGrMor)">
+              <path transform="translate(40,42) scale(.62)" d="M12 3.6l2.2 4.4 4.9.7-3.5 3.5.8 4.9-4.4-2.3-4.4 2.3.8-4.9-3.5-3.5 4.9-.7z"/>
+            </g>
+          </svg>
+        </button>
+      </div>
     </div>
+
+    <div class="biy-sure-akordiyon" id="sureAkordiyon" hidden></div>
 
     <div class="biy-menu">
       <button class="biy-menu-kart" id="kartOkul" onclick="BIY.acLobi('okul')">
@@ -374,7 +397,7 @@
 
 </div>
 
-<script src="bilgiyarismasi.js?v=92"></script>
+<script src="bilgiyarismasi.js?v=97"></script>
 <script id="kidef-koruma">
 /* KAYNAK KORUMA (CAYDIRICI) — sag tik + gelistirici araclari kisayollari.
    Not: Tam guvenlik degildir; asil koruma Firestore kurallarindadir. */

@@ -1952,3 +1952,455 @@ button.biy-sayi-etiket .biy-svg-sayi { transition: transform .2s ease; }
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 .biy-etiket { cursor: pointer; }
+
+
+/* ===================== v84 — UNITE SECIMI =====================
+   Konu listesinden once gelen serit. Rakam animasyonlu SVG,
+   yaninda unitenin kisa adi ve soru sayisi rozeti.            */
+.biy-unite-serit {
+  display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;
+  max-width: 980px; margin: 26px auto 0; padding: 0 18px; width: 100%;
+}
+.biy-un-cip {
+  position: relative; display: inline-flex; align-items: center; gap: 10px;
+  padding: 8px 16px 8px 8px; border-radius: 999px; cursor: pointer;
+  border: 2px solid #E9EEF5; background: #fff; color: #64748B;
+  font-family: 'Marhey', sans-serif; font-weight: 700;
+  transition: border-color .18s, background .18s, color .18s, box-shadow .18s, transform .12s;
+}
+[dir="rtl"] .biy-un-cip { padding: 8px 8px 8px 16px; }
+.biy-un-cip:hover { border-color: #C7D2FE; transform: translateY(-1px); }
+.biy-un-cip.secili {
+  border-color: transparent; background: linear-gradient(135deg,#8b5cf6,#6366f1);
+  color: #fff; box-shadow: 0 8px 20px rgba(99,102,241,.28);
+}
+.biy-un-svg { width: 42px; height: 42px; flex: 0 0 auto; display: block; }
+.biy-un-halka { stroke-dasharray: 116; stroke-dashoffset: 116; transition: stroke-dashoffset .5s ease; }
+.biy-un-cip.secili .biy-un-halka { stroke-dashoffset: 0; animation: biyUnDon 9s linear infinite; }
+@keyframes biyUnDon { to { transform: rotate(360deg); } }
+.biy-un-rakam { font-family: 'Marhey', sans-serif; font-weight: 700; font-size: 19px; }
+.biy-un-metin { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.15; }
+[dir="rtl"] .biy-un-metin { align-items: flex-end; }
+.biy-un-ad { font-size: 1.02rem; }
+.biy-un-alt { font-size: .78rem; opacity: .72; font-weight: 400; }
+.biy-un-say {
+  flex: 0 0 auto; min-width: 30px; padding: 2px 8px; border-radius: 999px;
+  background: #F1F5F9; color: #475569; font-size: .82rem; text-align: center;
+}
+.biy-un-cip.secili .biy-un-say { background: rgba(255,255,255,.24); color: #fff; }
+
+@media (max-width: 640px){
+  .biy-unite-serit { gap: 8px; padding: 0 12px; margin-top: 18px; }
+  .biy-un-cip { padding: 6px 12px 6px 6px; gap: 8px; }
+  [dir="rtl"] .biy-un-cip { padding: 6px 6px 6px 12px; }
+  .biy-un-svg { width: 34px; height: 34px; }
+  .biy-un-ad { font-size: .9rem; }
+  .biy-un-alt { display: none; }
+}
+@media (prefers-reduced-motion: reduce){
+  .biy-un-cip.secili .biy-un-halka { animation: none; }
+}
+
+
+/* ============ v84 — ZORLUGA GORE SURE (yildiz akordiyonu) ============ */
+.biy-sure-sec { display: inline-flex; }
+.biy-sure-btn { background: none; border: 0; padding: 0; cursor: pointer; line-height: 0; }
+.biy-sure-btn .biy-svg-sure { width: 66px; height: 66px; display: block; transition: transform .2s ease; }
+#ekranAnasayfa .biy-sure-btn .biy-svg-sure { width: 74px; height: 74px; }
+.biy-sure-btn:hover .biy-svg-sure { transform: scale(1.05); }
+.biy-sure-btn[aria-expanded="true"] .biy-svg-sure { transform: scale(1.08); }
+.biy-sr-yelkovan { transform-origin: 32px 34px; animation: biyDon 4s linear infinite; }
+.biy-sr-akrep    { transform-origin: 32px 34px; animation: biyDon 24s linear infinite; }
+@keyframes biyDon { to { transform: rotate(360deg); } }
+.biy-sr-yildiz { animation: biySrYildiz 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes biySrYildiz { 0%,100% { opacity: .55; transform: scale(.9); } 50% { opacity: 1; transform: scale(1.12); } }
+
+.biy-sure-akordiyon {
+  max-width: 620px; width: calc(100% - 36px); margin: 14px auto 0;
+  display: flex; flex-direction: column; gap: 10px;
+  background: #fff; border: 2px solid #E9EEF5; border-radius: 18px;
+  padding: 16px 18px; box-shadow: 0 10px 26px rgba(15,23,42,.08);
+  animation: biySrAc .24s ease both;
+}
+.biy-sure-akordiyon[hidden] { display: none; }
+@keyframes biySrAc { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+
+.biy-sr-satir { display: grid; grid-template-columns: auto auto 1fr auto auto; align-items: center; gap: 10px; }
+.biy-sr-yild { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 34px; }
+.biy-sr-yild svg { width: 34px; height: 34px; display: block; }
+.biy-sr-satir.z1 .biy-sr-yild { color: #22C55E; }
+.biy-sr-satir.z2 .biy-sr-yild { color: #F59E0B; }
+.biy-sr-satir.z3 .biy-sr-yild { color: #EF4444; }
+.biy-sr-deg {
+  min-width: 74px; text-align: center; font-family: 'Marhey', sans-serif; font-weight: 700;
+  font-size: 1.22rem; color: #0E9E86; background: #E9FBF4; border-radius: 10px; padding: 5px 8px;
+  font-variant-numeric: tabular-nums; direction: ltr;
+}
+.biy-sr-kaydir { width: 100%; accent-color: #16A085; direction: ltr; }
+.biy-sr-art, .biy-sr-eks {
+  width: 38px; height: 38px; border-radius: 12px; border: 2px solid #E9EEF5; background: #fff;
+  color: #16A085; font-size: 1.4rem; font-weight: 700; cursor: pointer; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center; transition: all .15s;
+}
+.biy-sr-art:hover, .biy-sr-eks:hover { border-color: #20C997; background: #F0FDF9; }
+.biy-sr-art:disabled, .biy-sr-eks:disabled { opacity: .35; cursor: not-allowed; }
+.biy-sr-alt { display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  border-top: 1px solid #EDF2F7; padding-top: 10px; margin-top: 2px; }
+.biy-sr-not { color: #94A3B8; font-size: .85rem; }
+.biy-sr-sifirla { border: 2px solid #E9EEF5; background: #fff; color: #64748B; border-radius: 10px;
+  padding: 6px 10px; cursor: pointer; line-height: 0; }
+.biy-sr-sifirla:hover { border-color: #cbd5e1; color: #16A085; }
+.biy-sr-sifirla svg { width: 20px; height: 20px; display: block; }
+
+@media (max-width: 640px){
+  .biy-sure-akordiyon { padding: 14px 12px; }
+  .biy-sr-satir { grid-template-columns: auto auto 1fr auto auto; gap: 6px; }
+  .biy-sr-yild { width: 36px; } .biy-sr-yild svg { width: 28px; height: 28px; }
+  .biy-sr-deg { min-width: 62px; font-size: 1.05rem; }
+  .biy-sr-art, .biy-sr-eks { width: 34px; height: 34px; }
+}
+@media (prefers-reduced-motion: reduce){
+  .biy-sr-yelkovan, .biy-sr-akrep, .biy-sr-yildiz { animation: none; }
+}
+
+
+/* ============ v84 — DURDUR / DEVAM ============ */
+.biy-durdur-svg {
+  background: rgba(255,255,255,.10); border: 2px solid rgba(255,255,255,.28);
+  color: #fff; border-radius: 14px; width: 46px; height: 46px; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; padding: 0;
+  transition: background .18s, border-color .18s, transform .12s;
+  vertical-align: middle; margin-inline-start: 8px;
+}
+.biy-durdur-svg:hover { background: rgba(255,255,255,.2); transform: translateY(-1px); }
+.biy-durdur-svg svg { width: 26px; height: 26px; display: block; }
+.biy-durdur-svg.duruyor { background: #F59E0B; border-color: #F59E0B; color: #fff; }
+.biy-dr-halka { animation: biyDrHalka 2.6s linear infinite; transform-origin: 12px 12px; }
+@keyframes biyDrHalka { to { transform: rotate(360deg); } }
+.biy-dr-cubuk rect { animation: biyDrCubuk 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.biy-dr-cubuk rect:nth-child(2) { animation-delay: .2s; }
+@keyframes biyDrCubuk { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(.72); } }
+.biy-dr-ok { animation: biyDrOk 1.4s ease-in-out infinite; transform-box: fill-box; transform-origin: 30% 50%; }
+@keyframes biyDrOk { 0%,100% { transform: translateX(0); opacity: 1; } 50% { transform: translateX(2px); opacity: .82; } }
+
+/* tahtada duraklatma serifi */
+.biy-duraklat-serit {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin: 10px auto 0; padding: 8px 18px; border-radius: 999px;
+  background: rgba(245,158,11,.18); border: 2px solid rgba(245,158,11,.55);
+  color: #FCD34D; font-family: 'Marhey', sans-serif; font-weight: 700; font-size: 1.1rem;
+  width: fit-content; animation: biyDrNabiz 1.8s ease-in-out infinite;
+}
+@keyframes biyDrNabiz { 0%,100% { opacity: .82; } 50% { opacity: 1; } }
+.biy-duraklat-serit svg { width: 22px; height: 22px; }
+/* duraklatiliyken sayaç soluk */
+.biy-sayac.biy-donuk, .biy-sayac-bar.biy-donuk i { opacity: .45; }
+
+/* ogrenci tarafi: duraklama perdesi */
+.biy-t-duraklat {
+  margin: 14px auto 0; padding: 14px 18px; border-radius: 16px; width: fit-content;
+  max-width: 92%; display: flex; align-items: center; gap: 10px;
+  background: #FEF3C7; border: 2px solid #FCD34D; color: #92400E;
+  font-family: 'Marhey', sans-serif; font-weight: 700; font-size: 1.05rem;
+}
+.biy-t-duraklat svg { width: 24px; height: 24px; flex: 0 0 auto; }
+.biy-t-calisma.duraklatildi, .biy-t-yazma.duraklatildi, .biy-t-optlar.duraklatildi {
+  opacity: .45; pointer-events: none; filter: grayscale(.4);
+}
+@media (prefers-reduced-motion: reduce){
+  .biy-dr-halka, .biy-dr-cubuk rect, .biy-dr-ok, .biy-duraklat-serit { animation: none; }
+}
+
+
+/* ==========================================================================
+   v85 — MOBIL SURUKLE-BIRAK ONARIMI
+   1) touch-action: none KALKTI → sayfa artik kutulardan da kaydirilabiliyor.
+   2) Yuvalar mobilde alt alta degil, cumle gibi satir icinde sariyor.
+   3) Gonder cubugu ve sayac yapiskan; kelimeler ekranin altinda kalmiyor.
+   4) Dokunmatikte tek dokunusla yerlestirme + sira degistirme oklari.
+   ========================================================================== */
+
+/* --- 1) kaydirmayi geri ver --- */
+.biy-t-slot, .biy-t-parca { touch-action: manipulation; }
+
+/* --- 2) mobil duzen: yuvalar cumle satiri gibi --- */
+@media (max-width: 640px){
+  #ekranTakim { padding-top: 0; }
+  #ekranTakim .biy-oyun-orta { padding: 12px 12px 8px; width: 100%; }
+
+  /* yuvalar: alt alta DEGIL, sarmali satir (v84'teki column kurali eziliyor) */
+  .biy-t-slotlar {
+    flex-direction: row; flex-wrap: wrap; align-items: stretch;
+    justify-content: center; gap: 10px 8px; padding: 16px 10px 12px;
+    min-height: 68px;
+  }
+  .biy-t-slot { width: auto; min-width: 62px; max-width: 100%; min-height: 46px;
+                padding: 6px 10px; font-size: 1rem; }
+  .biy-t-slot.dolu { padding: 8px 10px; }
+  .biy-t-slot.ar { font-size: 1.42rem; }
+  .biy-t-slot-no.dolu { top: -9px; inset-inline-start: -6px; width: 21px; height: 21px; font-size: .76rem; }
+  .biy-t-havuz { gap: 8px; padding: 10px; min-height: 62px; margin-top: 10px; }
+  .biy-t-parca { min-height: 46px; padding: 7px 13px; }
+  .biy-t-parca.ar { font-size: 1.42rem; }
+
+  /* eslestirme satirlari dar ekranda daha sikisik */
+  .biy-t-ciftler { gap: 8px; }
+  .biy-t-cift-satir { gap: 6px; }
+  .biy-t-sol { padding: 6px 8px; font-size: .98rem; }
+  .biy-t-sol.ar { font-size: 1.34rem; }
+  .biy-t-ok { font-size: 1rem; }
+
+  /* --- 3) sayac ustte, gonder altta sabit --- */
+  #ekranTakim .biy-t-ust {
+    position: sticky; top: 0; z-index: 18; margin: 0 -12px 4px; padding: 6px 12px;
+    background: rgba(247,249,252,.94); backdrop-filter: blur(6px);
+    border-bottom: 1px solid #EDF2F7;
+  }
+  .biy-t-gonder-sar {
+    position: sticky; bottom: 0; z-index: 18; margin: 12px -12px 0;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(to top, #F7F9FC 66%, rgba(247,249,252,0));
+  }
+  .biy-t-klavye { gap: 6px; }
+  .biy-t-tus { min-width: 50px; height: 50px; font-size: 1.7rem; }
+}
+
+/* --- 4) sira degistirme oklari (yalniz "surukle" bicimi) --- */
+.biy-t-kaydir-ok {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; flex: 0 0 auto; padding: 0; margin: 0 1px;
+  border: 0; border-radius: 8px; background: rgba(99,102,241,.12); color: #4F46E5;
+  cursor: pointer; touch-action: manipulation; transition: background .15s, opacity .15s;
+}
+.biy-t-kaydir-ok:hover { background: rgba(99,102,241,.24); }
+.biy-t-kaydir-ok:disabled { opacity: .28; cursor: default; }
+.biy-t-kaydir-ok svg { width: 15px; height: 15px; display: block; }
+.biy-t-slot-metin { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.biy-t-slot.dolu { gap: 4px; }
+
+/* hedeflenen bos yuva: sonraki dokunus buraya gelir */
+.biy-t-slot.hedefli {
+  border-style: solid; border-color: #16A085; background: #E6FAF5;
+  box-shadow: 0 0 0 3px rgba(22,160,133,.22);
+}
+.biy-t-slot.hedefli .biy-t-slot-no { color: #0E9E86; }
+
+/* dokunmatikte "surukle" ipucu yerine dokunma ipucu */
+.biy-t-ipucu-alt { color: #94A3B8; font-size: .84rem; text-align: center; margin-top: 6px; }
+
+@media (min-width: 900px){
+  #ekranTakim .biy-t-kaydir-ok { width: 34px; height: 34px; }
+  #ekranTakim .biy-t-kaydir-ok svg { width: 19px; height: 19px; }
+}
+
+
+/* ===================== v85 — rötuşlar ===================== */
+/* Durdur/Devam: göz düğmesiyle aynı dilde (beyaz tahtada görünsün) */
+.biy-durdur-svg {
+  background: none; border: none; color: #94A3B8; padding: 3px; width: auto; height: auto;
+  border-radius: 8px; margin-inline-start: 6px;
+}
+.biy-durdur-svg:hover { background: #F0F4F8; color: #F59E0B; transform: none; }
+.biy-durdur-svg svg { width: 30px; height: 30px; }
+#ekranOyunAdmin .biy-durdur-svg svg { width: 34px; height: 34px; }
+.biy-durdur-svg.duruyor { background: #FEF3C7; border: none; color: #D97706; }
+.biy-durdur-svg.duruyor:hover { background: #FDE68A; color: #B45309; }
+
+/* Duraklatma şeridi: açık zeminde okunur */
+.biy-duraklat-serit {
+  background: #FEF3C7; border-color: #FCD34D; color: #B45309;
+}
+
+/* Yıldızlar tek tek */
+.biy-sr-yildizlar { display: inline-flex; align-items: center; gap: 2px; }
+.biy-sr-yildizlar svg { width: 15px; height: 15px; display: block; }
+.biy-sr-yild { width: 58px; }
+@media (max-width: 640px){ .biy-sr-yild { width: 48px; } .biy-sr-yildizlar svg { width: 13px; height: 13px; } }
+
+/* sınır notu soldan sağa okunsun */
+.biy-sr-not { direction: ltr; }
+
+/* mobilde sıra rozeti üstteki satıra değmesin */
+@media (max-width: 640px){
+  .biy-t-slotlar { gap: 18px 8px; padding-top: 20px; }
+}
+
+/* mobilde ünite çipleri 2×2 ızgara (eşit genişlik, düzgün sarma) */
+@media (max-width: 640px){
+  .biy-unite-serit { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .biy-un-cip { justify-content: flex-start; width: 100%; }
+  .biy-un-metin { flex: 1 1 auto; min-width: 0; }
+  .biy-un-ad { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+}
+
+
+/* ============ v86 — ÜNİTE ŞERİDİ ARTIK "DERS SEÇ" PANELİNİN İÇİNDE ============ */
+.biy-ds-liste .biy-unite-serit {
+  position: sticky; top: -10px; z-index: 3;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+  margin: -10px -10px 8px; padding: 10px;
+  width: auto; max-width: none;
+  background: #fff; border-bottom: 1px solid #EDF2F7;
+  border-radius: 16px 16px 0 0;
+}
+.biy-ds-liste .biy-un-cip {
+  justify-content: flex-start; width: 100%; gap: 8px;
+  padding: 6px 12px 6px 6px; font-size: .9rem;
+}
+[dir="rtl"] .biy-ds-liste .biy-un-cip { padding: 6px 6px 6px 12px; }
+.biy-ds-liste .biy-un-svg { width: 32px; height: 32px; }
+.biy-ds-liste .biy-un-rakam { font-size: 15px; }
+.biy-ds-liste .biy-un-metin { flex: 1 1 auto; min-width: 0; }
+.biy-ds-liste .biy-un-ad { font-size: .96rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.biy-ds-liste .biy-un-alt { display: none; }
+.biy-ds-liste .biy-un-say { font-size: .78rem; min-width: 26px; padding: 1px 7px; }
+
+/* panelde ders adları biraz küçüldü ki şerit + liste bir arada görünsün */
+.biy-ds-liste .biy-ds-oge { font-size: 1.55em; padding: 11px 14px; }
+.biy-ds-liste { max-height: min(560px, calc(100vh - 240px)); }
+
+@media (max-width: 640px){
+  .biy-ds-liste .biy-unite-serit { gap: 5px; padding: 8px; margin: -10px -10px 6px; }
+  .biy-ds-liste .biy-un-cip { padding: 5px 9px 5px 5px; }
+  [dir="rtl"] .biy-ds-liste .biy-un-cip { padding: 5px 5px 5px 9px; }
+  .biy-ds-liste .biy-un-svg { width: 27px; height: 27px; }
+  .biy-ds-liste .biy-un-ad { font-size: .84rem; }
+  .biy-ds-liste .biy-un-say { font-size: .72rem; min-width: 22px; padding: 1px 5px; }
+  .biy-ds-liste .biy-ds-oge { font-size: 1.35em; padding: 10px 12px; }
+}
+
+/* v86b — dar ekranda panel tetikten geniş olsun: ünite çipleri ve
+   ders adları taşmadan tek satıra sığsın. */
+@media (max-width: 640px){
+  .biy-ds-liste {
+    width: calc(100vw - 30px); max-width: calc(100vw - 30px);
+    inset-inline-start: auto; inset-inline-end: 0;
+  }
+  .biy-ds-liste .biy-ds-oge { font-size: 1.28em; padding: 10px 12px; line-height: 1.35; }
+  .biy-ds-liste .biy-ds-ad2 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
+
+
+/* ==========================================================================
+   v87 — DERS LISTESI: 5 SATIRLIK AKORDIYON
+   Unite basliklari buyuk ve saga yasli; ders satirlari sade (renk noktasi yok).
+   ========================================================================== */
+.biy-ds-liste .biy-unite-serit { display: none; }   /* eski serit kaldirildi */
+
+.biy-ak { display: flex; flex-direction: column; gap: 4px; }
+.biy-ak-satir { border-radius: 14px; overflow: hidden; }
+.biy-ak-satir.acik { background: #F8FAFC; }
+
+.biy-ak-bas {
+  width: 100%; display: flex; align-items: center; gap: 10px;
+  padding: 13px 16px; border: 0; border-radius: 14px; background: transparent;
+  cursor: pointer; font-family: 'Marhey', sans-serif; font-weight: 700;
+  color: #0F172A; text-align: right; transition: background .18s ease, color .18s ease;
+}
+.biy-ak-bas:hover { background: #F1F5F9; }
+.biy-ak-ad {
+  flex: 1 1 auto; min-width: 0; text-align: right;
+  font-size: 1.42rem; line-height: 1.35;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.biy-ak-say {
+  flex: 0 0 auto; min-width: 34px; padding: 2px 9px; border-radius: 999px;
+  background: #EEF2FF; color: #4F46E5; font-size: .9rem; direction: ltr;
+}
+.biy-ak-ok { width: 20px; height: 20px; flex: 0 0 auto; color: #94A3B8; transition: transform .25s ease; }
+.biy-ak-satir.acik > .biy-ak-bas { color: #0E9E86; }
+.biy-ak-satir.acik > .biy-ak-bas .biy-ak-ok { transform: rotate(180deg); color: #16A085; }
+.biy-ak-satir.acik > .biy-ak-bas .biy-ak-say { background: #DCFCE7; color: #15803D; }
+.biy-ak-satir.iceriden > .biy-ak-bas .biy-ak-ad::after {
+  content: "•"; color: #16A085; margin-inline-start: 8px; font-size: 1.1em;
+}
+
+/* govde: kapaliyken yer kaplamaz */
+.biy-ak-govde { display: none; padding: 2px 8px 10px; }
+.biy-ak-satir.acik > .biy-ak-govde { display: block; }
+
+/* ders satirlari — sade */
+.biy-ak-govde .biy-ds-oge {
+  font-size: 1.16rem; padding: 10px 14px; gap: 10px; border-radius: 11px;
+  color: #475569; font-weight: 700;
+}
+.biy-ak-govde .biy-ds-ad2 {
+  flex: 1 1 auto; min-width: 0; text-align: right;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.biy-ds-say2 {
+  flex: 0 0 auto; min-width: 28px; padding: 1px 8px; border-radius: 999px;
+  background: #F1F5F9; color: #64748B; font-size: .82rem; direction: ltr; font-weight: 700;
+}
+.biy-ak-govde .biy-ds-oge.secili .biy-ds-say2 { background: #CFFAE9; color: #0E9E86; }
+
+/* 5. satir: butun uniteler */
+.biy-ak-tum {
+  margin-top: 6px; border: 2px dashed #DDD6FE !important; background: #FAF5FF;
+}
+.biy-ak-tum:hover { background: #F3E8FF; }
+.biy-ak-tum .biy-ak-ad { color: #6D28D9; }
+.biy-ak-tum .biy-ak-say { background: #EDE9FE; color: #6D28D9; }
+.biy-ak-tum.secili { background: #6D28D9; border-color: #6D28D9 !important; }
+.biy-ak-tum.secili .biy-ak-ad { color: #fff; }
+.biy-ak-tum.secili .biy-ak-say { background: rgba(255,255,255,.22); color: #fff; }
+.biy-ak-tum .biy-ds-tik { color: #6D28D9; }
+.biy-ak-tum.secili .biy-ds-tik { color: #fff; }
+
+@media (max-width: 640px){
+  .biy-ak-bas { padding: 11px 12px; }
+  .biy-ak-ad { font-size: 1.2rem; }
+  .biy-ak-govde .biy-ds-oge { font-size: 1.02rem; padding: 9px 12px; }
+  .biy-ds-liste { max-height: 68vh; }
+}
+
+/* ---------------- HAVUZ: kapsam basligi + uyari ---------------- */
+.biy-hs-kapsam {
+  display: flex; align-items: center; gap: 8px; margin: 0 0 10px;
+  padding: 9px 14px; border-radius: 12px; background: #EEF2FF; color: #4338CA;
+  font-family: 'Marhey', sans-serif; font-weight: 700; font-size: 1.02rem;
+}
+.biy-hs-kapsam svg { width: 20px; height: 20px; flex: 0 0 auto; }
+
+.biy-hs-uyari {
+  display: flex; align-items: center; gap: 10px; margin: 0 0 12px;
+  padding: 10px 14px; border-radius: 12px;
+  background: #FEF3C7; border: 2px solid #FCD34D; color: #92400E;
+  font-size: .98rem; line-height: 1.45;
+}
+.biy-hs-uyari svg { width: 22px; height: 22px; flex: 0 0 auto; }
+.biy-hs-uyari b { font-family: 'Marhey', sans-serif; }
+.biy-hs-uyari-btn {
+  flex: 0 0 auto; border: 0; border-radius: 10px; padding: 7px 12px; cursor: pointer;
+  background: #B45309; color: #fff; font-family: 'Marhey', sans-serif; font-weight: 700;
+  font-size: .9rem; transition: background .15s;
+}
+.biy-hs-uyari-btn:hover { background: #92400E; }
+@media (max-width: 640px){
+  .biy-hs-uyari { flex-wrap: wrap; font-size: .9rem; }
+  .biy-hs-uyari-btn { width: 100%; }
+}
+
+/* ==========================================================================
+   v88 — LISTE YAZILARI BUYUTULDU
+   Akordiyon acilista tamamen kapali geldigi icin 5 satir da tek bakista
+   goruluyor; bu yuzden hem unite hem ders yazilari belirgin sekilde buyudu.
+   ========================================================================== */
+.biy-ak-bas { padding: 16px 18px; gap: 12px; }
+.biy-ak-ad { font-size: 1.95rem; line-height: 1.4; }
+.biy-ak-say { min-width: 42px; padding: 3px 11px; font-size: 1.05rem; }
+.biy-ak-ok { width: 26px; height: 26px; }
+
+.biy-ak-govde { padding: 2px 10px 12px; }
+.biy-ak-govde .biy-ds-oge { font-size: 1.52rem; padding: 13px 16px; gap: 12px; border-radius: 13px; }
+.biy-ak-govde .biy-ds-oge .biy-ds-tik { width: 1.15em; height: 1.15em; }
+.biy-ds-say2 { min-width: 34px; padding: 2px 10px; font-size: 1rem; }
+
+@media (max-width: 640px){
+  .biy-ak-bas { padding: 13px 13px; gap: 9px; }
+  .biy-ak-ad { font-size: 1.52rem; }
+  .biy-ak-say { min-width: 34px; padding: 2px 8px; font-size: .92rem; }
+  .biy-ak-ok { width: 22px; height: 22px; }
+  .biy-ak-govde .biy-ds-oge { font-size: 1.24rem; padding: 11px 12px; }
+  .biy-ds-say2 { min-width: 28px; padding: 1px 8px; font-size: .88rem; }
+}
