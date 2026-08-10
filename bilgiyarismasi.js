@@ -746,12 +746,64 @@ const SEVIYE_ZORLUK = { kolay: 1, orta: 2, zor: 3 };
    • pdf: repo kökündeki PDF dosyasının adı (boş bırakılırsa indirme/önizleme pasif olur).
    • sorular: SORULAR ile aynı biçimde; boşsa o konuda yarışma başlatılamaz.
    NOT: Soru id'leri aynı konu içinde benzersiz olmalıdır (birleşik konu da dâhil).      */
+/* anahtar: index.html basligindan uniteyi tanimak icin (harekeler soyulur) */
 const UNITELER = [
-  { no: 1, ad: "الوَحْدَة الأولى", alt: "ماذا فَعَلْت اليَوْم؟" },
-  { no: 2, ad: "الوَحْدَة الثّانِيَة", alt: "وَقْت التَّسَوُّق" },
-  { no: 3, ad: "الوَحْدَة الثّالِثَة", alt: "إِلى أَيْن نُسافِر؟" },
-  { no: 4, ad: "الوَحْدَة الرّابِعَة", alt: "مَدينَتي وَبَلَدي" }
+  { no: 1, ad: "الوَحْدَة الأولى",   alt: "ماذا فَعَلْت اليَوْم؟",
+    anahtar: ["ماذا فعلت اليوم", "الوحدة الاولى", "1. ünite", "1.ünite"] },
+  { no: 2, ad: "الوَحْدَة الثّانِيَة", alt: "وَقْت التَّسَوُّق",
+    anahtar: ["وقت التسوق", "الوحدة الثانية", "2. ünite", "2.ünite"] },
+  { no: 3, ad: "الوَحْدَة الثّالِثَة", alt: "إِلى أَيْن نُسافِر؟",
+    anahtar: ["الى اين نسافر", "إلى أين نسافر", "الوحدة الثالثة", "3. ünite", "3.ünite"] },
+  { no: 4, ad: "الوَحْدَة الرّابِعَة", alt: "مَدينَتي وَبَلَدي",
+    anahtar: ["مدينتي وبلدي", "الوحدة الرابعة", "4. ünite", "4.ünite"] }
 ];
+/* Arapca metni karsilastirilabilir hale getir: harekeler, tatvil ve
+   elif/ye varyantlari sadelestirilir.                                  */
+function arSade(t){
+  return String(t == null ? "" : t)
+    .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g, "")
+    .replace(/[أإآٱ]/g, "ا").replace(/ى/g, "ي").replace(/ؤ/g, "و").replace(/ئ/g, "ي")
+    .replace(/\s+/g, " ")
+    .toLocaleLowerCase("tr")
+    .trim();
+}
+/* Adres / klasor / referrer'dan uniteyi cikar (senkron denemeler). */
+function uniteAlgila(){
+  const gecerli = n => (n >= 1 && n <= 4) ? n : 0;
+  // 1) adres parametresi: ?u=3 veya ?unite=3
+  try {
+    const p = new URLSearchParams(location.search);
+    const u = gecerli(+(p.get("unite") || p.get("u") || 0));
+    if (u) return { no: u, kaynak: "adres" };
+  } catch(e){}
+  // 2) bulundugu klasorun adi: .../unite_3_oyunlar/...
+  const yol = decodeURIComponent((location.pathname || "") + " " + (location.hash || ""));
+  let m = yol.match(/unite[_\-\s]?([1-4])/i) || yol.match(/([1-4])[_\-\s]?unite/i);
+  if (m) return { no: +m[1], kaynak: "klasör" };
+  // 3) gelinen sayfanin adresi
+  const r = decodeURIComponent(document.referrer || "");
+  m = r.match(/unite[_\-\s]?([1-4])/i);
+  if (m) return { no: +m[1], kaynak: "bağlantı" };
+  // 4) index sayfasi istese kendisi soyleyebilir: window.BIY_UNITE = 3
+  if (gecerli(+window.BIY_UNITE)) return { no: +window.BIY_UNITE, kaynak: "sayfa" };
+  return null;
+}
+/* index.html'in BASLIGINDAN unite bul (ayni sunucudaysa okunur). */
+async function uniteBasliktanAlgila(){
+  const r = document.referrer;
+  if (!r || r.indexOf(location.origin) !== 0) return null;
+  try {
+    const html = await (await fetch(r, { cache: "no-store" })).text();
+    const metin = arSade(html.replace(/<script[\s\S]*?<\/script>/gi, " ")
+                              .replace(/<[^>]+>/g, " "));
+    for (const u of UNITELER){
+      if ((u.anahtar || []).some(a => metin.indexOf(arSade(a)) >= 0)) return u.no;
+    }
+    const tr = metin.match(/([1-4])\s*\.?\s*(ünite|unite)/);
+    if (tr) return +tr[1];
+  } catch(e){}
+  return null;
+}
 const KONULAR = [
   /* ---- 1. unite ---- */
   { id: "unite1",  unite: 1, birlesik: true, ad: "كُلّ الأَسْئِلَة", pdf: "", sorular: S_UNITE1 },
@@ -859,6 +911,9 @@ const state = {
   takimNabiz: null,          // öğrenci tarafı: "hâlâ buradayım" zamanlayıcısı
   uniteNo: 1,                // seçili ünite (1-4) — konu listesi buna göre dolar
   uniteAcik: null,           // akordiyonda açık duran ünite — AÇILIŞTA HEPSİ KAPALI
+  otoUnite: null,            // ünite kendiliğinden seçildiyse { no, kaynak }
+  uniteKilit: null,          // klasörden gelen ünite: listede yalnız o görünür
+                             // (4. ünitede ayrıca «bütün üniteler» satırı da kalır)
   sureler: { 1: SURE_VARSAYILAN[1], 2: SURE_VARSAYILAN[2], 3: SURE_VARSAYILAN[3] },  // zorluğa göre süre
   konuId: null,              // seçili konu (açılışta seçili değil)
   seviye: null,              // kolay | orta | zor  (başta seçili değil)
@@ -1259,8 +1314,13 @@ const BIY = {
     const tik = '<svg class="biy-ds-tik" viewBox="0 0 24 24" aria-hidden="true" fill="none"'
               + ' stroke="currentColor" stroke-width="3.4" stroke-linecap="round"'
               + ' stroke-linejoin="round"><polyline points="4 12.5 9.5 18 20 6.5"/></svg>';
-    let h = '<div class="biy-ak">';
-    UNITELER.forEach(u => {
+    /* Klasörden gelen ünite varsa liste ona kilitlenir: yalnız o ünitenin
+       satırı görünür. 4. ünitede ek olarak «bütün üniteler» satırı da kalır. */
+    const kilit = state.uniteKilit;
+    const satirlar = kilit ? UNITELER.filter(u => u.no === kilit) : UNITELER;
+    const tumGoster = (!kilit || kilit === 4);
+    let h = '<div class="biy-ak' + (kilit ? ' biy-ak-kilitli' : '') + '">';
+    satirlar.forEach(u => {
       const acik = (state.uniteAcik === u.no);
       const kon = BIY._uniteKonulari(u.no);
       const icinde = kon.some(k => k.id === state.konuId);
@@ -1282,7 +1342,7 @@ const BIY = {
               + '</button>').join("")
         + '</div></div>';
     });
-    const t = KONULAR.find(k => k.tumUnite);
+    const t = tumGoster ? KONULAR.find(k => k.tumUnite) : null;
     if (t){
       h += '<button type="button" class="biy-ak-bas biy-ak-tum' + (state.konuId === t.id ? ' secili' : '') + '"'
          + ' data-konu="' + t.id + '">'
@@ -1297,6 +1357,27 @@ const BIY = {
     if (state.uniteAcik === no){ state.uniteAcik = null; BIY._konulariHazirla(); return; }
     state.uniteAcik = no;
     if (no !== state.uniteNo) BIY.uniteSec(no); else BIY._konulariHazirla();
+  },
+  /* Ünite kendiliğinden seçildiğinde kısa bir bilgi şeridi göster. */
+  _otoUniteUygula(no, kaynak){
+    if (!(no >= 1 && no <= 4)) return;
+    state.uniteNo = no; state.uniteAcik = no; state.uniteKilit = no;
+    state.otoUnite = { no: no, kaynak: kaynak };
+    BIY._konulariHazirla();
+    BIY.konuSec("unite" + no);          // o ünitenin tüm soruları hazır seçili gelsin
+    BIY._otoUniteNot();
+  },
+  _otoUniteNot(){
+    const o = state.otoUnite; if (!o) return;
+    const eski = $("otoUniteNot"); if (eski) eski.remove();
+    const panel = document.querySelector("#ekranAnasayfa .biy-konu-panel"); if (!panel) return;
+    const el = document.createElement("div");
+    el.id = "otoUniteNot"; el.className = "biy-oto-not";
+    el.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"'
+      + ' stroke-linecap="round" stroke-linejoin="round"><path d="M20 6.5L9.4 17.1 4.5 12.2"/></svg>'
+      + '<span>' + kacis(BIY._uniteAdi(o.no)) + ' — تَمَّ اخْتِيارُها تِلْقائِيًّا</span>';
+    panel.insertAdjacentElement("afterend", el);
+    setTimeout(() => { if (el.parentNode){ el.classList.add("biy-gec"); setTimeout(() => el.remove(), 600); } }, 5200);
   },
   uniteSec(no){
     if (!no) return;
@@ -1316,7 +1397,7 @@ const BIY = {
     const KON = BIY._uniteKonulari();
     const sel = $("konuSecim"); if (!sel) return;
     sel.innerHTML = '<option value=""'+(state.konuId?'':' selected')+' disabled hidden>اِخْتَر الدَّرْس…</option>' +
-      KON.concat(KONULAR.filter(k => k.tumUnite))
+      KON.concat((state.uniteKilit && state.uniteKilit !== 4) ? [] : KONULAR.filter(k => k.tumUnite))
          .map(k => '<option value="'+k.id+'"'+(k.pasif?' disabled':'')+(k.id===state.konuId?' selected':'')+'>'+kacis(k.ad)+(k.pasif?' · قَريبًا':'')+'</option>').join("");
     if (!state.konuId) sel.value = "";
     const liste = $("konuSeciciListe");
@@ -3511,9 +3592,23 @@ window.addEventListener("beforeunload", function(e){
   state.mod = "admin";
   ekranGoster("ekranYukleniyor");
   try {
-    try { const u = +localStorage.getItem("biy_unite"); if (u >= 1 && u <= 4) state.uniteNo = u; } catch(e){}
+    /* ---- ÜNİTE: bu dosya dört ünite klasöründe ortak kullanılabilir ----
+       Önce adres/klasör/bağlantı işaretlerine bakılır; hiçbiri yoksa daha
+       önce seçilen ünite hatırlanır. Sonra (varsa) index'in başlığı okunur. */
+    const otoU = uniteAlgila();
+    if (otoU){ state.uniteNo = otoU.no; state.uniteAcik = otoU.no; state.uniteKilit = otoU.no; state.otoUnite = otoU; }
+    else { try { const u = +localStorage.getItem("biy_unite"); if (u >= 1 && u <= 4) state.uniteNo = u; } catch(e){} }
     BIY._sureleriYukle(); BIY._sureRozet();
     BIY._konulariHazirla();
+    if (otoU){
+      BIY.konuSec("unite" + otoU.no);
+      setTimeout(() => BIY._otoUniteNot(), 60);
+    } else {
+      /* işaret yoksa index sayfasının başlığından anlamayı dene (asenkron) */
+      uniteBasliktanAlgila().then(no => {
+        if (no && !state.konuId && !BIY._secSet().size) BIY._otoUniteUygula(no, "başlık");
+      }).catch(() => {});
+    }
     BIY._soruSayiSinir();
     BIY._menuDurum();
     // sayfa yenilenmişse aktif odaya/oyuna dön

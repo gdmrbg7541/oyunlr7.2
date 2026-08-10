@@ -2510,3 +2510,19 @@ body.biy-suruklerken { -webkit-user-select: none; user-select: none; }
   .biy-el-parmak, .biy-el-kart, .biy-el-halka { animation: none; }
   .biy-t-parca.biy-t-hazir, .biy-t-slot.biy-t-hazir { transform: none; }
 }
+
+
+/* ============ v91 — otomatik ünite seçimi bilgi şeridi ============ */
+.biy-oto-not {
+  display: flex; align-items: center; gap: 9px; width: fit-content; max-width: 92%;
+  margin: 10px auto 0; padding: 8px 16px; border-radius: 999px;
+  background: #DCFCE7; border: 2px solid #86EFAC; color: #15803D;
+  font-family: 'Marhey', sans-serif; font-weight: 700; font-size: 1.02rem;
+  animation: biyOtoNot .35s ease both;
+  transition: opacity .55s ease, transform .55s ease;
+}
+.biy-oto-not svg { width: 20px; height: 20px; flex: 0 0 auto; }
+.biy-oto-not.biy-gec { opacity: 0; transform: translateY(-6px); }
+@keyframes biyOtoNot { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+@media (max-width: 640px){ .biy-oto-not { font-size: .92rem; padding: 7px 13px; } }
+@media (prefers-reduced-motion: reduce){ .biy-oto-not { animation: none; } }
