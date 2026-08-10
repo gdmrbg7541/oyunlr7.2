@@ -2526,3 +2526,24 @@ body.biy-suruklerken { -webkit-user-select: none; user-select: none; }
 @keyframes biyOtoNot { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
 @media (max-width: 640px){ .biy-oto-not { font-size: .92rem; padding: 7px 13px; } }
 @media (prefers-reduced-motion: reduce){ .biy-oto-not { animation: none; } }
+
+
+/* ============ v93 — ünite kilidini açma ============ */
+.biy-ak-ac {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; margin-top: 8px; padding: 11px 14px;
+  border: 2px dashed #E2E8F0; border-radius: 14px; background: #F8FAFC;
+  color: #64748B; cursor: pointer;
+  font-family: 'Marhey', sans-serif; font-weight: 700; font-size: 1.05rem;
+  transition: border-color .18s, color .18s, background .18s;
+}
+.biy-ak-ac:hover { border-color: #94A3B8; color: #16A085; background: #F1F5F9; }
+.biy-ak-ac svg { width: 20px; height: 20px; flex: 0 0 auto; }
+
+.biy-oto-degis {
+  flex: 0 0 auto; margin-inline-start: 4px; padding: 4px 12px;
+  border: 0; border-radius: 999px; background: #15803D; color: #fff; cursor: pointer;
+  font-family: 'Marhey', sans-serif; font-weight: 700; font-size: .88rem;
+  transition: background .15s;
+}
+.biy-oto-degis:hover { background: #166534; }
