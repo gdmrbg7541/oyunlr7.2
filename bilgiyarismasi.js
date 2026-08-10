@@ -864,6 +864,7 @@ const state = {
   seviye: null,              // kolay | orta | zor  (başta seçili değil)
   sorularZ: 1,               // Sorular önizleme sekmesi (zorluk)
   soruGizli: true,           // admin ekranında soruyu gizle/göster (açılışta gizli)
+  gizliIndex: -1,            // gizleme hangi soru için sıfırlandı (her yeni soruda gizlenir)
   soruSayisi: null,          // turdaki soru sayısı (başta seçili değil)
   soruSayiMax: 50,           // seçili konu+seviyedeki mevcut soruya göre üst sınır
   secilenSet: null,          // elle seçilen soru anahtarları (Set) — havuzdan
@@ -2172,6 +2173,9 @@ const BIY = {
     // üst bilgi + sayaç
     const kalan = kalanSaniye();
     const yuzde = Math.max(0, Math.min(100, (kalan / (o.soruSuresi || SORU_SURESI)) * 100));
+    /* v90: öğretmen gözü açıp soruyu göstermiş olsa bile, YENİ SORUYA
+       geçilince soru yeniden gizlenir (varsayılan davranışa döner).      */
+    if (state.gizliIndex !== idx){ state.gizliIndex = idx; state.soruGizli = true; }
     const gizli = state.soruGizli;
     // göz ikonu (tur sırasının yanında): açık göz = görünür (tıkla gizle), çapraz göz = gizli (tıkla göster)
     const gozSvg = state.soruGizli
@@ -2760,7 +2764,7 @@ const BIY = {
     const alt = cevapVerildi
       ? '<div class="biy-t-alindi">✅ وَصَلَتْ إِجابَتُك</div>'
       : (kalan<=0 ? '<div class="biy-t-alindi biy-gec">⌛ اِنْتَهى الوَقْت</div>'
-                  : '<div class="biy-t-ipucu">'+BIY._ipucuMetni(s)+'</div>');
+                  : '<div class="biy-t-ipucu">'+BIY._ipucuSimge(s)+BIY._ipucuMetni(s)+'</div>');
     const perde = (duruyor && !cevapVerildi)
       ? '<div class="biy-t-duraklat">'+_SVG_DURDUR+'<span>تَوَقُّف مُؤَقَّت — اِنْتَظِر المُعَلِّم</span></div>' : '';
     $("takimIcerik").className = "biy-oyun-orta";
@@ -2807,10 +2811,25 @@ const BIY = {
     if (state.sonCevapIndex === o.aktifIndex) return true;
     return kalanSaniye() <= 0;
   },
+  /* "basılı tut ve sürükle" hareketini gösteren küçük animasyon */
+  _ipucuSimge(s){
+    const b = bicimAl(s);
+    if (b !== "surukle" && b !== "eslestir") return "";
+    return '<span class="biy-t-el" aria-hidden="true">'
+      + '<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.9"'
+      + ' stroke-linecap="round" stroke-linejoin="round">'
+      + '<rect class="biy-el-kart" x="2.5" y="9" width="12" height="9" rx="2.5"/>'
+      + '<g class="biy-el-parmak">'
+      + '<path d="M17 21.5v-8a1.9 1.9 0 0 1 3.8 0v4.2"/>'
+      + '<path d="M20.8 15.4a1.7 1.7 0 0 1 3.4 0v2.3"/>'
+      + '<path d="M24.2 16.4a1.7 1.7 0 0 1 3.4 0v5.4a6 6 0 0 1-6 6h-2.4a5 5 0 0 1-3.6-1.6l-2.9-3.4a1.8 1.8 0 0 1 2.6-2.4l1.7 1.6"/>'
+      + '<circle class="biy-el-halka" cx="21.5" cy="12.5" r="4.2" stroke-dasharray="3 3"/>'
+      + '</g></svg></span>';
+  },
   _ipucuMetni(s){
     const b = bicimAl(s);
-    if (b === "surukle")  return "اُنْقُر عَلى الكَلِمات بِالتَّرْتيب · وَبِالسِّهام تُغَيِّر المَكان";
-    if (b === "eslestir") return "اُنْقُر عَلى الفَراغ ثُمَّ عَلى البِطاقَة المُناسِبَة";
+    if (b === "surukle")  return "اُنْقُرْ عَلى الكَلِمَة لِتَنْزِل · أَوْ اِضْغَطْ مَعَ الاِسْتِمْرار ثُمَّ اسْحَبْها";
+    if (b === "eslestir") return "اُنْقُرْ عَلى البِطاقَة لِتَنْزِل · أَوْ اِضْغَطْ مَعَ الاِسْتِمْرار ثُمَّ اسْحَبْها";
     if (b === "yazma")    return "اُكْتُب الكَلِمَة بِالحُروف";
     return "اِخْتَرْ إِجابَةً";
   },
@@ -2842,7 +2861,7 @@ const BIY = {
                      : '') + '</div>';
       }).join("");
       const havuz = p.map((x, i) => c.yerlesim.indexOf(i) >= 0 ? '' :
-        '<div class="biy-t-parca'+(c.secili===i?' secili':'')+(arMi(x)?' ar':'')+'" data-drag="havuz:'+i+'" onclick="BIY.parcaTikla('+i+')">'+kacis(x)+'</div>'
+        '<div class="biy-t-parca'+(c.secili===i?' secili':'')+(arMi(x)?' ar':'')+'" data-drag="havuz:'+i+'" onclick="BIY.parcaTikla('+i+')">'+BIY._tutamakHtml()+'<span class="biy-t-parca-metin">'+kacis(x)+'</span></div>'
       ).join("");
       const tam = p.length > 0 && c.yerlesim.every(v => v != null);
       return '<div class="biy-t-calisma" id="biyCalisma">' +
@@ -2867,7 +2886,7 @@ const BIY = {
                '</div>';
       }).join("");
       const havuz = sag.map((x, i) => c.yerlesim.indexOf(i) >= 0 ? '' :
-        '<div class="biy-t-parca'+(c.secili===i?' secili':'')+(arMi(x)?' ar':'')+'" data-drag="havuz:'+i+'" onclick="BIY.parcaTikla('+i+')">'+kacis(x)+'</div>'
+        '<div class="biy-t-parca'+(c.secili===i?' secili':'')+(arMi(x)?' ar':'')+'" data-drag="havuz:'+i+'" onclick="BIY.parcaTikla('+i+')">'+BIY._tutamakHtml()+'<span class="biy-t-parca-metin">'+kacis(x)+'</span></div>'
       ).join("");
       const tam = sol.length > 0 && c.yerlesim.every(v => v != null);
       return '<div class="biy-t-calisma" id="biyCalisma">' +
@@ -2908,6 +2927,15 @@ const BIY = {
        · dolu yuvaya dokun         → kelime havuza döner, o yuva hedef olur
        · boş yuvaya dokun          → o yuva hedeflenir (sıradaki kelime oraya iner)
        · yuvadaki oklar            → komşu yuvayla yer değiştirir                */
+  /* dokunmatikte "buradan tutup sürükleyebilirsin" işareti */
+  _tutamakHtml(){
+    return '<span class="biy-t-tutamak" aria-hidden="true">'
+      + '<svg viewBox="0 0 12 18" fill="currentColor">'
+      + '<circle cx="3.4" cy="3.2" r="1.5"/><circle cx="8.6" cy="3.2" r="1.5"/>'
+      + '<circle cx="3.4" cy="9"   r="1.5"/><circle cx="8.6" cy="9"   r="1.5"/>'
+      + '<circle cx="3.4" cy="14.8" r="1.5"/><circle cx="8.6" cy="14.8" r="1.5"/>'
+      + '</svg></span>';
+  },
   _kaydirOkHtml(k, yon, kapali){
     // yon -1 = başa doğru (RTL'de sağa), +1 = sona doğru
     const d = (yon < 0) ? "M9 5l7 7-7 7" : "M15 5l-7 7 7 7";
@@ -2996,56 +3024,90 @@ const BIY = {
     c.secili = null; c.hedefSlot = null;
   },
 
-  /* ---------- fare/kalemle sürükleme (pointer events) ---------- */
-  // Tablet/telefon için HTML5 drag&drop kullanılmaz; parmağı takip eden bir
-  // "hayalet" kopya + elementFromPoint ile bırakma hedefi bulunur.
+  /* ---------- sürükleme: fare/kalem hemen, parmak "basılı tut" ile ----------
+     Telefonda parmağın kutuya değer değmez sürükleme başlarsa sayfa hiç
+     kaydırılamıyordu. Artık: parmağı 180 ms sabit tutarsan parça "kalkar"
+     (görsel işaret) ve sürüklenir; hemen kaydırırsan sayfa normal kayar.
+     Tek dokunuşla yerleştirme de aynen çalışmaya devam eder.            */
   _dragKur(){
     const kap = $("biyCalisma");
     if (!kap || kap._dragli) return;
     kap._dragli = true;
-    let bas = null, hayalet = null, tasindi = false;
+    const BEKLE = 180;                 // basılı tutma süresi (ms)
+    const KAYMA = 12;                  // bu kadar kayarsa "sayfayı kaydırıyor" sayılır
+    let bas = null, hayalet = null, tasindi = false, hazir = false, sayac = null;
 
+    const sayacDur = () => { if (sayac){ clearTimeout(sayac); sayac = null; } };
     const temizle = () => {
+      sayacDur();
       if (hayalet && hayalet.parentNode) hayalet.parentNode.removeChild(hayalet);
-      hayalet = null;
+      hayalet = null; hazir = false;
       kap.querySelectorAll(".hedef").forEach(e => e.classList.remove("hedef"));
       kap.querySelectorAll(".suruk").forEach(e => e.classList.remove("suruk"));
+      kap.querySelectorAll(".biy-t-hazir").forEach(e => e.classList.remove("biy-t-hazir"));
+      document.body.classList.remove("biy-suruklerken");
     };
     const dropBul = (x, y) => {
       const el = document.elementFromPoint(x, y);
       return (el && el.closest) ? el.closest("[data-drop]") : null;
     };
+    // parmak ekranın altına/üstüne yaklaşınca sayfayı kendimiz kaydırırız
+    const kenarKaydir = (y) => {
+      const h = window.innerHeight, pay = 90;
+      if (y < pay) window.scrollBy(0, -Math.ceil((pay - y) / 6));
+      else if (y > h - pay) window.scrollBy(0, Math.ceil((y - (h - pay)) / 6));
+    };
 
     // Sürükleme bittiğinde tarayıcının ürettiği "click" olayını yut ki
     // parça hem taşınıp hem de tıklanmış sayılmasın.
     kap.addEventListener("click", function(e){
-      if (kap._yut){ e.stopPropagation(); e.preventDefault(); }
+      if (kap._yut){ e.stopPropagation(); e.preventDefault(); kap._yut = false; }
     }, true);
+
+    // Sürükleme hazırsa sayfanın kaymasını engelle (passive OLMAYAN dinleyici).
+    kap.addEventListener("touchmove", function(e){
+      if (bas && hazir) e.preventDefault();
+    }, { passive: false });
 
     kap.addEventListener("pointerdown", function(e){
       kap._yut = false;
-      /* DOKUNMATIKTE SURUKLEME YOK. Parmakla surukleme, kutularin uzerinde
-         sayfa kaydirmayi bloke ediyordu; artik dokunmatikte tek dokunusla
-         yerlestirme ve siralama oklari kullaniliyor. Fare/kalem aynen surukler. */
-      if (e.pointerType === "touch") return;
       if (BIY._takimKilit()) return;
       const el = (e.target && e.target.closest) ? e.target.closest("[data-drag]") : null;
       if (!el) return;
-      bas = { el: el, x: e.clientX, y: e.clientY, id: el.getAttribute("data-drag") };
+      bas = { el: el, x: e.clientX, y: e.clientY, id: el.getAttribute("data-drag"), pid: e.pointerId };
       tasindi = false;
-      try { el.setPointerCapture(e.pointerId); } catch(err){}
+      if (e.pointerType === "touch"){
+        hazir = false;
+        sayac = setTimeout(function(){
+          if (!bas) return;
+          hazir = true;
+          bas.el.classList.add("biy-t-hazir");
+          try { bas.el.setPointerCapture(bas.pid); } catch(err){}
+          try { if (navigator.vibrate) navigator.vibrate(12); } catch(err){}
+          try { SES.cevapGeldi(); } catch(err){}
+          document.body.classList.add("biy-suruklerken");
+        }, BEKLE);
+      } else {
+        hazir = true;
+        try { el.setPointerCapture(e.pointerId); } catch(err){}
+      }
     });
 
     kap.addEventListener("pointermove", function(e){
       if (!bas) return;
       const dx = e.clientX - bas.x, dy = e.clientY - bas.y;
-      if (!tasindi && (Math.abs(dx) + Math.abs(dy)) < 8) return;
+      if (!hazir){
+        // basılı tutma tamamlanmadan parmak kaydıysa → sayfa kaysın
+        if (Math.abs(dx) + Math.abs(dy) > KAYMA){ sayacDur(); bas = null; temizle(); }
+        return;
+      }
+      if (!tasindi && (Math.abs(dx) + Math.abs(dy)) < 6) return;
       if (!tasindi){
         tasindi = true;
         hayalet = bas.el.cloneNode(true);
         hayalet.removeAttribute("data-drag");
         hayalet.removeAttribute("data-drop");
-        hayalet.className = bas.el.className.replace("secili", "") + " biy-t-hayalet";
+        hayalet.className = bas.el.className.replace("secili", "").replace("biy-t-hazir", "") + " biy-t-hayalet";
         hayalet.style.width = bas.el.offsetWidth + "px";
         document.body.appendChild(hayalet);
         bas.el.classList.add("suruk");
@@ -3056,16 +3118,17 @@ const BIY = {
       kap.querySelectorAll(".hedef").forEach(x => x.classList.remove("hedef"));
       const hd = dropBul(e.clientX, e.clientY);
       if (hd) hd.classList.add("hedef");
+      kenarKaydir(e.clientY);
     });
 
     kap.addEventListener("pointerup", function(e){
       if (!bas) return;
       const b = bas; bas = null;
-      if (!tasindi){ temizle(); return; }
+      if (!tasindi){ temizle(); return; }     // taşınmadıysa normal tıklama olsun
       const hd = dropBul(e.clientX, e.clientY);
       temizle();
       kap._yut = true;
-      if (hd) BIY._tasi(b.id, hd.getAttribute("data-drop"));
+      if (hd){ BIY._tasi(b.id, hd.getAttribute("data-drop")); try { SES.siraDegisti(); } catch(err){} }
       BIY._renderTakim();
     });
 

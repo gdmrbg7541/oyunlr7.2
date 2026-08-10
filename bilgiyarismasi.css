@@ -2404,3 +2404,109 @@ button.biy-sayi-etiket .biy-svg-sayi { transition: transform .2s ease; }
   .biy-ak-govde .biy-ds-oge { font-size: 1.24rem; padding: 11px 12px; }
   .biy-ds-say2 { min-width: 28px; padding: 1px 8px; font-size: .88rem; }
 }
+
+/* ==========================================================================
+   v89 — MASAUSTUNDE KARAKTER SIMGELERI COK DAHA BUYUK
+   Tahtaya yansitilan ekranda takim/kisi avatarlari uzaktan secilemiyordu.
+   Yalnizca genis ekranda (>=900px) buyutuldu; telefon duzeni aynen kaldi.
+   Yazi puntolari degismiyor — tahta olcu kanaryalari korunuyor.
+   ========================================================================== */
+@media (min-width: 900px){
+  /* lobi · katilimci listeleri · liderlik tablosu */
+  .biy-krk-mini      { width: 44px; height: 44px; margin-inline-end: 12px; }
+  .biy-krk-cip       { width: 42px; height: 42px; margin-inline-end: 12px; }
+  .biy-krk-kart-ikon { width: 72px; height: 72px; margin-inline-end: 16px; }
+  .biy-krk-buyuk     { width: 132px; height: 132px; }
+  .biy-reveal-tablo td .biy-krk-mini { vertical-align: -12px; }
+  .biy-krk-benim span { font-size: 1.35rem; }
+
+  /* yansitilan tahta: soru ekranindaki cipler ve devasa hâli */
+  #ekranOyunAdmin .biy-krk-cip { width: 56px; height: 56px; margin-inline-end: 14px; }
+  #ekranOyunAdmin .biy-cipler.biy-dev .biy-krk-cip { width: 92px; height: 92px; margin-inline-end: 18px; }
+  #ekranOyunAdmin .biy-krk-mini { width: 48px; height: 48px; margin-inline-end: 13px; }
+
+  /* karakter secme izgarasi (ogrenci masaustunden baglanirsa) */
+  .biy-krk-izgara { grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 14px; }
+  .biy-krk-btn { padding: 12px 6px 9px; border-radius: 18px; }
+  .biy-krk-btn .biy-krk-resim { width: 80px; height: 80px; }
+  .biy-krk-ad { font-size: 1rem; }
+  .biy-krk-tik, .biy-krk-kilit { width: 24px; height: 24px; font-size: .85rem; }
+
+  /* ogrencinin kendi rozeti (masaustu tarayicidan girildiyse) */
+  #ekranTakim .biy-t-kimlik .biy-krk-mini { width: 52px; height: 52px; }
+}
+
+/* cok genis ekran (projeksiyon): bir tik daha buyuk */
+@media (min-width: 1400px){
+  #ekranOyunAdmin .biy-krk-cip { width: 66px; height: 66px; }
+  #ekranOyunAdmin .biy-cipler.biy-dev .biy-krk-cip { width: 112px; height: 112px; }
+  #ekranOyunAdmin .biy-krk-mini { width: 56px; height: 56px; }
+  .biy-krk-kart-ikon { width: 84px; height: 84px; }
+  .biy-krk-buyuk { width: 150px; height: 150px; }
+}
+
+
+/* ==========================================================================
+   v90 — TELEFONDA "BASILI TUT VE SURUKLE"
+   Dokunmatikte parca 180 ms basili tutunca kalkiyor ve surukleniyor;
+   hemen kaydirirsan sayfa normal kayar. Tek dokunusla yerlestirme de durur.
+   ========================================================================== */
+
+/* parcalarda tutamak (yalniz dokunmatik cihazlarda gorunur) */
+.biy-t-tutamak { display: none; flex: 0 0 auto; color: #A5B4FC; line-height: 0; }
+.biy-t-tutamak svg { width: 10px; height: 15px; display: block; }
+.biy-t-parca-metin { flex: 1 1 auto; min-width: 0; }
+@media (hover: none), (max-width: 640px){
+  .biy-t-parca { gap: 8px; }
+  .biy-t-tutamak { display: inline-flex; align-items: center; }
+}
+
+/* basili tutunca parca "kalkar" — ogrenci suruklenebildigini gorur */
+.biy-t-parca.biy-t-hazir, .biy-t-slot.biy-t-hazir {
+  transform: scale(1.08);
+  border-color: #16A085 !important;
+  box-shadow: 0 10px 22px rgba(15,23,42,.24), 0 0 0 4px rgba(22,160,133,.22) !important;
+  z-index: 5;
+}
+.biy-t-parca.biy-t-hazir .biy-t-tutamak { color: #16A085; }
+/* suruklerken metin secilmesin, sayfa da secim moduna girmesin */
+body.biy-suruklerken { -webkit-user-select: none; user-select: none; }
+
+/* birakma hedefi daha belirgin */
+.biy-t-slot.hedef, .biy-t-havuz.hedef {
+  border-style: solid !important; border-color: #16A085 !important;
+  background: #DCFCE7 !important; box-shadow: 0 0 0 3px rgba(22,160,133,.25);
+}
+
+/* ipucundaki animasyonlu el: karta bas → surukle */
+.biy-t-ipucu { display: inline-flex; align-items: center; gap: 8px; }
+.biy-t-el { flex: 0 0 auto; color: #16A085; line-height: 0; }
+.biy-t-el svg { width: 30px; height: 30px; display: block; }
+.biy-el-parmak { animation: biyElBas 2.8s ease-in-out infinite; transform-box: view-box; }
+@keyframes biyElBas {
+  0%, 12%   { transform: translate(0,0); }
+  26%       { transform: translate(0,1.6px); }
+  30%       { transform: translate(0,1.6px); }
+  62%       { transform: translate(-10px,1.6px); }
+  76%       { transform: translate(-10px,0); }
+  100%      { transform: translate(0,0); }
+}
+.biy-el-kart { animation: biyElKart 2.8s ease-in-out infinite; }
+@keyframes biyElKart {
+  0%, 30%  { opacity: .35; }
+  36%      { opacity: 1; }
+  62%      { opacity: 1; transform: translateX(0); }
+  76%, 100%{ opacity: .35; }
+}
+.biy-el-halka { animation: biyElHalka 2.8s ease-in-out infinite; opacity: 0; transform-origin: 21.5px 12.5px; }
+@keyframes biyElHalka {
+  0%, 20%  { opacity: 0; transform: scale(.4); }
+  30%      { opacity: .9; transform: scale(1); }
+  46%      { opacity: 0; transform: scale(1.5); }
+  100%     { opacity: 0; transform: scale(.4); }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .biy-el-parmak, .biy-el-kart, .biy-el-halka { animation: none; }
+  .biy-t-parca.biy-t-hazir, .biy-t-slot.biy-t-hazir { transform: none; }
+}
