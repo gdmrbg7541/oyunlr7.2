@@ -2547,3 +2547,115 @@ body.biy-suruklerken { -webkit-user-select: none; user-select: none; }
   transition: background .15s;
 }
 .biy-oto-degis:hover { background: #166534; }
+
+
+/* ==========================================================================
+   v94 — HAVUZ SEPETI + SORU SAYISI SINIRI
+   ========================================================================== */
+.biy-soru-sec-alt { flex-wrap: wrap; gap: 14px; align-items: center; }
+.biy-soru-sec-butonlar { display: flex; gap: 10px; align-items: center; margin-inline-start: auto; }
+
+.biy-sepet {
+  display: flex; align-items: center; gap: 14px; flex: 1 1 260px; min-width: 240px;
+  padding: 10px 16px; border-radius: 16px;
+  background: #EEF2FF; border: 2px solid #C7D2FE; color: #4338CA;
+  transition: background .25s, border-color .25s, color .25s;
+}
+.biy-sepet.bos { background: #F8FAFC; border-color: #E2E8F0; color: #94A3B8; }
+.biy-sepet.dolu { background: #DCFCE7; border-color: #86EFAC; color: #15803D; }
+
+.biy-sepet-ikon { position: relative; flex: 0 0 auto; width: 52px; height: 52px; line-height: 0; }
+.biy-sepet-ikon svg { width: 52px; height: 52px; display: block; }
+.biy-sepet-dolgu { fill: currentColor; opacity: .28; transition: y .45s cubic-bezier(.34,1.4,.64,1); }
+.biy-sepet.dolu .biy-sepet-dolgu { opacity: .42; }
+.biy-sepet-kulp { transition: transform .3s ease; transform-origin: 26px 20px; }
+.biy-sepet.dolu .biy-sepet-kulp { transform: scaleY(1.06); }
+
+/* eklenen soru sepete duser */
+.biy-sepet-dusen {
+  position: absolute; top: -2px; inset-inline-start: 21px; width: 10px; height: 10px;
+  border-radius: 3px; background: currentColor; opacity: 0; pointer-events: none;
+}
+.biy-sepet-dusen.biy-dus { animation: biySepetDus .5s cubic-bezier(.5,.05,.6,1) 1; }
+@keyframes biySepetDus {
+  0%   { opacity: 0; transform: translateY(-14px) scale(.7) rotate(0deg); }
+  25%  { opacity: 1; }
+  85%  { opacity: 1; transform: translateY(22px) scale(1) rotate(140deg); }
+  100% { opacity: 0; transform: translateY(24px) scale(.6) rotate(160deg); }
+}
+.biy-sepet.biy-zipla { animation: biySepetZipla .34s ease; }
+@keyframes biySepetZipla { 0%,100% { transform: none; } 40% { transform: translateY(-3px) scale(1.015); } }
+.biy-sepet.biy-salla { animation: biySepetSalla .38s ease; }
+@keyframes biySepetSalla {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); } 45% { transform: translateX(5px); }
+  70% { transform: translateX(-3px); }
+}
+
+.biy-sepet-bilgi { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.biy-sepet-sayi {
+  display: flex; align-items: baseline; gap: 4px; direction: ltr;
+  font-family: 'Marhey', sans-serif; font-weight: 800; line-height: 1;
+}
+.biy-sepet-sayi b { font-size: 1.85rem; font-variant-numeric: tabular-nums; }
+.biy-sepet-sayi span { font-size: 1.1rem; opacity: .72; }
+.biy-sepet-bar { height: 8px; border-radius: 999px; background: rgba(15,23,42,.10); overflow: hidden; }
+.biy-sepet-bar i {
+  display: block; height: 100%; width: 0; border-radius: 999px; background: currentColor;
+  transition: width .35s cubic-bezier(.34,1.3,.64,1);
+}
+.biy-sepet-not { font-size: .84rem; opacity: .85; min-height: 1em; }
+.biy-sepet-not.uyari { color: #B45309; font-weight: 700; opacity: 1; }
+.biy-sepet.dolu .biy-sepet-not { font-weight: 700; }
+
+/* sınıra gelince seçilemeyen satırlar */
+.biy-hs-satir.biy-hs-kapali { opacity: .38; cursor: not-allowed; }
+.biy-hs-satir.biy-hs-kapali input { cursor: not-allowed; }
+.biy-hs-tumu.biy-hs-tumu-kapali { opacity: .35; }
+
+@media (max-width: 640px){
+  .biy-soru-sec-alt { gap: 10px; }
+  .biy-sepet { flex: 1 1 100%; min-width: 0; padding: 8px 12px; gap: 10px; }
+  .biy-sepet-ikon, .biy-sepet-ikon svg { width: 42px; height: 42px; }
+  .biy-sepet-sayi b { font-size: 1.5rem; }
+  .biy-soru-sec-butonlar { width: 100%; margin-inline-start: 0; }
+  .biy-soru-sec-butonlar .biy-btn { flex: 1 1 0; }
+}
+@media (prefers-reduced-motion: reduce){
+  .biy-sepet-dusen.biy-dus, .biy-sepet.biy-zipla, .biy-sepet.biy-salla { animation: none; }
+  .biy-sepet-dolgu, .biy-sepet-bar i { transition: none; }
+}
+
+
+/* ============ v94b — ders seçilince "soru seç" adımı vurgulanır ============ */
+.biy-soru-sec-secim { border-radius: 18px; transition: background .3s ease, box-shadow .3s ease; }
+.biy-soru-sec-secim.biy-sira-geldi {
+  background: #F0FDF9;
+  box-shadow: 0 0 0 3px rgba(22,160,133,.22);
+  animation: biySiraNabiz 2.2s ease-in-out infinite;
+}
+@keyframes biySiraNabiz {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(22,160,133,.20); }
+  50%      { box-shadow: 0 0 0 8px rgba(22,160,133,.10); }
+}
+.biy-soru-sec-secim.biy-sira-geldi .biy-soru-sec-btn {
+  border-color: #16A085; color: #0E7C66; background: #fff;
+}
+.biy-soru-sec-secim.biy-sira-geldi .biy-svg-havuz { transform: scale(1.06); }
+.biy-svg-havuz { transition: transform .3s ease; }
+/* küçük bir "sıra sende" oku */
+.biy-soru-sec-secim.biy-sira-geldi::after {
+  content: ""; display: block; height: 3px; width: 42px; margin: 8px auto 0;
+  border-radius: 999px; background: #16A085; opacity: .55;
+  animation: biySiraCizgi 2.2s ease-in-out infinite;
+}
+@keyframes biySiraCizgi { 0%,100% { width: 28px; opacity: .4; } 50% { width: 52px; opacity: .8; } }
+
+@media (prefers-reduced-motion: reduce){
+  .biy-soru-sec-secim.biy-sira-geldi,
+  .biy-soru-sec-secim.biy-sira-geldi::after { animation: none; }
+}
+
+/* v94c — sepet ikonu: dolgu çizgileri boğmasın */
+.biy-sepet-dolgu { opacity: .22; }
+.biy-sepet.dolu .biy-sepet-dolgu { opacity: .30; }

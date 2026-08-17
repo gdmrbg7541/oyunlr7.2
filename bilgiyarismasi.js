@@ -938,6 +938,8 @@ const state = {
   gizliIndex: -1,            // gizleme hangi soru için sıfırlandı (her yeni soruda gizlenir)
   soruSayisi: null,          // turdaki soru sayısı (başta seçili değil)
   soruSayiMax: 50,           // seçili konu+seviyedeki mevcut soruya göre üst sınır
+  soruHedef: null,           // öğretmenin elle seçtiği soru sayısı = havuzun üst sınırı
+  havuzVurguGorildi: false,  // havuz bölümü bir kez açıldıysa vurgu tekrarlanmaz
   secilenSet: null,          // elle seçilen soru anahtarları (Set) — havuzdan
   soruSecArama: "",          // soru havuzu arama metni
   otoSonucIndex: -1,         // tüm takımlar cevaplayınca otomatik sonuç kilidi
@@ -1456,14 +1458,24 @@ const BIY = {
     BIY._konuVurgu();
     BIY._pdfOnizleGuncelle();
   },
+  /* Ders seçildikten sonra sıra "soru seç" adımında: havuz bölümü vurgulanır.
+     Havuzdan seçim yapılınca ya da panel açılınca vurgu söner.            */
+  _havuzVurgu(){
+    const k = document.querySelector("#ekranAnasayfa .biy-soru-sec-secim");
+    if (!k) return;
+    const goster = !!state.konuId && BIY._secSet().size === 0 && !state.havuzVurguGorildi;
+    k.classList.toggle("biy-sira-geldi", goster);
+  },
   konuSec(id){
     state.konuId = id || null;
+    state.havuzVurguGorildi = false;
     if (state.konuId){
       const set = BIY._secSet();
       if (set.size){ set.clear(); state.soruSayisi = null; }   // havuzdan vazgeçildi → seçimi + soru sayısını sıfırla
     }
     BIY._konuVurgu();
     BIY._soruSecSayiGuncelle();   // havuz tuşu/sayaç + pdf + sınır + menü hepsini günceller
+    BIY._havuzVurgu();
   },
 
   /* ---------- Soru Havuzu (elle seçim) ---------- */
@@ -1475,12 +1487,14 @@ const BIY = {
     const b = $("soruSecSayi");
     if (b){ b.textContent = n; b.hidden = (n === 0); }   // sifirken rozet hic cikmasin
     const btn = $("soruSecBtn"); if (btn) btn.classList.toggle("biy-secili-var", n > 0);
+    BIY._havuzVurgu();
     BIY._pdfOnizleGuncelle();
     BIY._soruSayiSinir();
     BIY._menuDurum();
   },
   soruSecAc(){
     if ($("soruSecBtn") && $("soruSecBtn").disabled) return;
+    state.havuzVurguGorildi = true; BIY._havuzVurgu();   // panel açıldı, vurgu sönsün
     const eski = $("biySoruSec"); if (eski) eski.remove();
     state.soruSecArama = "";
     // Panelin ustundeki havuz SVG'sini basliga kucultulmus olarak klonla
@@ -1490,14 +1504,17 @@ const BIY = {
     ov.innerHTML =
       '<div class="biy-soru-sec-kutu">' +
         '<div class="biy-soru-sec-bas">' +
-          '<h3><span class="biy-hs-bas-ikon biy-anim">' + hvIkon + '</span> مَخْزون الأَسْئِلَة</h3>' +
+          '<h3><span class="biy-hs-bas-ikon biy-anim">' + hvIkon + '</span> اِخْتَر الأَسْئِلَة</h3>' +
           '<span class="biy-soru-sec-say" id="soruSecSecili"></span>' +
           '<button class="biy-soru-sec-kapat" onclick="BIY.soruSecKapat()">✕</button>' +
         '</div>' +
         '<div class="biy-soru-sec-liste" id="soruSecListe"></div>' +
         '<div class="biy-soru-sec-alt">' +
-          '<button class="biy-btn biy-onay-hayir" onclick="BIY.soruSecTemizle()">مَسْح الكُلّ</button>' +
-          '<button class="biy-btn biy-btn-yesil" onclick="BIY.soruSecKapat()">تَمَّ</button>' +
+          BIY._sepetHtml() +
+          '<div class="biy-soru-sec-butonlar">' +
+            '<button class="biy-btn biy-onay-hayir" onclick="BIY.soruSecTemizle()">مَسْح الكُلّ</button>' +
+            '<button class="biy-btn biy-btn-yesil" onclick="BIY.soruSecKapat()">تَمَّ</button>' +
+          '</div>' +
         '</div>' +
       '</div>';
     document.body.appendChild(ov);
@@ -1505,6 +1522,63 @@ const BIY = {
     BIY._soruSecRender();
   },
   soruSecAra(v){ state.soruSecArama = (v||"").toLowerCase(); BIY._soruSecRender(); },
+  /* ---------- havuz sınırı: önceden seçilen soru sayısı ---------- */
+  _havuzSinir(){ return (state.soruHedef > 0) ? state.soruHedef : 0; },
+  _havuzKalan(){ const s = BIY._havuzSinir(); return s ? Math.max(0, s - BIY._secSet().size) : Infinity; },
+  _havuzDoluMu(){ const s = BIY._havuzSinir(); return !!s && BIY._secSet().size >= s; },
+  /* ---------- SEPET: seçilen sorular gözle görülür şekilde birikir ---------- */
+  _sepetHtml(){
+    return '<div class="biy-sepet" id="soruSepet">'
+      + '<span class="biy-sepet-ikon" aria-hidden="true">'
+        + '<svg viewBox="0 0 52 52">'
+          + '<defs><clipPath id="biySepetKirp"><path d="M8 20h36l-4.5 22a4 4 0 0 1-4 3.2H16.5a4 4 0 0 1-4-3.2z"/></clipPath></defs>'
+          + '<g clip-path="url(#biySepetKirp)">'
+            + '<rect class="biy-sepet-dolgu" id="sepetDolgu" x="6" y="46" width="40" height="30"/>'
+          + '</g>'
+          + '<path class="biy-sepet-kulp" d="M18 20V15a8 8 0 0 1 16 0v5" fill="none" stroke="currentColor"'
+          + ' stroke-width="3" stroke-linecap="round"/>'
+          + '<path d="M8 20h36l-4.5 22a4 4 0 0 1-4 3.2H16.5a4 4 0 0 1-4-3.2z" fill="none" stroke="currentColor"'
+          + ' stroke-width="3" stroke-linejoin="round"/>'
+          + '<path d="M5.5 20h41" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>'
+        + '</svg>'
+        + '<i class="biy-sepet-dusen" id="sepetDusen"></i>'
+      + '</span>'
+      + '<div class="biy-sepet-bilgi">'
+        + '<div class="biy-sepet-sayi"><b id="sepetSayi">0</b><span id="sepetHedef"></span></div>'
+        + '<div class="biy-sepet-bar"><i id="sepetBar"></i></div>'
+        + '<span class="biy-sepet-not" id="sepetNot"></span>'
+      + '</div>'
+    + '</div>';
+  },
+  _sepetGuncelle(dusenVar){
+    const kap = $("soruSepet"); if (!kap) return;
+    const n = BIY._secSet().size, hedef = BIY._havuzSinir();
+    const oran = hedef ? Math.min(100, (n / hedef) * 100) : (n ? Math.min(100, n * 4) : 0);
+    const dolu = BIY._havuzDoluMu();
+    const sy = $("sepetSayi"); if (sy) sy.textContent = n;
+    const hd = $("sepetHedef"); if (hd) hd.textContent = hedef ? (" / " + hedef) : "";
+    const br = $("sepetBar"); if (br) br.style.width = oran + "%";
+    const dg = $("sepetDolgu"); if (dg) dg.setAttribute("y", String(46 - (oran / 100) * 26));
+    const nt = $("sepetNot");
+    if (nt) nt.textContent = !hedef ? "" : (dolu ? "اِكْتَمَل العَدَد" : ("يُمْكِنُك اخْتِيار " + (hedef - n) + " بَعْد"));
+    kap.classList.toggle("dolu", dolu);
+    kap.classList.toggle("bos", n === 0);
+    if (dusenVar){
+      const d = $("sepetDusen");
+      if (d){ d.classList.remove("biy-dus"); void d.offsetWidth; d.classList.add("biy-dus"); }
+      kap.classList.remove("biy-zipla"); void kap.offsetWidth; kap.classList.add("biy-zipla");
+    }
+  },
+  _sinirUyar(){
+    const kap = $("soruSepet"); if (!kap) return;
+    kap.classList.remove("biy-salla"); void kap.offsetWidth; kap.classList.add("biy-salla");
+    const nt = $("sepetNot");
+    if (nt){
+      nt.textContent = "وَصَلْتَ إِلى العَدَد المُحَدَّد (" + BIY._havuzSinir() + ")";
+      nt.classList.add("uyari");
+      setTimeout(() => { nt.classList.remove("uyari"); BIY._sepetGuncelle(); }, 1800);
+    }
+  },
   _kapsamSvg(){
     return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"'
          + ' stroke-linecap="round" stroke-linejoin="round"><path d="M3 6.5h18M6 12h12M9.5 17.5h5"/></svg>';
@@ -1512,19 +1586,21 @@ const BIY = {
   /* Sorular seçilmeden ÖNCE soru sayısı belirlenmişse uyar: havuzdan seçim
      yapılınca sayı, seçilen soru adedine dönüşecek.                       */
   _sayiUyariHtml(){
-    const n = state.soruSayisi;
-    if (n == null || state.soruSayiHavuzdan || BIY._secSet().size > 0) return "";
+    /* Sinir bilgisi: ogretmenin ELLE sectigi sayi (soruHedef) esas alinir.
+       Secim baslayinca sepet zaten "n / hedef" gosterdigi icin serit gizlenir. */
+    const n = state.soruHedef;
+    if (!n || BIY._secSet().size > 0) return "";
     return '<div class="biy-hs-uyari" role="alert">'
       + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"'
       + ' stroke-linecap="round" stroke-linejoin="round">'
       + '<path d="M12 3.6l9.2 16H2.8z"/><path d="M12 9.6v4.4"/><circle cx="12" cy="17" r=".9" fill="currentColor" stroke="none"/></svg>'
-      + '<span>عَدَد الأَسْئِلَة مُحَدَّد مُسْبَقًا (<b>' + n + '</b>). إِذا اخْتَرْتَ أَسْئِلَة مِن المَخْزون'
-      + ' فَسَيُصْبِح العَدَد عَدَد ما تَخْتارُهُ.</span>'
-      + '<button type="button" class="biy-hs-uyari-btn" onclick="BIY.sayiUyariKaldir()">أَلْغِ العَدَد</button>'
+      + '<span>عَدَد الأَسْئِلَة مُحَدَّد مُسْبَقًا: <b>' + n + '</b>.'
+      + ' لا يُمْكِنُك اخْتِيار أَكْثَر مِنْ هَذا العَدَد.</span>'
+      + '<button type="button" class="biy-hs-uyari-btn" onclick="BIY.sayiUyariKaldir()">أَلْغِ الحَدّ</button>'
       + '</div>';
   },
   sayiUyariKaldir(){
-    state.soruSayisi = null; state.soruSayiHavuzdan = false;
+    state.soruSayisi = null; state.soruSayiHavuzdan = false; state.soruHedef = null;
     BIY._soruSayiSinir(); BIY._menuDurum();
     BIY._soruSecRender();
   },
@@ -1533,6 +1609,7 @@ const BIY = {
     const set = BIY._secSet();
     const ara = state.soruSecArama;
     const zorAd = { 1:"سَهْل", 2:"مُتَوَسِّط", 3:"صَعْب" };
+    const doluMu = BIY._havuzDoluMu();
     let html = '<div class="biy-hs-kapsam">' + BIY._kapsamSvg()
              + '<span>' + kacis(BIY._havuzKapsamAdi()) + '</span></div>'
              + BIY._sayiUyariHtml();
@@ -1553,8 +1630,9 @@ const BIY = {
       sorular.forEach(q => {
         const key = k.id + "#" + q.id; const sec = set.has(key);
         const dogruSik = dogruCevapMetni(q);
-        html += '<label class="biy-hs-satir'+(sec?' secili':'')+'" data-key="'+key+'">' +
-          '<input type="checkbox" '+(sec?'checked':'')+' onchange="BIY.soruSecTik(\''+key+'\', this)">' +
+        const kapali = (!sec && doluMu);
+        html += '<label class="biy-hs-satir'+(sec?' secili':'')+(kapali?' biy-hs-kapali':'')+'" data-key="'+key+'">' +
+          '<input type="checkbox" '+(sec?'checked':'')+(kapali?' disabled':'')+' onchange="BIY.soruSecTik(\''+key+'\', this)">' +
           '<span class="biy-hs-metin">'+soruHtml(q)+(q.arapca?' <i>'+kacis(q.arapca)+'</i>':'')+
             ' <b class="biy-hs-dogru">✓ '+kacis(dogruSik)+'</b></span>' +
         '</label>';
@@ -1567,7 +1645,7 @@ const BIY = {
     BIY._soruSecSayilar();
   },
   // sayaçları (grup başlıkları + toplam + buton) satırları yeniden çizmeden güncelle
-  _soruSecSayilar(){
+  _soruSecSayilar(dusenVar){
     const set = BIY._secSet();
     document.querySelectorAll(".biy-hs-grup").forEach(g => {
       const k = KONULAR.find(x => x.id === g.getAttribute("data-konu")); if (!k) return;
@@ -1583,14 +1661,31 @@ const BIY = {
       if (tb) tb.classList.toggle("tam", sec === k.sorular.length);
     });
     const say = $("soruSecSecili"); if (say) say.innerHTML = 'المُحَدَّد <b class="biy-say-rozet">' + set.size + '</b>';
+    // sınır dolunca/boşalınca satırların açık-kapalı hâli değişir
+    const dolu = BIY._havuzDoluMu();
+    document.querySelectorAll("#soruSecListe .biy-hs-satir").forEach(r => {
+      const cb = r.querySelector("input"); if (!cb) return;
+      const kapali = !cb.checked && dolu;
+      cb.disabled = kapali; r.classList.toggle("biy-hs-kapali", kapali);
+    });
+    document.querySelectorAll("#soruSecListe .biy-hs-tumu").forEach(b => b.classList.toggle("biy-hs-tumu-kapali", dolu));
+    // secim baslayinca sinir seridi gizlenir (sepet zaten "n / hedef" gosteriyor)
+    const uyari = document.querySelector(".biy-hs-uyari");
+    if (uyari) uyari.style.display = set.size ? "none" : "";
+    BIY._sepetGuncelle(dusenVar);
     BIY._soruSecSayiGuncelle();
   },
   // tek satır: yeniden çizmeden aç/kapa (kaydırma korunur)
   soruSecTik(key, cb){
     const set = BIY._secSet();
-    if (set.has(key)) set.delete(key); else set.add(key);
+    if (set.has(key)) set.delete(key);
+    else {
+      // önceden belirlenen soru sayısından fazlası seçilemez
+      if (BIY._havuzDoluMu()){ if (cb) cb.checked = false; BIY._sinirUyar(); return; }
+      set.add(key);
+    }
     if (cb){ const row = cb.closest(".biy-hs-satir"); if (row) row.classList.toggle("secili", cb.checked); }
-    BIY._soruSecSayilar();
+    BIY._soruSecSayilar(set.has(key));
   },
   // akordiyon: başlığa tıkla → aç/kapa (yeniden çizmeden, kaydırma korunur)
   soruSecAkordiyon(konuId){
@@ -1603,10 +1698,27 @@ const BIY = {
     const set = BIY._secSet();
     const k = KONULAR.find(x => x.id === konuId); if (!k) return;
     const hepsiSecili = k.sorular.every(q => set.has(konuId + "#" + q.id));
-    k.sorular.forEach(q => { const key = konuId + "#" + q.id; if (hepsiSecili) set.delete(key); else set.add(key); });
+    if (hepsiSecili){
+      k.sorular.forEach(q => set.delete(konuId + "#" + q.id));
+    } else {
+      // sınır varsa yalnız kalan kadarını ekle
+      let kalan = BIY._havuzKalan();
+      let tasti = false;
+      for (const q of k.sorular){
+        const key = konuId + "#" + q.id;
+        if (set.has(key)) continue;
+        if (kalan <= 0){ tasti = true; break; }
+        set.add(key); kalan--;
+      }
+      if (tasti) setTimeout(() => BIY._sinirUyar(), 30);
+    }
     BIY._soruSecRender();
   },
-  soruSecTemizle(){ BIY._secSet().clear(); BIY._soruSecRender(); BIY._soruSecSayiGuncelle(); },
+  soruSecTemizle(){
+    BIY._secSet().clear();
+    BIY._soruSecSayiGuncelle();   // once sayilar/sinir tazelensin
+    BIY._soruSecRender();          // sonra liste + uyari seridi cizilsin
+  },
   soruSecKapat(){ const ov = $("biySoruSec"); if (ov) ov.remove(); BIY._soruSecSayiGuncelle(); },
   /* ---------- soru tipi (biçim) filtresi ---------- */
   // aktif konunun sorularından yalnız seçili biçimdekiler
@@ -1758,7 +1870,7 @@ const BIY = {
       return;
     }
     // havuz modundan çıkıldıysa havuz kaynaklı soru sayısını sıfırla (öğretmen yeniden seçsin)
-    if (state.soruSayiHavuzdan){ state.soruSayisi = null; state.soruSayiHavuzdan = false; }
+    if (state.soruSayiHavuzdan){ state.soruSayisi = state.soruHedef || null; state.soruSayiHavuzdan = false; }
     let mevcut;
     // dijital yarışma seçilen zorluğu önceliklendirip gerekirse diğer zorluklardan tamamlar → üst sınır konunun TÜM sorusu
     if (state.konuId) mevcut = BIY._bicimliSorular().length;
@@ -1782,7 +1894,7 @@ const BIY = {
     if (svg){
       svg.classList.toggle("biy-ss-havuz",  kip === "havuz");
       svg.classList.toggle("biy-ss-secili", kip === "secili");
-      const metin = kip === "havuz"  ? "عَدَد الأَسْئِلَة (مِن المَخْزون " + n + ")"
+      const metin = kip === "havuz"  ? "عَدَد الأَسْئِلَة (المُخْتار " + n + ")"
                   : kip === "secili" ? "عَدَد الأَسْئِلَة: " + n
                                      : "عَدَد الأَسْئِلَة (بِحَدّ أَقْصى " + n + ")";
       const bas = svg.querySelector("title"); if (bas) bas.textContent = metin;
@@ -2170,6 +2282,8 @@ const BIY = {
     n = Math.max(1, Math.min(max, parseInt(n, 10) || max));
     state.soruSayisi = n;
     state.soruSayiHavuzdan = false;
+    state.soruHedef = n;              // havuzdan en fazla bu kadar soru seçilebilir
+    BIY._sepetGuncelle();
     const hazir = SORU_SAYI_SECENEK.indexOf(n) >= 0;
     document.querySelectorAll(".biy-sayi-btn").forEach(b => b.classList.toggle("secili", +b.getAttribute("data-sayi") === n));
     const inp = $("soruSayiInput"); if (inp){ inp.value = hazir ? "" : n; }

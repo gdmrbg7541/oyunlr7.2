@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Harmattan:wght@400;700&family=Marhey:wght@400;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="bilgiyarismasi.css?v=93">
+<link rel="stylesheet" href="bilgiyarismasi.css?v=94">
 
 <!-- Firebase 8.10.1 (compat) — proje: bilgiyarismasi7sinif1unite -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -148,8 +148,8 @@
             </g>
           </svg>
         </span>
-        <button class="biy-btn biy-soru-sec-btn" id="soruSecBtn" aria-label="اِخْتِيار الأَسْئِلَة"
-                title="اِخْتِيار الأَسْئِلَة" onclick="BIY.soruSecAc()">مِن المَخْزون <b id="soruSecSayi" hidden>0</b></button>
+        <button class="biy-btn biy-soru-sec-btn" id="soruSecBtn" aria-label="اِخْتَر الأَسْئِلَة"
+                title="اِخْتَر الأَسْئِلَة" onclick="BIY.soruSecAc()">اِخْتَر الأَسْئِلَة <b id="soruSecSayi" hidden>0</b></button>
       </div>
       <div class="biy-pdf-onizleme">
         <a class="biy-pdf-a4" id="pdfKart" target="_blank" rel="noopener" title="اِفْتَح المِلَفّ">
@@ -296,7 +296,7 @@
         <span class="biy-menu-desc">رَمْز واحِد · يَدْخُلُ كُلّ بِاسْمِه</span>
       </button>
     </div>
-    <p id="menuNot" class="biy-menu-not gizli">اِخْتَر المَوْضوع (أَو أَسْئِلَةً مِن المَخْزون) وَعَدَد الأَسْئِلَة لِلْبَدْء.</p>
+    <p id="menuNot" class="biy-menu-not gizli">اِخْتَر الدَّرْس ثُمَّ الأَسْئِلَة وَعَدَدَها لِلْبَدْء.</p>
   </section>
 
   <!-- ADMIN — Sorular önizleme -->
@@ -397,7 +397,7 @@
 
 </div>
 
-<script src="bilgiyarismasi.js?v=101"></script>
+<script src="bilgiyarismasi.js?v=102"></script>
 <script id="kidef-koruma">
 /* KAYNAK KORUMA (CAYDIRICI) — sag tik + gelistirici araclari kisayollari.
    Not: Tam guvenlik degildir; asil koruma Firestore kurallarindadir. */
