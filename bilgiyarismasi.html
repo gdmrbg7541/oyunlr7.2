@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Harmattan:wght@400;700&family=Marhey:wght@400;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="bilgiyarismasi.css?v=94">
+<link rel="stylesheet" href="bilgiyarismasi.css?v=104">
 
 <!-- Firebase 8.10.1 (compat) — proje: bilgiyarismasi7sinif1unite -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -320,6 +320,22 @@
       <h2 id="lobiBaslik">إِنْشاء الفِرَق وَالانْتِظار</h2>
     </div>
 
+    <!-- v98: EBA uyarısı — ilk katılım gelince gizlenir -->
+    <div id="ebaNot" class="biy-eba-not" role="note">
+      <span class="biy-eba-ikon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3.4 1.9 20.6h20.2L12 3.4z"/>
+          <path d="M12 9.6v4.6"/><circle cx="12" cy="17.6" r="1.05" fill="currentColor" stroke="none"/>
+        </svg>
+      </span>
+      <span class="biy-eba-metin">
+        <b>Önce EBA&rsquo;ya giriş yapın!</b>
+        <i>Karekodu okutmadan önce telefonunuzdan ya da bilgisayarınızdan
+           EBA&rsquo;ya giriş yapmış olmalısınız. Giriş yapmadan yarışmaya katılamazsınız.</i>
+      </span>
+    </div>
+
     <!-- TAKIM & OKUL MODU: adları yaz, her takım/sınıf kendi karekodunu okutur -->
     <div id="takimYapAlan" class="biy-takim-yap">
       <input id="takimAdiInput" type="text" placeholder="اِسْم الفَريق" maxlength="24"
@@ -397,7 +413,7 @@
 
 </div>
 
-<script src="bilgiyarismasi.js?v=102"></script>
+<script src="bilgiyarismasi.js?v=111"></script>
 <script id="kidef-koruma">
 /* KAYNAK KORUMA (CAYDIRICI) — sag tik + gelistirici araclari kisayollari.
    Not: Tam guvenlik degildir; asil koruma Firestore kurallarindadir. */

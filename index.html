@@ -499,6 +499,93 @@
             .q-nok    { opacity: 0.9;  transform: none; }
         }
         
+
+        /* ==================================================================
+           KIŞ TEMASI — kart zemini ve içindeki mevsim katmanı
+           Simge değişmez: karekod ve ona bağlanan iki telefon.
+           ================================================================== */
+        .quiz-card.kis-kart {
+            background: linear-gradient(115deg, #0B2545 0%, #14487F 46%, #2E7DBF 100%);
+            border-color: rgba(200, 236, 255, 0.6);
+            box-shadow: 0 14px 40px rgba(14, 46, 82, 0.38);
+        }
+        .quiz-card.kis-kart:hover {
+            background: linear-gradient(115deg, #103160 0%, #1B5A9C 46%, #3F94D8 100%);
+            border-color: rgba(220, 244, 255, 0.95);
+            box-shadow: 0 20px 50px rgba(14, 46, 82, 0.5);
+        }
+        .quiz-card.kis-kart::before {
+            background: linear-gradient(135deg, rgba(220, 244, 255, 0.34), rgba(220, 244, 255, 0.03));
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* ==================================================================
+           MEVSİM KATMANI — kartın içine yayılan dekor
+           Karekod simgesi olduğu gibi kalır; mevsim yalnızca kartın arka
+           planında yaşar: köşelerde siluetler, alt kenarda şerit, üstte
+           süzülen tanecikler. Hepsi tıklamayı engellemez.
+           ================================================================== */
+        .kart-arka {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            border-radius: inherit;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .ka-kose {
+            position: absolute;
+            height: 100%;
+            width: clamp(90px, 22%, 260px);
+            display: block;
+        }
+        .ka-sol, .ka-palmiye { inset-inline-start: 0; bottom: 0; }
+        .ka-sag { inset-inline-end: 0; bottom: 0; }
+        .ka-gunes { inset-inline-end: 0; top: 0; }
+        .ka-serit {
+            position: absolute;
+            left: 0; right: 0; bottom: 0;
+            width: 100%;
+            height: clamp(26px, 34%, 60px);
+            display: block;
+        }
+
+        /* --- kış: süzülen kar --- */
+        .kis-arka .kar {
+            position: absolute;
+            top: -12%;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #F2FAFF;
+            opacity: 0;
+            filter: blur(0.2px);
+        }
+        .kis-arka .k1  { left:  4%; animation: karDus 7.5s linear infinite 0.0s;  }
+        .kis-arka .k2  { left: 12%; animation: karDus 9.5s linear infinite 1.2s;  width:4px; height:4px; }
+        .kis-arka .k3  { left: 20%; animation: karDus 8.2s linear infinite 2.4s;  width:8px; height:8px; }
+        .kis-arka .k4  { left: 28%; animation: karDus 10.5s linear infinite 0.6s; width:5px; height:5px; }
+        .kis-arka .k5  { left: 36%; animation: karDus 7.8s linear infinite 3.1s;  }
+        .kis-arka .k6  { left: 45%; animation: karDus 9.0s linear infinite 1.8s;  width:4px; height:4px; }
+        .kis-arka .k7  { left: 54%; animation: karDus 8.6s linear infinite 4.0s;  width:7px; height:7px; }
+        .kis-arka .k8  { left: 63%; animation: karDus 10.0s linear infinite 2.2s; width:5px; height:5px; }
+        .kis-arka .k9  { left: 72%; animation: karDus 7.2s linear infinite 0.9s;  }
+        .kis-arka .k10 { left: 80%; animation: karDus 9.8s linear infinite 3.5s;  width:4px; height:4px; }
+        .kis-arka .k11 { left: 88%; animation: karDus 8.4s linear infinite 1.5s;  width:6px; height:6px; }
+        .kis-arka .k12 { left: 95%; animation: karDus 9.2s linear infinite 4.6s;  width:5px; height:5px; }
+        @keyframes karDus {
+            0%   { opacity: 0;    transform: translate(0, 0)      rotate(0deg); }
+            8%   { opacity: 0.85; }
+            85%  { opacity: 0.7; }
+            100% { opacity: 0;    transform: translate(-26px, 190px) rotate(140deg); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .kis-arka .kar, .yaz-arka .yz-isin, .yaz-arka .dalga,
+            .yaz-arka .kabarcik { animation: none; }
+            .kis-arka .kar     { opacity: 0.7; }
+            .yaz-arka .kabarcik { opacity: 0.4; }
+        }
     </style>
 
     
@@ -567,14 +654,43 @@
                 <h2>لُعْبَة الذّاكِرَة</h2>
             </a>
 
-<!-- Canlı bilgi yarışması (Firebase). Öğretmen odayı kurar,
-                 öğrenciler karekodla ya da bağlantıyla katılır. İnternet gerekir. -->
-            <a href="bilgiyarismasi.html?u=2" class="game-card quiz-card" data-num="7">
+            <!-- Kış tatili teması — canlı bilgi yarışması (Firebase).
+                 Öğretmen odayı kurar, öğrenciler karekodla katılır. İnternet gerekir. -->
+            <a href="bilgiyarismasi.html?u=2" class="game-card quiz-card kis-kart" data-num="7">
+                <div class="kart-arka kis-arka" aria-hidden="true">
+                    <!-- kartin iki ucunda cam agaci siluetleri -->
+                    <svg class="ka-kose ka-sol" viewBox="0 0 120 90" preserveAspectRatio="xMinYMax meet">
+                        <g fill="#DCF0FF" opacity="0.14">
+                            <path d="M30,18 l-13,22 h26 Z"/><path d="M30,32 l-16,26 h32 Z"/>
+                            <path d="M30,46 l-19,30 h38 Z"/><rect x="27" y="74" width="6" height="12"/>
+                            <path d="M72,34 l-10,17 h20 Z"/><path d="M72,45 l-13,21 h26 Z"/>
+                            <rect x="69.5" y="64" width="5" height="12"/>
+                        </g>
+                    </svg>
+                    <svg class="ka-kose ka-sag" viewBox="0 0 120 90" preserveAspectRatio="xMaxYMax meet">
+                        <g fill="#DCF0FF" opacity="0.14">
+                            <path d="M88,22 l-14,23 h28 Z"/><path d="M88,37 l-17,27 h34 Z"/>
+                            <rect x="85" y="62" width="6" height="14"/>
+                            <path d="M44,40 l-11,18 h22 Z"/><path d="M44,52 l-13,22 h26 Z"/>
+                            <rect x="41.5" y="72" width="5" height="10"/>
+                        </g>
+                    </svg>
+                    <!-- alt kenardaki kar yigini -->
+                    <svg class="ka-serit" viewBox="0 0 1200 90" preserveAspectRatio="none">
+                        <path d="M0,52 q70,-26 150,-6 q80,20 160,-4 q80,-24 160,2 q80,26 160,-2
+                                 q80,-28 160,4 q80,32 160,2 q60,-22 90,-8 V90 H0 Z"
+                              fill="#EAF7FF" opacity="0.13"/>
+                        <path d="M0,66 q90,-20 180,-2 q90,18 180,-4 q90,-22 180,4 q90,26 180,-2
+                                 q90,-24 180,6 q60,20 120,4 V90 H0 Z"
+                              fill="#FFFFFF" opacity="0.16"/>
+                    </svg>
+                    <!-- kart boyunca dusen kar taneleri -->
+                    <span class="kar k1"></span><span class="kar k2"></span><span class="kar k3"></span>
+                    <span class="kar k4"></span><span class="kar k5"></span><span class="kar k6"></span>
+                    <span class="kar k7"></span><span class="kar k8"></span><span class="kar k9"></span>
+                    <span class="kar k10"></span><span class="kar k11"></span><span class="kar k12"></span>
+                </div>
                 <div class="quiz-ikon">
-                    <!-- İki telefon ortadaki karekoda bağlanmaya çalışır:
-                         karekod nefes alır, turuncu tarama çizgisi üzerinden geçer,
-                         telefonlardan altın veri noktaları kareye doğru akar ve
-                         döngünün sonunda yeşil onay halkası ile tik belirir. -->
                     <svg viewBox="0 0 120 120" role="img" aria-label="رَمْزُ الاِسْتِجابَةِ">
                         <defs>
                             <linearGradient id="qAltin" x1="0" y1="0" x2="0.3" y2="1">
@@ -716,8 +832,8 @@
                 </div>
                 <div class="quiz-yazi">
                     <span class="quiz-rozet"><i class="quiz-nokta"></i>مُباشِر</span>
-                    <h2>مُسابَقَة المَعْلومات</h2>
-                    <span class="quiz-alt">اِلْعَبْ مَعَ أَصْدِقائِكَ</span>
+                    <h2>مُسابَقَة نِهايَةِ الوَحْدَة</h2>
+                    <span class="quiz-alt">عُطْلَة الشِّتاء · الوَحْدَتانِ الأولى وَالثّانِيَة</span>
                 </div>
             </a>
         </div>

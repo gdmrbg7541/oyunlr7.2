@@ -65,6 +65,9 @@ const BICIM_BILGI = {
   "yazma":    { ad: "كِتابَة",  emoji: "⌨️" }
 };
 function bicimAl(s){ return (s && s.bicim) || "test"; }
+/* Soru tipi suzgeci: kapatilan bicimler her yerde (liste sayilari, unite
+   sayilari, havuz) elenir. */
+function bicimSecili(q){ return state.bicimSecim[bicimAl(q)] !== false; }
 // Metin Arapça mı? (kutulara doğru yazı tipini vermek için)
 function arMi(t){ return /[؀-ۿ]/.test(String(t == null ? "" : t)); }
 /* ---------------- Etiketler: animasyonlu SVG rozetler ----------------
@@ -693,18 +696,18 @@ const KRK_BIREY = [
   { i:"teleskop", a:"مِرْقَب", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#C5CAE9"/><path d="M8 27l22-12 5 8-22 12z" fill="#5C6BC0"/><path d="M30 15l6-3 5 8-6 3z" fill="#3949AB"/><path d="M14 32l-4 10M22 30l6 12" stroke="#455A64" stroke-width="3" stroke-linecap="round"/><circle cx="41" cy="9" r="1.7" fill="#FFF176"/><circle cx="34" cy="5" r="1.3" fill="#FFF176"/></svg>' }
 ];
 const KRK_TAKIM = [
-  { i:"t-yildiz", a:"فَريق النَّجْم", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#E3F2FD"/><path d="M24 4l16 5.5v15C40 34.5 32.5 41 24 44.5 15.5 41 8 34.5 8 24.5v-15z" fill="#1565C0"/><path d="M24 8l12 4.2v12c0 7.6-5.6 12.6-12 15.4-6.4-2.8-12-7.8-12-15.4v-12z" fill="#42A5F5"/><path d="M24 13l3.4 7 7.6 1.1-5.5 5.3 1.3 7.6L24 30.4l-6.8 3.6 1.3-7.6-5.5-5.3 7.6-1.1z" fill="#FFF176"/></svg>' },
-  { i:"t-simsek", a:"فَريق البَرْق", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#FFF8E1"/><path d="M24 4l16 5.5v15C40 34.5 32.5 41 24 44.5 15.5 41 8 34.5 8 24.5v-15z" fill="#F57F17"/><path d="M24 8l12 4.2v12c0 7.6-5.6 12.6-12 15.4-6.4-2.8-12-7.8-12-15.4v-12z" fill="#FFCA28"/><path d="M27 11l-9 13h6l-3 11 10-14h-6z" fill="#FFFDE7"/></svg>' },
-  { i:"t-alev", a:"فَريق اللَّهَب", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#FFEBEE"/><path d="M24 4l16 5.5v15C40 34.5 32.5 41 24 44.5 15.5 41 8 34.5 8 24.5v-15z" fill="#B71C1C"/><path d="M24 8l12 4.2v12c0 7.6-5.6 12.6-12 15.4-6.4-2.8-12-7.8-12-15.4v-12z" fill="#EF5350"/><path d="M24 11c4 5 8 7 8 13a8 8 0 0 1-16 0c0-4 2-6 4-8 0 3 1 4 2 4 0-4 1-6 2-9z" fill="#FFE082"/></svg>' },
-  { i:"t-kupa", a:"فَريق الكَأْس", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#F3E5F5"/><path d="M24 4l16 5.5v15C40 34.5 32.5 41 24 44.5 15.5 41 8 34.5 8 24.5v-15z" fill="#6A1B9A"/><path d="M24 8l12 4.2v12c0 7.6-5.6 12.6-12 15.4-6.4-2.8-12-7.8-12-15.4v-12z" fill="#AB47BC"/><path d="M17 12h14v7a7 7 0 0 1-14 0z" fill="#FFD54F"/><path d="M17 14h-3a4 4 0 0 0 4 4M31 14h3a4 4 0 0 1-4 4" stroke="#FFD54F" stroke-width="2" fill="none"/><path d="M22 26h4v5h-4z" fill="#FFD54F"/><path d="M18 31h12v3H18z" fill="#FFD54F"/></svg>' },
-  { i:"t-nesir", a:"فَريق النَّسْر", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#E0F7FA"/><path d="M24 4l16 5.5v15C40 34.5 32.5 41 24 44.5 15.5 41 8 34.5 8 24.5v-15z" fill="#00695C"/><path d="M24 8l12 4.2v12c0 7.6-5.6 12.6-12 15.4-6.4-2.8-12-7.8-12-15.4v-12z" fill="#26A69A"/><path d="M24 14l10 6-6 1 4 4-8-2-8 2 4-4-6-1z" fill="#FFF8E1"/><path d="M24 22v9M20 33h8" stroke="#FFF8E1" stroke-width="2.2" stroke-linecap="round"/></svg>' },
-  { i:"t-mihlab", a:"فَريق المِخْلَب", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#EFEBE9"/><path d="M24 4l16 5.5v15C40 34.5 32.5 41 24 44.5 15.5 41 8 34.5 8 24.5v-15z" fill="#4E342E"/><path d="M24 8l12 4.2v12c0 7.6-5.6 12.6-12 15.4-6.4-2.8-12-7.8-12-15.4v-12z" fill="#8D6E63"/><path d="M17 13c1 6 1 10 0 14M22 12c1 7 1 11 0 15M27 12c-1 7-1 11 0 15M32 13c-1 6-1 10 0 14" stroke="#FFF8E1" stroke-width="3" fill="none" stroke-linecap="round"/></svg>' },
-  { i:"t-seyf", a:"فَريق السَّيْف", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#ECEFF1"/><path d="M24 4l16 5.5v15C40 34.5 32.5 41 24 44.5 15.5 41 8 34.5 8 24.5v-15z" fill="#37474F"/><path d="M24 8l12 4.2v12c0 7.6-5.6 12.6-12 15.4-6.4-2.8-12-7.8-12-15.4v-12z" fill="#78909C"/><path d="M16 12l16 20M32 12L16 32" stroke="#ECEFF1" stroke-width="3.4" stroke-linecap="round"/><path d="M14 30l4 4M34 30l-4 4" stroke="#FFCA28" stroke-width="3.4" stroke-linecap="round"/></svg>' },
-  { i:"t-tac", a:"فَريق التّاج", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#FFF3E0"/><path d="M24 4l16 5.5v15C40 34.5 32.5 41 24 44.5 15.5 41 8 34.5 8 24.5v-15z" fill="#E65100"/><path d="M24 8l12 4.2v12c0 7.6-5.6 12.6-12 15.4-6.4-2.8-12-7.8-12-15.4v-12z" fill="#FB8C00"/><path d="M14 30l-2-15 6 5 6-8 6 8 6-5-2 15z" fill="#FFE082"/><path d="M14 32h20" stroke="#FFE082" stroke-width="3" stroke-linecap="round"/></svg>' },
-  { i:"t-dir", a:"فَريق الدِّرْع", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#E8EAF6"/><path d="M24 4l16 5.5v15C40 34.5 32.5 41 24 44.5 15.5 41 8 34.5 8 24.5v-15z" fill="#283593"/><path d="M24 8l12 4.2v12c0 7.6-5.6 12.6-12 15.4-6.4-2.8-12-7.8-12-15.4v-12z" fill="#5C6BC0"/><path d="M24 12l9 3.5v8c0 5.5-4.2 9-9 11-4.8-2-9-5.5-9-11v-8z" fill="none" stroke="#FFF8E1" stroke-width="2.6"/><path d="M24 18v10M19 23h10" stroke="#FFF8E1" stroke-width="2.6" stroke-linecap="round"/></svg>' },
-  { i:"t-wisam", a:"فَريق الوِسام", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#FCE4EC"/><path d="M24 4l16 5.5v15C40 34.5 32.5 41 24 44.5 15.5 41 8 34.5 8 24.5v-15z" fill="#AD1457"/><path d="M24 8l12 4.2v12c0 7.6-5.6 12.6-12 15.4-6.4-2.8-12-7.8-12-15.4v-12z" fill="#EC407A"/><path d="M18 11l3 8h6l3-8" stroke="#FFF8E1" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="24" cy="27" r="8" fill="#FFD54F"/><circle cx="24" cy="27" r="4.6" fill="#FFF8E1"/></svg>' },
-  { i:"t-karn", a:"فَريق القَرْن", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#EDE7F6"/><path d="M24 4l16 5.5v15C40 34.5 32.5 41 24 44.5 15.5 41 8 34.5 8 24.5v-15z" fill="#4527A0"/><path d="M24 8l12 4.2v12c0 7.6-5.6 12.6-12 15.4-6.4-2.8-12-7.8-12-15.4v-12z" fill="#7E57C2"/><path d="M13 14c-1 8 4 12 11 12s12-4 11-12" stroke="#FFF8E1" stroke-width="3.4" fill="none" stroke-linecap="round"/><circle cx="24" cy="31" r="4.5" fill="#FFF8E1"/></svg>' },
-  { i:"t-sehm", a:"فَريق السَّهْم", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#E0F2F1"/><path d="M24 4l16 5.5v15C40 34.5 32.5 41 24 44.5 15.5 41 8 34.5 8 24.5v-15z" fill="#00838F"/><path d="M24 8l12 4.2v12c0 7.6-5.6 12.6-12 15.4-6.4-2.8-12-7.8-12-15.4v-12z" fill="#26C6DA"/><path d="M24 11l7 9h-4v14h-6V20h-4z" fill="#FFF8E1"/></svg>' }
+  { i:"t-nesir", a:"فَريق النَّسْر", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#E0F7FA"/><path d="M24 4l16 5.5v15C40 34.5 32.5 41 24 44.5 15.5 41 8 34.5 8 24.5v-15z" fill="#00695C"/><path d="M24 8l12 4.2v12c0 7.6-5.6 12.6-12 15.4-6.4-2.8-12-7.8-12-15.4v-12z" fill="#26A69A"/><path d="M24 13.6c5 0 9 3.9 9 8.9 0 3.9-2.1 7-4.9 9.1L24 34.4l-4.1-2.8c-2.8-2.1-4.9-5.2-4.9-9.1 0-5 4-8.9 9-8.9z" fill="#FFF8E1"/><path d="M16.4 19.4l6 2.2-6.2 1.2zM31.6 19.4l-6 2.2 6.2 1.2z" fill="#00695C"/><circle cx="20.4" cy="23.4" r="1.6" fill="#37474F"/><circle cx="27.6" cy="23.4" r="1.6" fill="#37474F"/><path d="M24 25.6c1.9 0 3.3 1.2 3.3 2.9 0 2.3-1.4 4.6-3.3 6.4-1.9-1.8-3.3-4.1-3.3-6.4 0-1.7 1.4-2.9 3.3-2.9z" fill="#FFB300"/></svg>' },
+  { i:"t-nemir", a:"فَريق النَّمِر", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#FFF3E0"/><path d="M24 4l16 5.5v15C40 34.5 32.5 41 24 44.5 15.5 41 8 34.5 8 24.5v-15z" fill="#E65100"/><path d="M24 8l12 4.2v12c0 7.6-5.6 12.6-12 15.4-6.4-2.8-12-7.8-12-15.4v-12z" fill="#FB8C00"/><path d="M16.8 18.4l-2-5 5.2 2.2zM31.2 18.4l2-5-5.2 2.2z" fill="#FFF8E1"/><circle cx="24" cy="25" r="8.9" fill="#FFF8E1"/><path d="M18.6 19.6l1.5 3M29.4 19.6l-1.5 3M15.4 26.2h2.8M32.6 26.2h-2.8" stroke="#E65100" stroke-width="1.8" fill="none" stroke-linecap="round"/><circle cx="21" cy="24.2" r="1.6" fill="#37474F"/><circle cx="27" cy="24.2" r="1.6" fill="#37474F"/><path d="M24 27.6l2.2 1.6-2.2 1.8-2.2-1.8z" fill="#37474F"/><path d="M24 31v1.6" stroke="#37474F" stroke-width="1.5" stroke-linecap="round"/></svg>' },
+  { i:"t-zib", a:"فَريق الذِّئْب", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#ECEFF1"/><path d="M24 4l16 5.5v15C40 34.5 32.5 41 24 44.5 15.5 41 8 34.5 8 24.5v-15z" fill="#37474F"/><path d="M24 8l12 4.2v12c0 7.6-5.6 12.6-12 15.4-6.4-2.8-12-7.8-12-15.4v-12z" fill="#78909C"/><path d="M16.4 17.2l-1-5.2 5.2 3zM31.6 17.2l1-5.2-5.2 3z" fill="#FFF8E1"/><path d="M24 15.4c4.9 0 8.3 3.2 8.3 7.4 0 3.2-1.6 5.8-3.6 7.8l-4.7 4.4-4.7-4.4c-2-2-3.6-4.6-3.6-7.8 0-4.2 3.4-7.4 8.3-7.4z" fill="#FFF8E1"/><path d="M21 27.6h6l-.8 4.2c-.3 1.4-1.2 2.1-2.2 2.1s-1.9-.7-2.2-2.1z" fill="#CFD8DC"/><circle cx="20.9" cy="22.6" r="1.6" fill="#37474F"/><circle cx="27.1" cy="22.6" r="1.6" fill="#37474F"/><path d="M24 26.6l1.9 1.4-1.9 1.6-1.9-1.6z" fill="#37474F"/></svg>' },
+  { i:"t-fil", a:"فَريق الفيل", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#E8EAF6"/><path d="M24 4l16 5.5v15C40 34.5 32.5 41 24 44.5 15.5 41 8 34.5 8 24.5v-15z" fill="#283593"/><path d="M24 8l12 4.2v12c0 7.6-5.6 12.6-12 15.4-6.4-2.8-12-7.8-12-15.4v-12z" fill="#5C6BC0"/><path d="M17.6 17c-3.8-1.6-6.4.2-6.4 3.8s2.6 6 6.4 5z" fill="#FFF8E1"/><path d="M30.4 17c3.8-1.6 6.4.2 6.4 3.8s-2.6 6-6.4 5z" fill="#FFF8E1"/><ellipse cx="24" cy="22.6" rx="6.8" ry="7.2" fill="#FFF8E1"/><path d="M24 27.6v4.4c0 2 2 2.8 3.2 1.4" stroke="#FFF8E1" stroke-width="3.6" fill="none" stroke-linecap="round"/><circle cx="21.2" cy="21.4" r="1.5" fill="#37474F"/><circle cx="26.8" cy="21.4" r="1.5" fill="#37474F"/></svg>' },
+  { i:"t-hisan", a:"فَريق الحِصان", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#E3F2FD"/><path d="M24 4l16 5.5v15C40 34.5 32.5 41 24 44.5 15.5 41 8 34.5 8 24.5v-15z" fill="#1565C0"/><path d="M24 8l12 4.2v12c0 7.6-5.6 12.6-12 15.4-6.4-2.8-12-7.8-12-15.4v-12z" fill="#42A5F5"/><path d="M20.4 15.6l-2-4.4 4.6 2.4zM27.6 15.6l2-4.4-4.6 2.4z" fill="#FFF8E1"/><path d="M24 13.4c3.7 0 6.2 2.4 6.2 5.9 0 2.3-.7 4.2-1.8 5.9l-.6 5.6c-.2 2.2-1.8 3.7-3.8 3.7s-3.6-1.5-3.8-3.7l-.6-5.6c-1.1-1.7-1.8-3.6-1.8-5.9 0-3.5 2.5-5.9 6.2-5.9z" fill="#FFF8E1"/><path d="M18.8 16c-1.9 2.6-2.4 5.8-1.4 9.2" stroke="#1565C0" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="21.4" cy="20.6" r="1.5" fill="#37474F"/><circle cx="26.6" cy="20.6" r="1.5" fill="#37474F"/><circle cx="22.7" cy="29.4" r="1" fill="#37474F"/><circle cx="25.3" cy="29.4" r="1" fill="#37474F"/></svg>' },
+  { i:"t-dulfin", a:"فَريق الدُّلْفين", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#E0F2F1"/><path d="M24 4l16 5.5v15C40 34.5 32.5 41 24 44.5 15.5 41 8 34.5 8 24.5v-15z" fill="#00838F"/><path d="M24 8l12 4.2v12c0 7.6-5.6 12.6-12 15.4-6.4-2.8-12-7.8-12-15.4v-12z" fill="#26C6DA"/><path d="M12.4 21.4c2.4 0 4.4.5 5.9 1.5 2-3.4 5.4-5.4 10.2-6.1-1 1.6-1.4 3.1-1.1 4.5 3.6.8 6.3 2.7 8.1 5.7-2.7-.8-5-.6-6.9.5-2.9 1.7-6 4.1-10.5 4.1-3.6 0-6.4-1.7-8.3-5 1.8.3 3.4.1 4.7-.6-1.2-.9-1.9-2.1-2.1-4.6z" fill="#FFF8E1"/><path d="M20.6 22.6l1.6-6 5.4 3.4z" fill="#FFF8E1"/><circle cx="29.2" cy="20.8" r="1.2" fill="#37474F"/><path d="M31.4 22.6l-2.8 1.2" stroke="#37474F" stroke-width="1.1" stroke-linecap="round"/></svg>' },
+  { i:"t-qird", a:"فَريق القِرْد", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#EFEBE9"/><path d="M24 4l16 5.5v15C40 34.5 32.5 41 24 44.5 15.5 41 8 34.5 8 24.5v-15z" fill="#4E342E"/><path d="M24 8l12 4.2v12c0 7.6-5.6 12.6-12 15.4-6.4-2.8-12-7.8-12-15.4v-12z" fill="#8D6E63"/><circle cx="15.8" cy="21.6" r="3.8" fill="#FFF8E1"/><circle cx="32.2" cy="21.6" r="3.8" fill="#FFF8E1"/><circle cx="24" cy="23.8" r="8.4" fill="#FFF8E1"/><ellipse cx="24" cy="27.6" rx="5.4" ry="4.2" fill="#FFE0B2"/><circle cx="21.2" cy="22.4" r="1.6" fill="#37474F"/><circle cx="26.8" cy="22.4" r="1.6" fill="#37474F"/><circle cx="22.6" cy="26.6" r=".9" fill="#37474F"/><circle cx="25.4" cy="26.6" r=".9" fill="#37474F"/><path d="M21.6 29.6c1.4 1.2 3.4 1.2 4.8 0" stroke="#37474F" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>' },
+  { i:"t-zarafa", a:"فَريق الزَّرافَة", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#FFF8E1"/><path d="M24 4l16 5.5v15C40 34.5 32.5 41 24 44.5 15.5 41 8 34.5 8 24.5v-15z" fill="#F57F17"/><path d="M24 8l12 4.2v12c0 7.6-5.6 12.6-12 15.4-6.4-2.8-12-7.8-12-15.4v-12z" fill="#FFCA28"/><path d="M20.6 34.6V25c0-3.6 1-6.4 2.9-8.4l4.2 3.2c-1.2 1.2-1.9 2.9-1.9 5.2v9.6z" fill="#FFF8E1"/><path d="M26.4 14.8c3.4 0 6 1.8 6.8 4.4.3 1.1-.5 2-1.6 2h-6.4c-2 0-3.6-1.4-3.8-3.2-.2-2 1.9-3.2 5-3.2z" fill="#FFF8E1"/><path d="M24.6 14.6l-.7-2.6M29.6 15l1.1-2.6" stroke="#FFF8E1" stroke-width="2.6" stroke-linecap="round"/><circle cx="23.7" cy="11.4" r="1.4" fill="#FFF8E1"/><circle cx="31" cy="12" r="1.4" fill="#FFF8E1"/><circle cx="25.6" cy="18.2" r="1.2" fill="#37474F"/><circle cx="22.6" cy="26.4" r="1.5" fill="#F57F17"/><circle cx="22.4" cy="30.8" r="1.4" fill="#F57F17"/><circle cx="25" cy="28.6" r="1.2" fill="#F57F17"/></svg>' },
+  { i:"t-sulhfa", a:"فَريق السُّلَحْفاة", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#E8F5E9"/><path d="M24 4l16 5.5v15C40 34.5 32.5 41 24 44.5 15.5 41 8 34.5 8 24.5v-15z" fill="#2E7D32"/><path d="M24 8l12 4.2v12c0 7.6-5.6 12.6-12 15.4-6.4-2.8-12-7.8-12-15.4v-12z" fill="#66BB6A"/><circle cx="24" cy="17.4" r="3.2" fill="#FFF8E1"/><path d="M17.2 21.8l-2.4-1.6M30.8 21.8l2.4-1.6M17.8 31.4l-2.2 1.8M30.2 31.4l2.2 1.8" stroke="#FFF8E1" stroke-width="4" stroke-linecap="round"/><ellipse cx="24" cy="26.6" rx="8.6" ry="7.8" fill="#2E7D32"/><ellipse cx="24" cy="26.6" rx="6.4" ry="5.7" fill="#FFF8E1"/><circle cx="24" cy="26.6" r="2.5" fill="#2E7D32"/><path d="M24 21v1.8M24 30.4v1.8M17.8 26.6h1.9M28.3 26.6h1.9" stroke="#2E7D32" stroke-width="1.6" stroke-linecap="round"/><circle cx="22.7" cy="16.8" r=".9" fill="#37474F"/><circle cx="25.3" cy="16.8" r=".9" fill="#37474F"/></svg>' },
+  { i:"t-batriq", a:"فَريق البَطْريق", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#E1F5FE"/><path d="M24 4l16 5.5v15C40 34.5 32.5 41 24 44.5 15.5 41 8 34.5 8 24.5v-15z" fill="#0277BD"/><path d="M24 8l12 4.2v12c0 7.6-5.6 12.6-12 15.4-6.4-2.8-12-7.8-12-15.4v-12z" fill="#4FC3F7"/><path d="M24 14.4c-4.2 0-7.6 3.4-7.6 8.4 0 6 3.4 12 7.6 12s7.6-6 7.6-12c0-5-3.4-8.4-7.6-8.4z" fill="#37474F"/><path d="M24 18.6c-3 0-5 2.6-5 6.6 0 4.6 2.4 9 5 9s5-4.4 5-9c0-4-2-6.6-5-6.6z" fill="#FFF8E1"/><circle cx="21.6" cy="20.4" r="1.4" fill="#FFF8E1"/><circle cx="26.4" cy="20.4" r="1.4" fill="#FFF8E1"/><circle cx="21.6" cy="20.6" r=".8" fill="#37474F"/><circle cx="26.4" cy="20.6" r=".8" fill="#37474F"/><path d="M24 22.4l2.4 1.8-2.4 1.6-2.4-1.6z" fill="#FFB300"/><path d="M21.4 34.6l-2.8 1.6M26.6 34.6l2.8 1.6" stroke="#FFB300" stroke-width="2.4" stroke-linecap="round"/></svg>' },
+  { i:"t-gazal", a:"فَريق الغَزال", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#FCE4EC"/><path d="M24 4l16 5.5v15C40 34.5 32.5 41 24 44.5 15.5 41 8 34.5 8 24.5v-15z" fill="#AD1457"/><path d="M24 8l12 4.2v12c0 7.6-5.6 12.6-12 15.4-6.4-2.8-12-7.8-12-15.4v-12z" fill="#EC407A"/><path d="M21.4 14.6c-2.6-1.2-4-3.4-4.2-6.6 1.4.4 2.6 1.2 3.4 2.4M26.6 14.6c2.6-1.2 4-3.4 4.2-6.6-1.4.4-2.6 1.2-3.4 2.4" stroke="#FFF8E1" stroke-width="1.9" fill="none" stroke-linecap="round"/><path d="M19.6 12.4l-2.2-.6M17.9 9.8l-2 -.4M28.4 12.4l2.2-.6M30.1 9.8l2-.4" stroke="#FFF8E1" stroke-width="1.5" stroke-linecap="round"/><ellipse cx="18.2" cy="22.4" rx="2.8" ry="1.5" fill="#FFF8E1" transform="rotate(-22 18.2 22.4)"/><ellipse cx="29.8" cy="22.4" rx="2.8" ry="1.5" fill="#FFF8E1" transform="rotate(22 29.8 22.4)"/><path d="M24 16c3.2 0 5.4 2.2 5.4 5.3 0 2-.5 3.7-1.3 5.1l-.7 5c-.3 2.1-1.7 3.5-3.4 3.5s-3.1-1.4-3.4-3.5l-.7-5c-.8-1.4-1.3-3.1-1.3-5.1 0-3.1 2.2-5.3 5.4-5.3z" fill="#FFF8E1"/><circle cx="21.7" cy="21.6" r="1.4" fill="#37474F"/><circle cx="26.3" cy="21.6" r="1.4" fill="#37474F"/><path d="M24 30l1.6 1.2-1.6 1.4-1.6-1.4z" fill="#37474F"/></svg>' },
+  { i:"t-farasha", a:"فَريق الفَراشَة", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#EDE7F6"/><path d="M24 4l16 5.5v15C40 34.5 32.5 41 24 44.5 15.5 41 8 34.5 8 24.5v-15z" fill="#4527A0"/><path d="M24 8l12 4.2v12c0 7.6-5.6 12.6-12 15.4-6.4-2.8-12-7.8-12-15.4v-12z" fill="#7E57C2"/><path d="M22.8 22.4c-2.2-4.6-5.2-7.2-8.2-6.4-2.7.7-3.2 4.2-1.5 6.7 1.2 1.8 3 2.9 5.1 3.1-2.1.8-3.5 2.2-3.9 4-.5 2.5 1.3 4.3 3.5 3.9 2.3-.4 4.2-2.7 5.2-5.6z" fill="#FFF8E1"/><path d="M25.2 22.4c2.2-4.6 5.2-7.2 8.2-6.4 2.7.7 3.2 4.2 1.5 6.7-1.2 1.8-3 2.9-5.1 3.1 2.1.8 3.5 2.2 3.9 4 .5 2.5-1.3 4.3-3.5 3.9-2.3-.4-4.2-2.7-5.2-5.6z" fill="#FFF8E1"/><circle cx="17.6" cy="20.6" r="1.6" fill="#4527A0"/><circle cx="30.4" cy="20.6" r="1.6" fill="#4527A0"/><circle cx="19" cy="29.4" r="1.2" fill="#4527A0"/><circle cx="29" cy="29.4" r="1.2" fill="#4527A0"/><path d="M24 18.4c1 0 1.7.9 1.7 2.1v11.8c0 1.2-.7 2.1-1.7 2.1s-1.7-.9-1.7-2.1V20.5c0-1.2.7-2.1 1.7-2.1z" fill="#37474F"/><path d="M22.9 18.2l-2.5-3.4M25.1 18.2l2.5-3.4" stroke="#FFF8E1" stroke-width="1.8" stroke-linecap="round"/></svg>' }
 ];
 const KRK_SINIF = [
   { i:"s-madrasa", a:"صَفّ المَدْرَسَة", s:'<svg viewBox="0 0 48 48" class="biy-krk-svg" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#E3F2FD"/><circle cx="24" cy="24" r="19" fill="#1E88E5"/><circle cx="24" cy="24" r="19" fill="none" stroke="#FFFFFF" stroke-width="2.4" opacity=".7"/><path d="M24 10l13 7v3H11v-3z" fill="#FFF8E1"/><rect x="13" y="20" width="22" height="14" rx="2" fill="#FFECB3"/><rect x="21" y="25" width="6" height="9" rx="1.4" fill="#1565C0"/><rect x="15.5" y="24" width="4" height="4" rx="1" fill="#1565C0"/><rect x="28.5" y="24" width="4" height="4" rx="1" fill="#1565C0"/></svg>' },
@@ -747,6 +750,15 @@ const SEVIYE_ZORLUK = { kolay: 1, orta: 2, zor: 3 };
    • sorular: SORULAR ile aynı biçimde; boşsa o konuda yarışma başlatılamaz.
    NOT: Soru id'leri aynı konu içinde benzersiz olmalıdır (birleşik konu da dâhil).      */
 /* anahtar: index.html basligindan uniteyi tanimak icin (harekeler soyulur) */
+/* Bilgi yarismasi yalnizca 2. ve 4. unite sonunda acilir.
+   2. unitede ilk iki unitenin, 4. unitede butun unitelerin sorulari secilebilir.
+   Baska bir unite numarasi gelirse eski davranis korunur: yalniz o unite.   */
+function gorunurUniteNolar(kilit){
+  if (!kilit) return [1, 2, 3, 4];
+  if (kilit === 2) return [1, 2];
+  if (kilit === 4) return [1, 2, 3, 4];
+  return [kilit];
+}
 const UNITELER = [
   { no: 1, ad: "الوَحْدَة الأولى",   alt: "ماذا فَعَلْت اليَوْم؟",
     anahtar: ["ماذا فعلت اليوم", "الوحدة الاولى", "1. ünite", "1.ünite"] },
@@ -1306,20 +1318,23 @@ const BIY = {
   _soruHavuzu(){
     const havuz = [];
     BIY._havuzKapsam().forEach(k => {
-      if (Array.isArray(k.sorular)) k.sorular.forEach(q => havuz.push({ key: k.id + "#" + q.id, konuId: k.id, konuAd: k.ad, soru: q }));
+      BIY._konuSorulari(k).forEach(q => havuz.push({ key: k.id + "#" + q.id, konuId: k.id, konuAd: k.ad, soru: q }));
     });
     return havuz;
   },
   /* ---------- Ünite seçimi (konu listesinden ÖNCE gelir) ---------- */
   /* DIKKAT: "tumu" konusunun unite alani 0 — (k.unite || 1) yazilirsa 1. uniteye
      dusuyordu. Bu yuzden acikca null denetimi yapiliyor ve tumUnite disarida. */
+  /* Bir konunun SUZGECTEN GECEN sorulari */
+  _konuSorulari(k){ return (k && Array.isArray(k.sorular)) ? k.sorular.filter(bicimSecili) : []; },
   _uniteKonulari(no){
     const u = no || state.uniteNo || 1;
     return KONULAR.filter(k => !k.tumUnite && (k.unite == null ? 1 : k.unite) === u);
   },
   _uniteSoruSayisi(no){
     const b = KONULAR.find(k => !k.tumUnite && (k.unite == null ? 1 : k.unite) === no && k.birlesik);
-    return b ? b.sorular.length : BIY._uniteKonulari(no).reduce((t, k) => t + k.sorular.length, 0);
+    return b ? BIY._konuSorulari(b).length
+             : BIY._uniteKonulari(no).reduce((t, k) => t + BIY._konuSorulari(k).length, 0);
   },
   _uniteAdi(no){ const u = UNITELER.find(x => x.no === (no || state.uniteNo)); return u ? u.ad : ""; },
   /* ---- "Ders seç" paneli: 5 satırlık akordiyon ----
@@ -1335,7 +1350,8 @@ const BIY = {
     /* Klasörden gelen ünite varsa liste ona kilitlenir: yalnız o ünitenin
        satırı görünür. 4. ünitede ek olarak «bütün üniteler» satırı da kalır. */
     const kilit = state.uniteKilit;
-    const satirlar = kilit ? UNITELER.filter(u => u.no === kilit) : UNITELER;
+    const gor = gorunurUniteNolar(kilit);
+    const satirlar = UNITELER.filter(u => gor.indexOf(u.no) >= 0);
     const tumGoster = (!kilit || kilit === 4);
     let h = '<div class="biy-ak' + (kilit ? ' biy-ak-kilitli' : '') + '">';
     satirlar.forEach(u => {
@@ -1355,13 +1371,13 @@ const BIY = {
               + (k.pasif ? ' disabled aria-disabled="true"' : '')
               + ' class="biy-ds-oge' + (k.pasif ? ' biy-ds-pasif' : '') + (k.id === state.konuId ? ' secili' : '') + '">'
               + '<span class="biy-ds-ad2">' + kacis(k.ad) + '</span>'
-              + '<span class="biy-ds-say2">' + k.sorular.length + '</span>'
+              + '<span class="biy-ds-say2">' + BIY._konuSorulari(k).length + '</span>'
               + (k.pasif ? '<span class="biy-ds-yakinda">قَريبًا</span>' : tik)
               + '</button>').join("")
         + '</div></div>';
     });
     /* Yanlış tahmin çıkmaza sokmasın: kilitliyken diğer ünitelere geçiş */
-    if (kilit){
+    if (kilit && satirlar.length < UNITELER.length){
       h += '<button type="button" class="biy-ak-ac" onclick="BIY.kilidiAc()">'
         + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"'
         + ' stroke-linecap="round" stroke-linejoin="round">'
@@ -1374,7 +1390,7 @@ const BIY = {
       h += '<button type="button" class="biy-ak-bas biy-ak-tum' + (state.konuId === t.id ? ' secili' : '') + '"'
          + ' data-konu="' + t.id + '">'
          + '<span class="biy-ak-ad">' + kacis(t.ad) + '</span>'
-         + '<span class="biy-ak-say">' + t.sorular.length + '</span>'
+         + '<span class="biy-ak-say">' + BIY._konuSorulari(t).length + '</span>'
          + tik + '</button>';
     }
     return h + '</div>';
@@ -1431,7 +1447,7 @@ const BIY = {
     const KON = BIY._uniteKonulari();
     const sel = $("konuSecim"); if (!sel) return;
     sel.innerHTML = '<option value=""'+(state.konuId?'':' selected')+' disabled hidden>اِخْتَر الدَّرْس…</option>' +
-      KON.concat((state.uniteKilit && state.uniteKilit !== 4) ? [] : KONULAR.filter(k => k.tumUnite))
+      KON.concat(gorunurUniteNolar(state.uniteKilit).length < UNITELER.length ? [] : KONULAR.filter(k => k.tumUnite))
          .map(k => '<option value="'+k.id+'"'+(k.pasif?' disabled':'')+(k.id===state.konuId?' selected':'')+'>'+kacis(k.ad)+(k.pasif?' · قَريبًا':'')+'</option>').join("");
     if (!state.konuId) sel.value = "";
     const liste = $("konuSeciciListe");
@@ -1614,15 +1630,16 @@ const BIY = {
              + '<span>' + kacis(BIY._havuzKapsamAdi()) + '</span></div>'
              + BIY._sayiUyariHtml();
     BIY._havuzKapsam().forEach(k => {
-      if (!Array.isArray(k.sorular) || !k.sorular.length) return;
-      const sorular = k.sorular.filter(q => !ara || (q.soru + " " + (q.arapca||"") + " " + aramaMetni(q)).toLowerCase().indexOf(ara) >= 0);
+      const tumu = BIY._konuSorulari(k);            // soru tipi süzgecinden geçenler
+      if (!tumu.length) return;
+      const sorular = tumu.filter(q => !ara || (q.soru + " " + (q.arapca||"") + " " + aramaMetni(q)).toLowerCase().indexOf(ara) >= 0);
       if (!sorular.length) return;
-      const seciliSay = k.sorular.filter(q => set.has(k.id + "#" + q.id)).length;
+      const seciliSay = tumu.filter(q => set.has(k.id + "#" + q.id)).length;
       const acik = ara ? true : !!(state.soruSecAcik && state.soruSecAcik[k.id]);
       html += '<div class="biy-hs-grup'+(acik?' acik':'')+'" data-konu="'+k.id+'">' +
         '<div class="biy-hs-baslik" onclick="BIY.soruSecAkordiyon(\''+k.id+'\')">' +
         '<span class="biy-hs-ok">▸</span>' +
-        '<b>'+kacis(k.ad)+'</b> <span class="biy-hs-say'+(seciliSay>0?' dolu':'')+(seciliSay===k.sorular.length?' tam':'')+'"><b>'+seciliSay+'</b><i>/</i>'+k.sorular.length+'</span>' +
+        '<b>'+kacis(k.ad)+'</b> <span class="biy-hs-say'+(seciliSay>0?' dolu':'')+(seciliSay===tumu.length?' tam':'')+'"><b>'+seciliSay+'</b><i>/</i>'+tumu.length+'</span>' +
         '<button class="biy-hs-tumu" title="تَحْديد الكُلّ" aria-label="تَحْديد الكُلّ" onclick="event.stopPropagation();BIY.soruSecTumu(\''+k.id+'\')">' +
           '<svg viewBox="0 0 24 24" class="biy-hs-tumu-svg" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
           '<rect x="3.2" y="3.2" width="17.6" height="17.6" rx="4.5"/><path class="biy-ea-ciz" d="M7.4 12.6l3 3 6.2-7.2"/></svg></button></div>' +
@@ -1649,16 +1666,17 @@ const BIY = {
     const set = BIY._secSet();
     document.querySelectorAll(".biy-hs-grup").forEach(g => {
       const k = KONULAR.find(x => x.id === g.getAttribute("data-konu")); if (!k) return;
-      const sec = k.sorular.filter(q => set.has(k.id + "#" + q.id)).length;
+      const tumu = BIY._konuSorulari(k);
+      const sec = tumu.filter(q => set.has(k.id + "#" + q.id)).length;
       const sp = g.querySelector(".biy-hs-say");
       if (sp){
-        sp.innerHTML = "<b>" + sec + "</b><i>/</i>" + k.sorular.length;
+        sp.innerHTML = "<b>" + sec + "</b><i>/</i>" + tumu.length;
         sp.classList.toggle("dolu", sec > 0);
-        sp.classList.toggle("tam", sec === k.sorular.length);
+        sp.classList.toggle("tam", sec === tumu.length);
       }
       // tümünü-seç: grup tam seçiliyse animasyon durur, tik yeşil kalır
       const tb = g.querySelector(".biy-hs-tumu");
-      if (tb) tb.classList.toggle("tam", sec === k.sorular.length);
+      if (tb) tb.classList.toggle("tam", sec === tumu.length);
     });
     const say = $("soruSecSecili"); if (say) say.innerHTML = 'المُحَدَّد <b class="biy-say-rozet">' + set.size + '</b>';
     // sınır dolunca/boşalınca satırların açık-kapalı hâli değişir
@@ -1697,14 +1715,15 @@ const BIY = {
   soruSecTumu(konuId){
     const set = BIY._secSet();
     const k = KONULAR.find(x => x.id === konuId); if (!k) return;
-    const hepsiSecili = k.sorular.every(q => set.has(konuId + "#" + q.id));
+    const tumu = BIY._konuSorulari(k); if (!tumu.length) return;
+    const hepsiSecili = tumu.every(q => set.has(konuId + "#" + q.id));
     if (hepsiSecili){
-      k.sorular.forEach(q => set.delete(konuId + "#" + q.id));
+      tumu.forEach(q => set.delete(konuId + "#" + q.id));
     } else {
       // sınır varsa yalnız kalan kadarını ekle
       let kalan = BIY._havuzKalan();
       let tasti = false;
-      for (const q of k.sorular){
+      for (const q of tumu){
         const key = konuId + "#" + q.id;
         if (set.has(key)) continue;
         if (kalan <= 0){ tasti = true; break; }
@@ -1740,6 +1759,13 @@ const BIY = {
     if (sec[b] && Object.keys(sec).filter(x => sec[x]).length <= 1) return;
     sec[b] = !sec[b];
     BIY._bicimPanelDoldur();
+    /* süzgece uymayan seçimler havuzdan düşer, sayılar yeniden hesaplanır */
+    const gecerli = {}; BIY._soruHavuzu().forEach(h => gecerli[h.key] = true);
+    const set = BIY._secSet();
+    [...set].forEach(k => { if (!gecerli[k]) set.delete(k); });
+    BIY._konulariHazirla();
+    if ($("soruSecListe")) BIY._soruSecRender();
+    BIY._soruSecSayiGuncelle();
     BIY._soruSayiSinir();
     BIY._menuDurum();
   },
@@ -2238,6 +2264,7 @@ const BIY = {
     let sayi = state.takimListe.length;
     let bagli = state.takimListe.filter(t => t.bagli).length;
     if (kartliMod()) BIY._takimKartlariCiz(); else BIY._katilimcilariCiz();
+    BIY._ebaNotGuncelle();   // ilk katılım gelince EBA uyarısı kalkar
     // takım eklendiyse zorluk seviyesi, soru sayısı ve soru seçimi kilitlenir; hepsi silinince açılır
     // (lobiye dönüldüyse ayarKilidiKapali=true → takım bağlıyken de değiştirilebilir)
     const kilit = sayi > 0 && !state.ayarKilidiKapali;
@@ -2382,6 +2409,7 @@ const BIY = {
       sayacDurdur();
       const taze = (state.sonucAnimIndex !== idx);
       kap.innerHTML = BIY._sonucEkranHtml(idx, soru, taze);
+      BIY._sonucSigdirGecikmeli();
       if (taze){
         state.sonucAnimIndex = idx;
         SES.sonuc();                                  // sonuç ekranı açıldı
@@ -2443,7 +2471,9 @@ const BIY = {
         '<div class="biy-a-optlar">'+ opt +'</div>';
     }
     // sınıfların durumu (gizliyken çok daha büyük)
-    const kaydir = (modAl() === "birey" && katilan.length > 10) ? " biy-kaydir" : "";
+    /* v96: kalabalik olunca cipler kuculur (yazi boyu CSS'te) */
+    const kaydir = ((modAl() === "birey" && katilan.length > 10) ? " biy-kaydir" : "")
+                 + (katilan.length > 16 ? " biy-cok biy-pek-cok" : (katilan.length > 8 ? " biy-cok" : ""));
     govde += '<div class="biy-cevap-durum'+(gizli?' biy-dev':'')+'">'+cevapSayisi+' / '+katilan.length+' أَجابوا'+(hepsi?' — تَظْهَر النَّتيجَة…':'')+'</div>' +
              '<div class="biy-cipler'+(gizli?' biy-dev':'')+kaydir+'">'+cips+'</div>';
     // gizliyken geri sayım AŞAĞIDA ve devasa
@@ -2553,23 +2583,27 @@ const BIY = {
     const baslik = ber
       ? '⚔️ '+(o.berHedef===1?'المَرْكَز الأَوَّل':'المَرْكَز الثّاني')+' · تَعادُل · سُؤال '+o.berNo
       : '📊 النَّتيجَة · سُؤال '+(idx+1)+' / '+toplam;
-    return '<div class="biy-oyun-orta biy-sonuc-ekran" data-degisti="'+(degisti?1:0)+'" data-step="'+step+'">' +
+    /* kalabalik sinifta satirlar otomatik kuculsun (kaydirmadan sigsin) */
+    const kisiSay = Math.max(cevapTakimlari.length, newOrder.length);
+    const kalabalik = kisiSay > 14 ? " biy-sonuc-kalabalik biy-pek-cok"
+                    : (kisiSay > 7 ? " biy-sonuc-kalabalik" : "");
+    return '<div class="biy-oyun-orta biy-sonuc-ekran'+kalabalik+'" data-degisti="'+(degisti?1:0)+'" data-step="'+step+'">' +
       '<div class="biy-sonuc-baslik'+(ber?' biy-ber':'')+'">'+baslik+'</div>' +
       '<div class="biy-sonuc-sahne">' +
         // SAHNE 1: soru cümlesi + şıklar + vurgulu doğru şık
-        '<div class="biy-sahne-oge oge-dogru">' +
+        '<div class="biy-sahne-oge oge-dogru"><div class="biy-sahne-ic">' +
           etiketHtml(soru) + '<div class="biy-sonuc-soru-cumle">'+soruHtml(soru)+'</div>' +
           (soru.arapca ? '<div class="biy-oyun-arapca">'+kacis(soru.arapca)+'</div>' : '') +
           '<div class="biy-a-optlar">'+optHtml+'</div>' +
-        '</div>' +
+        '</div></div>' +
         // SAHNE 2: sınıfların verdiği cevaplar (devasa)
-        '<div class="biy-sahne-oge oge-reveal">' +
+        '<div class="biy-sahne-oge oge-reveal"><div class="biy-sahne-ic">' +
           '<div class="biy-reveal'+(cevapTakimlari.length > 8 && modAl() === "birey" ? ' biy-kaydir' : '')+'"><table class="biy-reveal-tablo"><thead><tr><th>'+basSutun+'</th><th>الإِجابَة</th><th>الحالَة</th></tr></thead><tbody>'+satir+'</tbody></table></div>' +
-        '</div>' +
+        '</div></div>' +
         // SAHNE 3: güncel puan durumu (devasa)
-        '<div class="biy-sahne-oge oge-lider">' +
+        '<div class="biy-sahne-oge oge-lider"><div class="biy-sahne-ic">' +
           '<div class="biy-sonuc-lider"><h4>🏆 النَّتائِج</h4><ol class="biy-lider-ol'+(newOrder.length>10?' biy-kaydir':'')+'">'+lider+'</ol></div>' +
-        '</div>' +
+        '</div></div>' +
       '</div>' +
       // aşağıda üç ilerleme çizgisi — tıklayınca ilgili sayfaya geçer
       '<div class="biy-sonuc-nokta">' +
@@ -2583,17 +2617,40 @@ const BIY = {
       '</button></div>' +
     '</div>';
   },
+  /* Sonuç sahnesi kalan yüksekliğe sığmıyorsa oransal küçült (masaüstü/tahta).
+     Böylece kalabalık sınıfta satırlar yarım kesilmez, kaydırmaya gerek kalmaz. */
+  _sonucSigdir(){
+    if (window.innerWidth < 900) return;
+    const ekr = document.querySelector("#ekranOyunAdmin .biy-sonuc-ekran"); if (!ekr) return;
+    const sec = [".oge-dogru", ".oge-reveal", ".oge-lider"][+(ekr.getAttribute("data-step") || 0)] || ".oge-lider";
+    const oge = ekr.querySelector(sec); if (!oge) return;
+    const ic = oge.querySelector(".biy-sahne-ic"); if (!ic) return;
+    ic.style.zoom = "";
+    if (!oge.clientHeight) return;
+    /* yakinsayana kadar birkac tur: zoom uygulanip yeniden olculur */
+    let z = 1;
+    for (let i = 0; i < 6; i++){
+      const bos = oge.clientHeight, fazla = oge.scrollHeight - bos;
+      if (fazla <= 1) break;
+      z = Math.max(0.34, z * (bos / (bos + fazla)) * 0.99);
+      ic.style.zoom = z.toFixed(3);
+    }
+  },
+  _sonucSigdirGecikmeli(){
+    [60, 420, 900].forEach(ms => setTimeout(() => BIY._sonucSigdir(), ms));
+  },
   // ilerleme çizgisine basınca ilgili sonuç sayfasına geç (otomatik akışı durdur)
   sonucAdim(n){
     BIY._sonucTemizle();
     const e = document.querySelector(".biy-sonuc-ekran"); if (e) e.setAttribute("data-step", String(n));
+    BIY._sonucSigdirGecikmeli();
   },
   // sonuç ekranı sahne akışı: her öğe devasa gösterilir; yenisi gelince önceki yukarı kayıp kaybolur
   _sonucOynat(){
     BIY._sonucTemizle();
     const el0 = document.querySelector(".biy-sonuc-ekran");
     const degisti = el0 && el0.getAttribute("data-degisti") === "1";
-    const set = (n) => { const e = document.querySelector(".biy-sonuc-ekran"); if (e) e.setAttribute("data-step", String(n)); };
+    const set = (n) => { const e = document.querySelector(".biy-sonuc-ekran"); if (e) e.setAttribute("data-step", String(n)); BIY._sonucSigdirGecikmeli(); };
     state.sonucTimerlar.push(setTimeout(() => set(1), 7000));   // sahne 2: sınıf cevapları (soru+şıklar daha uzun beklesin)
     state.sonucTimerlar.push(setTimeout(() => set(2), 10500));  // sahne 3: liderlik + buton
     if (degisti) state.sonucTimerlar.push(setTimeout(() => SES.siraDegisti(), 10700));
@@ -2996,10 +3053,12 @@ const BIY = {
       ? '<div class="biy-t-duraklat">'+_SVG_DURDUR+'<span>تَوَقُّف مُؤَقَّت — اِنْتَظِر المُعَلِّم</span></div>' : '';
     $("takimIcerik").className = "biy-oyun-orta";
     $("takimIcerik").innerHTML =
-      '<div class="biy-t-kimlik">'+(state.takimKrk ? krkSvg(state.takimKrk, "biy-krk-mini") : '<span class="biy-t-kimlik-nokta"></span>')+'<span class="biy-t-kimlik-ad">'+kacis(state.takimAd)+'</span></div>' +
-      '<div class="biy-t-ust"><span></span>' +
-        '<span class="biy-t-sayac" id="sayacNum">'+kalan+'</span></div>' +
-      etiketHtml(s) +
+      /* v95: isim · rozetler · sayaç tek satırda (yapışkan şerit) */
+      '<div class="biy-t-serit">' +
+        '<span class="biy-t-kimlik">'+(state.takimKrk ? krkSvg(state.takimKrk, "biy-krk-mini") : '<span class="biy-t-kimlik-nokta"></span>')+'<span class="biy-t-kimlik-ad">'+kacis(state.takimAd)+'</span></span>' +
+        etiketHtml(s) +
+        '<span class="biy-t-sayac" id="sayacNum">'+kalan+'</span>' +
+      '</div>' +
       '<div class="biy-oyun-soru">'+soruHtml(s)+'</div>' +
       (s.arapca ? '<div class="biy-oyun-arapca">'+kacis(s.arapca)+'</div>' : '') +
       BIY._takimAlanHtml(s, kilit) + perde + alt;
@@ -3431,6 +3490,14 @@ const BIY = {
   },
 
   /* ---------- TAKIM & OKUL lobisi: her takıma/sınıfa ayrı karekod ---------- */
+  /* Karekod ekranındaki EBA uyarısı: karekodu okutan ilk kişi/takım
+     göründüğü anda kaybolur, kimse yokken yeniden görünür. */
+  _ebaNotGuncelle(){
+    const el = $("ebaNot"); if (!el) return;
+    const giren = (state.bekleyenListe || []).length > 0
+               || (state.takimListe || []).some(t => t.bagli);
+    el.classList.toggle("gizli", !!giren);
+  },
   _takimKartlariCiz(){
     const grid = $("takimlarGrid"); if (!grid) return;
     grid.innerHTML = "";
@@ -3695,6 +3762,15 @@ const BIY = {
     BIY._katilFormu();
   }
 };
+/* Kayan listelerin alt kenarina yumusak solma: icerik tasiyorsa isaretle. */
+function kayarIsaretle(){
+  document.querySelectorAll(".biy-bek-liste, .biy-kat-satirlar, .biy-takimlar-grid").forEach(e => {
+    e.classList.toggle("biy-kayar", e.scrollHeight - e.clientHeight > 6);
+  });
+}
+window.addEventListener("resize", kayarIsaretle);
+setInterval(kayarIsaretle, 900);
+
 window.BIY = BIY;
 // canlı yarışmada sekme kapatma/yenileme kazasına karşı uyarı
 window.addEventListener("beforeunload", function(e){
