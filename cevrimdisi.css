@@ -132,14 +132,14 @@
   font-weight:800;letter-spacing:.4px;color:#fff;background:#20C997;padding:5px 15px;border-radius:999px}
 .cd-soru{font-size:clamp(1.2rem,5.2vh,2.9rem);line-height:1.6;font-weight:700;max-width:24ch;
   color:#2c3e50}
-.cd-soru.ar{direction:rtl;color:#16A085;font-family:"Nunito","Segoe UI",Arial,"Arakom","Harmattan","Traditional Arabic",serif}
+.cd-soru.ar{direction:rtl;color:#16A085;font-family:"Arakom","Harmattan","Traditional Arabic","Segoe UI",Arial,serif}
 .cd-secenekler{display:grid;gap:clamp(8px,1.8vh,16px);width:min(100%,900px);direction:ltr}
 .cd-secenekler.ar{direction:rtl}
 .cd-secenek{display:flex;align-items:center;gap:12px;background:#fff;border:2px solid #E9EEF5;
   border-radius:14px;padding:clamp(8px,1.8vh,16px) clamp(12px,2vw,22px);
   font-size:clamp(.95rem,3.2vh,1.6rem);box-shadow:0 2px 6px rgba(15,23,42,.05);
   direction:ltr;text-align:start}
-.cd-secenek.ar{direction:rtl;text-align:start;font-family:"Nunito","Segoe UI",Arial,"Arakom","Harmattan","Traditional Arabic",serif}
+.cd-secenek.ar{direction:rtl;text-align:start;font-family:"Arakom","Harmattan","Traditional Arabic","Segoe UI",Arial,serif}
 .cd-secenek>span:not(.cd-harf){flex:1 1 auto;min-width:0;text-align:start}
 .cd-secenek .cd-harf{flex:0 0 auto;width:1.9em;height:1.9em;line-height:1.9em;border-radius:99px;
   background:#EAF1FA;color:#3498db;font-weight:800;font-size:.78em;text-align:center;
@@ -227,7 +227,7 @@
 .a4-no{flex:0 0 auto;width:26px;height:26px;line-height:26px;text-align:center;border-radius:99px;
   background:#1F3864;color:#fff;font-size:13px;font-weight:800}
 .a4-metin{flex:1 1 auto;font-size:15px;line-height:1.6;color:#111}
-.a4-metin.ar{direction:rtl;font-family:"Nunito","Segoe UI",Arial,"Arakom","Harmattan","Amiri",serif;font-size:21px;line-height:1.9}
+.a4-metin.ar{direction:rtl;font-family:"Arakom","Harmattan","Amiri","Segoe UI",Arial,serif;font-size:21px;line-height:1.9}
 .a4-rozet{flex:0 0 auto;font-size:10px;color:#6B7A8C;border:1px solid #D9E2EC;border-radius:99px;
   padding:1px 8px}
 .a4-secenekler{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;direction:ltr}
@@ -236,7 +236,7 @@
   direction:ltr;text-align:start}
 .a4-secenek .a4-harf{flex:0 0 auto;width:19px;height:19px;line-height:19px;text-align:center;
   border:1.4px solid #8C97A3;border-radius:99px;font-size:11px;color:#4A5568}
-.a4-secenek.ar{direction:rtl;text-align:start;font-family:"Nunito","Segoe UI",Arial,"Arakom","Harmattan","Amiri",serif;font-size:19px}
+.a4-secenek.ar{direction:rtl;text-align:start;font-family:"Arakom","Harmattan","Amiri","Segoe UI",Arial,serif;font-size:19px}
 .a4-secenek>span:last-child{flex:1 1 auto;min-width:0;text-align:start}
 .a4-parcalar{display:flex;flex-wrap:wrap;gap:6px}
 .a4-parca{border:1.3px dashed #8C97A3;border-radius:7px;padding:3px 10px;font-size:15px}
@@ -462,19 +462,19 @@
   pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cdw-uyari.gorun{opacity:1;transform:none}
 .cdw-ders-ar{display:block;margin-top:2px;font-style:normal;font-weight:600;font-size:.82em;color:#8C97A3;
-  direction:rtl;text-align:start;font-family:"Nunito","Segoe UI",Arial,"Arakom","Harmattan","Amiri",serif}
+  direction:rtl;text-align:start;font-family:"Arakom","Harmattan","Amiri","Segoe UI",Arial,serif}
 
-.cd-kapi-ar{direction:rtl;margin:2px 0 0;font-size:1.05rem;color:#BFD0E8;opacity:.75;font-family:"Nunito","Segoe UI",Arial,"Arakom","Harmattan","Amiri",serif}
+.cd-kapi-ar{direction:rtl;margin:2px 0 0;font-size:1.05rem;color:#BFD0E8;opacity:.75;font-family:"Arakom","Harmattan","Amiri","Segoe UI",Arial,serif}
 
 /* şık hizası: Türkçe soldan, Arapça sağdan */
 .cd-parca{direction:ltr}
-.cd-parca.ar{direction:rtl;font-family:"Nunito","Segoe UI",Arial,"Arakom","Harmattan","Traditional Arabic",serif}
+.cd-parca.ar{direction:rtl;font-family:"Arakom","Harmattan","Traditional Arabic","Segoe UI",Arial,serif}
 .cd-cevap{direction:ltr}
-.cd-cevap.ar{direction:rtl;font-family:"Nunito","Segoe UI",Arial,"Arakom","Harmattan","Traditional Arabic",serif}
+.cd-cevap.ar{direction:rtl;font-family:"Arakom","Harmattan","Traditional Arabic","Segoe UI",Arial,serif}
 .cd-esle .cd-esle-sol{flex:1 1 auto;min-width:0;text-align:start}
 .cd-esle .cd-esle-sag{flex:0 0 auto;margin-inline-start:auto;padding-inline-start:14px;
   color:#0E9E86;font-weight:700}
-.cd-esle .cd-esle-sag.ar{direction:rtl;font-family:"Nunito","Segoe UI",Arial,"Arakom","Harmattan","Traditional Arabic",serif}
+.cd-esle .cd-esle-sag.ar{direction:rtl;font-family:"Arakom","Harmattan","Traditional Arabic","Segoe UI",Arial,serif}
 .cd-esle .cd-esle-sag:not(.ar){direction:ltr;font-family:"Nunito","Segoe UI",sans-serif}
 .cd-esle .cd-esle-sol:not(.ar){font-family:"Nunito","Segoe UI",sans-serif}
 
@@ -559,7 +559,7 @@
 .cdw-tus.cdw-ince{padding:9px 18px;font-size:clamp(13px,1.8vh,15px);margin-top:4px}
 
 /* --- 1. adım: canlı taraftaki Arapça kartlar --- */
-.cdw-bas-ar{font-family:"Nunito","Segoe UI",Arial,"Arakom","Harmattan","Traditional Arabic",serif;line-height:1.35}
+.cdw-bas-ar{font-family:"Arakom","Harmattan","Traditional Arabic","Segoe UI",Arial,serif;line-height:1.35}
 .cdw-menu{max-width:1000px;margin:0 auto}
 .cdw-menu .biy-menu-kart{position:relative;cursor:pointer}
 .cdw-menu .biy-menu-kart.cdw-secili{border-color:#16A085;
@@ -645,12 +645,12 @@
 #cdPanelSure:has(#sureAkordiyon[hidden]){display:none;margin:0}
 #cdPanelSure{margin-top:calc(-1 * clamp(6px,1vh,10px))}
 /* mod kartlarında Arapça karşılık: küçük, soluk, altta */
-.biy-menu-ar{display:block;margin-top:-2px;font-family:"Nunito","Segoe UI",Arial,"Arakom","Harmattan","Traditional Arabic",serif;
+.biy-menu-ar{display:block;margin-top:-2px;font-family:"Arakom","Harmattan","Traditional Arabic","Segoe UI",Arial,serif;
   font-size:1.05rem;color:#8C97A3;opacity:.8;direction:rtl}
-.cdw-alt-bas.cdw-alt-ar{font-family:"Nunito","Segoe UI",Arial,"Arakom","Harmattan","Traditional Arabic",serif;direction:rtl;
+.cdw-alt-bas.cdw-alt-ar{font-family:"Arakom","Harmattan","Traditional Arabic","Segoe UI",Arial,serif;direction:rtl;
   font-size:clamp(17px,2.6vh,26px);color:#8C97A3;opacity:.85}
 /* ders/ünite adlarının Arapça karşılığı: küçük, soluk, alt satırda */
-.biy-ar-alt{display:block;font-style:normal;font-family:"Nunito","Segoe UI",Arial,"Arakom","Harmattan","Traditional Arabic",serif;
+.biy-ar-alt{display:block;font-style:normal;font-family:"Arakom","Harmattan","Traditional Arabic","Segoe UI",Arial,serif;
   font-size:.86em;line-height:1.25;color:#8C97A3;opacity:.85;direction:rtl;margin-top:1px}
 .biy-ak-ad,.biy-ds-ad2{line-height:1.25}
 /* uzun ünite adları kesilmesin, alt satıra insin */
@@ -823,7 +823,7 @@
   font-size:clamp(2rem,9vh,6rem);font-weight:900;color:#0E6E5C;
   line-height:1.2;direction:ltr;text-align:center;overflow-wrap:anywhere}
 .cd-cs-metin.ar{direction:rtl;line-height:1.45;
-  font-family:"Nunito","Segoe UI",Arial,"Arakom","Harmattan","Traditional Arabic",serif}
+  font-family:"Arakom","Harmattan","Traditional Arabic","Segoe UI",Arial,serif}
 .cd-cs-metin.uzun{font-size:clamp(1.4rem,5.4vh,3.4rem);line-height:1.3}
 .cd-cs-metin.ar.uzun{font-size:clamp(1.55rem,6vh,3.8rem);line-height:1.5}
 .cd-cs-metin.cok-uzun{font-size:clamp(1.1rem,3.8vh,2.4rem);line-height:1.32}
@@ -1490,7 +1490,7 @@
   transition:border-color .15s, background .15s}
 .cd-esle-sol,.cd-esle-karsi{flex:1 1 auto;min-width:0;text-align:start;overflow-wrap:anywhere}
 .cd-esle-sol.ar,.cd-esle-karsi.ar{direction:rtl;text-align:start;
-  font-family:"Nunito","Segoe UI",Arial,"Arakom","Harmattan","Traditional Arabic",serif;
+  font-family:"Arakom","Harmattan","Traditional Arabic","Segoe UI",Arial,serif;
   font-size:1.1em;line-height:1.6}
 .cd-esle-cevap{flex:0 0 auto;min-width:1.9em;text-align:center}
 /* öğrencinin harfi yazacağı boşluk belli olsun */
