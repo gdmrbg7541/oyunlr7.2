@@ -1322,8 +1322,11 @@ const BIY = {
     const sel = $("konuSecim"); if (sel){ sel.classList.toggle("secili", !!state.konuId); sel.value = state.konuId || ""; }
     const k = BIY._aktifKonu();
     const ad = $("konuSeciciAd");
-    if (ad) ad.textContent = (k && k.tumUnite) ? k.ad
-                           : (BIY._uniteAdi() + " · " + (k ? dersAdi(k) : "Ders seç\u2026"));
+    /* Hiçbir ders seçilmediyse ünite adı yazılmaz: klasör birden çok üniteyi
+       kapsıyor, seçilmemiş bir üniteyi yazmak yanıltıcı olur. */
+    if (ad) ad.textContent = !k ? "Ders seç\u2026"
+                           : (k.tumUnite ? dersAdi(k)
+                              : (BIY._uniteAdi(k.unite) + " · " + dersAdi(k)));
     const btn = $("konuSeciciBtn"); if (btn) btn.classList.toggle("secili", !!state.konuId);
     document.querySelectorAll("#konuSeciciListe .biy-ds-oge, #konuSeciciListe .biy-ak-tum").forEach(o => {
       const s = o.getAttribute("data-konu") === state.konuId;
@@ -1429,6 +1432,17 @@ const BIY = {
     const satirlar = UNITELER.filter(u => gor.indexOf(u.no) >= 0);
     const tumKonu = kapsamTumKonu(kilit);
     let h = '<div class="biy-ak' + (kilit ? ' biy-ak-kilitli' : '') + '">';
+    /* En çok kullanılan seçenek bu: bütün kapsamdan soru. Listenin başında
+       dursun ki öğretmen kaydırmadan bulsun. */
+    const tumIlk = (satirlar.length > 1) ? tumKonu : null;
+    if (tumIlk){
+      h += '<button type="button" class="biy-ak-bas biy-ak-tum biy-ak-tum-ust'
+         + (state.konuId === tumIlk.id ? ' secili' : '') + '"'
+         + ' data-konu="' + tumIlk.id + '">'
+         + '<span class="biy-ak-ad">' + kacis(dersAdi(tumIlk)) + arEk(dersAr(tumIlk)) + '</span>'
+         + '<span class="biy-ak-say">' + BIY._konuSorulari(tumIlk).length + '</span>'
+         + tik + '</button>';
+    }
     satirlar.forEach(u => {
       const acik = (state.uniteAcik === u.no);
       const kon = BIY._uniteKonulari(u.no);
@@ -1459,14 +1473,6 @@ const BIY = {
         + '<rect x="4" y="10.5" width="16" height="10" rx="2.5"/>'
         + '<path d="M8 10.5V7.6a4 4 0 0 1 7.5-1.9"/></svg>'
         + '<span>Diğer üniteler</span></button>';
-    }
-    const t = (satirlar.length > 1) ? tumKonu : null;
-    if (t){
-      h += '<button type="button" class="biy-ak-bas biy-ak-tum' + (state.konuId === t.id ? ' secili' : '') + '"'
-         + ' data-konu="' + t.id + '">'
-         + '<span class="biy-ak-ad">' + kacis(dersAdi(t)) + arEk(dersAr(t)) + '</span>'
-         + '<span class="biy-ak-say">' + BIY._konuSorulari(t).length + '</span>'
-         + tik + '</button>';
     }
     return h + '</div>';
   },
@@ -4051,7 +4057,11 @@ window.addEventListener("beforeunload", function(e){
     BIY._sureleriYukle(); BIY._sureRozet();
     BIY._konulariHazirla();
     if (otoU){
-      BIY.konuSec("unite" + otoU.no);
+      /* Klasör kapsamı 1-2 ve 1-4 aralığına genişledi; artık klasörün ünitesi
+         kendiliğinden seçilmiyor, ders seçimini öğretmen yapıyor. Yalnız
+         akordiyonda o ünite açık gelir ki elini uzatacağı yer belli olsun. */
+      state.uniteAcik = otoU.no;
+      BIY._konulariHazirla();
       setTimeout(() => BIY._otoUniteNot(), 60);
     }
     /* index sayfasının BAŞLIĞI en güvenilir kaynak: adres parametresi yoksa

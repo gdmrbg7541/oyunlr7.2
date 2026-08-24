@@ -1000,9 +1000,10 @@ function adim3(){
     <div class="cdw-panel" id="cdPanelDers"></div>
     <div class="cdw-panel cdw-panel-ayar" id="cdPanelAyar"></div>
     <div class="cdw-panel" id="cdPanelSure"></div>
-    <p class="cdw-bilgi">
-      Seçtiğin derste <b>${havuz}</b> uygun soru var${secili ? `, havuzdan <b>${secili}</b> soru seçili` : ""}.${
-        zorlukOzet() ? ` Zorluk süzgeci: <b>${kacisi(zorlukOzet())}</b>.` : ""}
+    <p class="cdw-bilgi">${D.konuId
+      ? `Seçtiğin derste <b>${havuz}</b> uygun soru var${secili ? `, havuzdan <b>${secili}</b> soru seçili` : ""}.${
+          zorlukOzet() ? ` Zorluk süzgeci: <b>${kacisi(zorlukOzet())}</b>.` : ""}`
+      : `Henüz ders seçmedin — yukarıdan bir ders ya da ünitenin tamamını seç.`}
     </p>
   </div>`;
 }
@@ -1682,10 +1683,8 @@ const COFF = {
     if (mod === "canli" || mod === "cevrimdisi") D.mod = mod;
     if (D.mod === "cevrimdisi" && D.bicim === "kisi"){ D.bicim = "takim"; D.katilim = []; }
     if (!D.katilim.length) listeKur();
-    if (!D.konuId){
-      const k = konular().find(x => konuSorulari(x).length);
-      if (k) D.konuId = k.id;
-    }
+    /* Ders kendiliğinden seçilmez: klasör kapsamı 1-2 / 1-4 olduğu için
+       hangi dersten soru geleceğine öğretmen karar verir. */
     D.adim = 1;
     ekranGoster("ekranCevrimdisi");
     COFF.ciz();
@@ -1788,9 +1787,11 @@ const COFF = {
     if (!e){ COFF.ciz(); return; }
     const havuz  = seciliSorular().length;
     const secili = (typeof state !== "undefined" && state.secilenSet) ? state.secilenSet.size : 0;
-    e.innerHTML = `Seçtiğin derste <b>${havuz}</b> uygun soru var${
-      secili ? `, havuzdan <b>${secili}</b> soru seçili` : ""}.${
-      zorlukOzet() ? ` Zorluk süzgeci: <b>${kacisi(zorlukOzet())}</b>.` : ""}`;
+    e.innerHTML = !D.konuId
+      ? `Henüz ders seçmedin — yukarıdan bir ders ya da ünitenin tamamını seç.`
+      : `Seçtiğin derste <b>${havuz}</b> uygun soru var${
+          secili ? `, havuzdan <b>${secili}</b> soru seçili` : ""}.${
+          zorlukOzet() ? ` Zorluk süzgeci: <b>${kacisi(zorlukOzet())}</b>.` : ""}`;
   },
   defterAc(){
     if (!D.sorular.length){ uyar("Önce soruları hazırla."); return; }

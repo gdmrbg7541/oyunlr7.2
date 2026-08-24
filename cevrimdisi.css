@@ -1550,3 +1550,7 @@
   .cd-il-bitti{display:none}
   .cd-ilerleme-serit{gap:10px}
 }
+
+/* "hepsi bir arada" satırı listenin başında, ayrı dursun */
+#konuSeciciListe .biy-ak-tum-ust{margin-bottom:clamp(8px,1.4vh,14px);
+  padding-bottom:clamp(10px,1.6vh,16px);border-bottom:2px solid #EEF2F7}
