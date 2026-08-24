@@ -2659,3 +2659,365 @@ body.biy-suruklerken { -webkit-user-select: none; user-select: none; }
 /* v94c — sepet ikonu: dolgu çizgileri boğmasın */
 .biy-sepet-dolgu { opacity: .22; }
 .biy-sepet.dolu .biy-sepet-dolgu { opacity: .30; }
+
+
+/* ==========================================================================
+   v95 — KOMPAKT DUZEN
+   a) Ogrenci ekrani: isim + rozetler + sayac tek yapiskan satirda.
+   b) Yazi boylari min(rem, vh) ile sinirli → tarayici puntosu buyutulse de
+      duzen ekran yuksekligini asmaz (yasli kullanicilar icin).
+   c) Ogretmen: karekod ekrani ve tahtada isimler kucultuldu.
+   ========================================================================== */
+
+/* ---------- a) ogrenci: tek satirlik ust serit ---------- */
+#ekranTakim .biy-t-serit {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; gap: 8px; flex-wrap: nowrap;
+  margin: 0 0 6px; padding: 6px 0;
+  background: rgba(247,249,252,.95); backdrop-filter: blur(6px);
+  border-bottom: 1px solid #EDF2F7;
+}
+#ekranTakim .biy-t-serit .biy-t-kimlik {
+  margin: 0; flex: 1 1 auto; min-width: 0;
+  padding: 5px 12px 5px 9px; gap: 7px;
+  font-size: min(1rem, 2.1vh);
+}
+#ekranTakim .biy-t-serit .biy-t-kimlik .biy-krk-mini {
+  width: min(30px, 4.2vh); height: min(30px, 4.2vh); margin-inline-end: 5px;
+}
+#ekranTakim .biy-t-serit .biy-etiketler {
+  margin: 0; gap: 5px; flex: 0 0 auto;
+}
+#ekranTakim .biy-t-serit .biy-etiket svg { width: min(24px, 3.4vh); height: min(24px, 3.4vh); }
+#ekranTakim .biy-t-serit .biy-t-sayac {
+  flex: 0 0 auto; min-width: min(42px, 5.4vh); height: min(42px, 5.4vh);
+  border-radius: 999px; font-size: min(1.2rem, 2.6vh);
+}
+/* eski ayri satirlar artik yok */
+#ekranTakim .biy-t-ust { display: none; }
+
+/* ---------- b) buyuk tarayici puntosunda bile sigsin ---------- */
+#ekranTakim .biy-oyun-soru   { font-size: min(1.18rem, 2.6vh); line-height: 1.35; margin: 0 0 4px; }
+#ekranTakim .biy-oyun-arapca { font-size: min(2.3rem, 5.4vh); margin: 2px 0 8px; line-height: 1.25; }
+#ekranTakim .biy-t-ipucu, #ekranTakim .biy-t-alindi { font-size: min(.92rem, 2vh); }
+#ekranTakim .biy-t-gonder    { font-size: min(1.1rem, 2.4vh); padding: min(14px, 1.8vh) 32px; }
+#ekranTakim .biy-t-opt       { font-size: min(1.05rem, 2.4vh); padding: min(14px, 1.9vh) 14px; }
+#ekranTakim .biy-t-opt.ar    { font-size: min(1.5rem, 3.4vh); }
+#ekranTakim .biy-t-parca,
+#ekranTakim .biy-t-slot      { font-size: min(1rem, 2.3vh); min-height: min(46px, 6vh); }
+#ekranTakim .biy-t-parca.ar,
+#ekranTakim .biy-t-slot.ar   { font-size: min(1.42rem, 3.2vh); }
+#ekranTakim .biy-t-sol       { font-size: min(.98rem, 2.2vh); }
+#ekranTakim .biy-t-sol.ar    { font-size: min(1.34rem, 3vh); }
+#ekranTakim .biy-t-tus       { min-width: min(50px, 6.4vh); height: min(50px, 6.4vh); font-size: min(1.7rem, 3.6vh); }
+#ekranTakim .biy-t-yazekran  { font-size: min(2.4rem, 5vh); min-height: min(70px, 8.5vh); }
+#ekranTakim .biy-t-duraklat  { font-size: min(1rem, 2.2vh); padding: min(12px,1.6vh) 16px; }
+#ekranTakim .biy-t-kaydir-ok { width: min(26px, 3.4vh); height: min(26px, 3.4vh); }
+
+/* dar/kisa ekranda bosluklari da kis */
+@media (max-width: 640px){
+  #ekranTakim .biy-oyun-orta { padding: 8px 10px 6px; }
+  #ekranTakim .biy-t-slotlar { padding: 14px 8px 9px; gap: 14px 7px; min-height: 0; }
+  #ekranTakim .biy-t-havuz   { padding: 8px; min-height: 0; margin-top: 8px; }
+  #ekranTakim .biy-t-ciftler { gap: 6px; }
+  #ekranTakim .biy-t-cift-satir { gap: 5px; }
+  #ekranTakim .biy-t-calisma, #ekranTakim .biy-t-yazma { margin-top: 6px; }
+  #ekranTakim .biy-t-klavye { gap: 5px; margin-top: 8px; }
+  #ekranTakim .biy-t-gonder-sar { margin-top: 8px; padding-top: 8px; }
+  #ekranTakim .biy-t-optlar { gap: 8px; }
+}
+/* alcak ekran (buyuk punto + klavye acilinca) */
+@media (max-height: 720px){
+  #ekranTakim .biy-oyun-arapca { font-size: min(1.9rem, 4.6vh); margin: 0 0 6px; }
+  #ekranTakim .biy-t-serit { padding: 4px 0; }
+}
+
+/* ---------- c) ogretmen: karekod ekrani ve tahtadaki isimler ---------- */
+@media (min-width: 900px){
+  /* karekod / lobi ekrani: isimler kucultuldu, kod yine buyuk kalir */
+  #ekranTakimlar .biy-oda-kod      { font-size: min(3.4rem, 9vh); }
+  #ekranTakimlar .biy-takim-kart h3{ font-size: min(1.55rem, 3.4vh); }
+  #ekranTakimlar .biy-kat-ad,
+  #ekranTakimlar .biy-bek-ad       { font-size: min(1.1rem, 2.5vh); }
+  #ekranTakimlar .biy-kat-sinif,
+  #ekranTakimlar .biy-bek-sinif    { font-size: min(.9rem, 2vh); }
+  #ekranTakimlar .biy-kat-ust,
+  #ekranTakimlar .biy-bek-ust h3   { font-size: min(1.15rem, 2.6vh); }
+  #ekranTakimlar .biy-takim-durum  { font-size: min(1.05rem, 2.4vh); }
+  #ekranTakimlar .biy-ust-bar h2   { font-size: min(1.6rem, 3.6vh); }
+  #ekranTakimlar .biy-btn          { font-size: min(1.1rem, 2.5vh); }
+  #ekranTakimlar .biy-btn-buyuk    { font-size: min(1.4rem, 3.2vh); }
+  #ekranTakimlar .biy-oda-bilgi    { font-size: min(1.1rem, 2.5vh); }
+  #ekranTakimlar .biy-oda-ipucu    { font-size: min(.95rem, 2.1vh); }
+  #ekranTakimlar #takimAdiInput,
+  #ekranTakimlar #sinifAdiInput    { font-size: min(1.25rem, 2.8vh); }
+  #ekranTakimlar .biy-krk-kart-ikon { width: min(56px, 6.5vh); height: min(56px, 6.5vh); }
+  #ekranTakimlar .biy-krk-mini      { width: min(44px, 5.2vh); height: min(44px, 5.2vh); }
+
+  /* tahtada katilimci cipleri: isim kucuk, avatar buyuk kalsin */
+  #ekranOyunAdmin .biy-cip { font-size: min(1.4625rem, 2.6vh); }
+  #ekranOyunAdmin .biy-cipler.biy-dev .biy-cip { font-size: min(2.1rem, 4.6vh); }
+  #ekranOyunAdmin .biy-lider-ad { font-size: min(1.3rem, 3vh); }
+}
+/* karekod ekrani kaydirilmasin */
+#ekranTakimlar { min-height: 100dvh; }
+
+
+/* ==========================================================================
+   v96 — OGRETMEN EKRANLARINDA TASMA YOK
+   Kalabalik sinif ve buyuk tarayici puntosunda listeler kendi icinde kayar,
+   yazilar kuculur; sayfa dikey kaydirilmaz.
+   ========================================================================== */
+
+/* ---- lobi: katilimci listesi kendi icinde kaysin ---- */
+.biy-kat-satirlar { max-height: min(46vh, 520px); overflow-y: auto; overscroll-behavior: contain; padding-inline-end: 4px; }
+.biy-bek-liste    { max-height: min(26vh, 300px); overflow-y: auto; overscroll-behavior: contain; }
+.biy-takimlar-grid{ max-height: min(52vh, 620px); overflow-y: auto; overscroll-behavior: contain; }
+#ekranTakimlar .biy-kat-satir { padding-block: min(9px, 1.4vh); }
+
+/* ---- tahta: cip seridi kendi icinde kaysin, kalabalikta kuculsun ---- */
+#ekranOyunAdmin .biy-cipler { max-height: min(24vh, 240px); overflow-y: auto; overscroll-behavior: contain; }
+#ekranOyunAdmin .biy-cipler.biy-dev { max-height: min(52vh, 560px); }
+#ekranOyunAdmin .biy-a-optlar { max-height: min(46vh, 520px); overflow-y: auto; overscroll-behavior: contain; }
+
+/* kalabalik olunca cipler otomatik kuculur (8+ ve 16+) */
+#ekranOyunAdmin .biy-cipler.biy-cok .biy-cip { font-size: min(1.15rem, 2.5vh); }
+#ekranOyunAdmin .biy-cipler.biy-cok .biy-krk-cip { width: min(40px, 4.6vh); height: min(40px, 4.6vh); margin-inline-end: 8px; }
+#ekranOyunAdmin .biy-cipler.biy-pek-cok .biy-cip { font-size: min(.98rem, 2.1vh); padding: 5px 10px; }
+#ekranOyunAdmin .biy-cipler.biy-pek-cok .biy-krk-cip { width: min(30px, 3.6vh); height: min(30px, 3.6vh); margin-inline-end: 6px; }
+
+/* buyuk puntoda tahta yazilari da sinirli */
+#ekranOyunAdmin .biy-oyun-soru   { font-size: min(2.025rem, 3.6vh); }
+#ekranOyunAdmin .biy-oyun-arapca { font-size: min(3.6rem, 8.4vh); }
+#ekranOyunAdmin .biy-cevap-durum { font-size: min(1.25rem, 2.8vh); }
+#ekranOyunAdmin .biy-oyun-sira   { font-size: min(1.2rem, 2.7vh); }
+
+/* ==========================================================================
+   v96b — OGRETMEN EKRANLARI SABIT YUKSEKLIK
+   Lobi ve tahta ekrani artik sayfayi uzatmiyor; uzun listeler kendi
+   icinde kayiyor. Boylece kalabalik sinifta ve buyuk tarayici puntosunda
+   da tum ogeler ekranda kaliyor.
+   ========================================================================== */
+@media (min-width: 900px){
+  /* ---- lobi / karekod ekrani ---- */
+  #ekranTakimlar { height: 100dvh; overflow: hidden; }
+  #ekranTakimlar .biy-kat-liste {
+    flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; overflow: hidden;
+  }
+  #ekranTakimlar .biy-kat-satirlar { flex: 1 1 auto; min-height: 0; max-height: none; }
+  #ekranTakimlar .biy-bekleyen-alan {
+    flex: 0 1 auto; min-height: 0; display: flex; flex-direction: column; overflow: hidden;
+  }
+  #ekranTakimlar .biy-bek-liste { flex: 1 1 auto; min-height: 0; max-height: none; }
+  #ekranTakimlar .biy-takimlar-grid { flex: 1 1 auto; min-height: 0; max-height: none; }
+  #ekranTakimlar .biy-oda-alan { flex: 0 0 auto; }
+  #ekranTakimlar .biy-baslat-alan { flex: 0 0 auto; }
+
+  /* ---- tahta (soru ekrani) ---- */
+  #ekranOyunAdmin { height: 100dvh; overflow: hidden; }
+  #ekranOyunAdmin > .biy-oyun-orta {
+    height: 100%; display: flex; flex-direction: column; min-height: 0; padding-bottom: 10px;
+  }
+  #ekranOyunAdmin .biy-a-optlar { flex: 1 1 auto; min-height: 0; max-height: none; overflow-y: auto; }
+  #ekranOyunAdmin .biy-cipler   { flex: 0 1 auto; min-height: 0; }
+  /* bitiş tablosu kendi içinde kaysın */
+  #ekranOyunAdmin > .biy-oyun-orta.biy-final { overflow-y: auto; display: block; }
+}
+
+/* v96c — tahtada oge yarim kesilmesin:
+   Cip seridi tam gorunur kalir (kucultulur), yalnizca sik alani gerekirse
+   kendi icinde kayar. Eslestirme kartlari da yukseklige gore kisilir.      */
+@media (min-width: 900px){
+  #ekranOyunAdmin .biy-cipler { flex: 0 0 auto; max-height: none; overflow: visible; }
+  #ekranOyunAdmin .biy-cipler.biy-kaydir { max-height: min(30vh, 320px); overflow-y: auto; }
+  #ekranOyunAdmin .biy-a-optlar { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+
+  #ekranOyunAdmin .biy-a-cift { gap: min(26px, 3vh); }
+  #ekranOyunAdmin .biy-a-sutun { gap: min(10px, 1.3vh); }
+  #ekranOyunAdmin .biy-a-sol,
+  #ekranOyunAdmin .biy-a-sag { padding: min(14px, 1.7vh) 18px; font-size: min(1.05rem, 2.4vh); }
+  #ekranOyunAdmin .biy-a-sol.ar,
+  #ekranOyunAdmin .biy-a-sag.ar { font-size: min(1.7rem, 3.7vh); }
+  #ekranOyunAdmin .biy-a-cift-satir { margin: min(8px, 1vh) 0; }
+  #ekranOyunAdmin .biy-a-opt { padding: min(16px, 2vh) 18px; font-size: min(1.15rem, 2.6vh); }
+  #ekranOyunAdmin .biy-a-opt.ar { font-size: min(1.6rem, 3.6vh); }
+  #ekranOyunAdmin .biy-a-parca,
+  #ekranOyunAdmin .biy-a-tus { font-size: min(1.5rem, 3.4vh); padding: min(10px,1.4vh) 16px; }
+}
+
+/* v96d — ogrenci seridinde Latin harfli isim bastan kesilmesin */
+#ekranTakim .biy-t-serit .biy-t-kimlik-ad { unicode-bidi: plaintext; }
+
+/* v96e — tahtada sik alani esneyince kutular dikeyde uzamasin */
+@media (min-width: 900px){
+  #ekranOyunAdmin .biy-a-optlar { align-content: start; align-items: start; }
+  #ekranOyunAdmin .biy-a-dizi { align-items: flex-start; }
+  #ekranOyunAdmin .biy-a-cift { align-items: flex-start; }
+}
+
+/* v96f — lobide onay ve katilimci listeleri alani paylassin; kayan
+   listelerin altinda "devami var" izlenimi veren yumusak solma olsun. */
+@media (min-width: 900px){
+  #ekranTakimlar .biy-bekleyen-alan { flex: 1 1 auto; }
+  #ekranTakimlar .biy-bek-liste { max-height: none; }
+  #ekranTakimlar .biy-kat-liste  { flex: 1 1 auto; }
+}
+.biy-bek-liste, .biy-kat-satirlar, .biy-takimlar-grid,
+#ekranOyunAdmin .biy-cipler.biy-kaydir, #ekranOyunAdmin .biy-a-optlar {
+  scrollbar-width: thin;
+}
+.biy-bek-liste::-webkit-scrollbar, .biy-kat-satirlar::-webkit-scrollbar,
+.biy-takimlar-grid::-webkit-scrollbar { width: 8px; }
+.biy-bek-liste::-webkit-scrollbar-thumb, .biy-kat-satirlar::-webkit-scrollbar-thumb,
+.biy-takimlar-grid::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
+
+/* v96g — lobide once katilimci alani kissin, onay listesi genis kalsin;
+   kayan listelerin alt kenari yumusasin (devami var izlenimi). */
+@media (min-width: 900px){
+  #ekranTakimlar .biy-kat-liste { flex: 1 3 auto; }
+  #ekranTakimlar .biy-bekleyen-alan { flex: 2 1 auto; }
+}
+.biy-bek-liste, .biy-kat-satirlar, .biy-takimlar-grid { padding-bottom: 8px; }
+.biy-bek-liste.biy-kayar, .biy-kat-satirlar.biy-kayar, .biy-takimlar-grid.biy-kayar {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent);
+          mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent);
+}
+
+
+/* ==========================================================================
+   v97 — KANARYA DEGERLERI KORUNUYOR
+   1440x900'de tahta puntolari ve lobi simgeleri v89/v43 degerlerinde kalir;
+   kapaklar yalnizca tarayici puntosu buyutuldugunde veya ekran kisaldiginda
+   devreye girer.
+   ========================================================================== */
+
+
+/* ==========================================================================
+   v98 — a) KAREKOD EKRANINDA EBA UYARISI (Turkce, buyuk punto)
+   Ilk katilim gelince JS .gizli ekleyip kaldiriyor.
+   ========================================================================== */
+.biy-eba-not{
+  flex: 0 0 auto;
+  display: flex; align-items: center; gap: 16px;
+  direction: ltr; text-align: left;
+  max-width: 1100px; width: 94%; margin: 4px auto 14px;
+  padding: 16px 22px;
+  border: 2px solid #F6C453; border-inline-start: 9px solid #F0A400;
+  border-radius: 18px;
+  background: linear-gradient(180deg,#FFF9E8 0%, #FFF3D2 100%);
+  color: #7A4E00;
+  box-shadow: 0 6px 18px rgba(240,164,0,.16);
+  animation: biyEbaNabiz 2.6s ease-in-out infinite;
+}
+.biy-eba-ikon{ flex: 0 0 auto; line-height: 0; color: #E08A00; }
+.biy-eba-ikon svg{ width: min(46px, 6vh); height: min(46px, 6vh); display: block; }
+.biy-eba-metin{ display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.biy-eba-metin b{ font-size: min(1.5rem, 3.2vh); font-weight: 900; letter-spacing: .2px; color: #8A4B00; }
+.biy-eba-metin i{ font-style: normal; font-size: min(1.05rem, 2.3vh); line-height: 1.4; color: #8A6320; }
+@keyframes biyEbaNabiz{
+  0%,100%{ box-shadow: 0 6px 18px rgba(240,164,0,.16); }
+  50%    { box-shadow: 0 6px 26px rgba(240,164,0,.42); }
+}
+@media (prefers-reduced-motion: reduce){ .biy-eba-not{ animation: none; } }
+
+/* yansitilan tahtada daha buyuk */
+@media (min-width: 900px){
+  .biy-eba-not{ gap: 22px; padding: 20px 30px; margin: 6px auto 18px; }
+  .biy-eba-ikon svg{ width: min(62px, 7.4vh); height: min(62px, 7.4vh); }
+  .biy-eba-metin b{ font-size: min(2.15rem, 4.4vh); }
+  .biy-eba-metin i{ font-size: min(1.3rem, 2.8vh); }
+}
+/* dar telefonda alt alta */
+@media (max-width: 560px){
+  .biy-eba-not{ gap: 12px; padding: 13px 15px; border-inline-start-width: 7px; }
+  .biy-eba-metin b{ font-size: 1.15rem; }
+  .biy-eba-metin i{ font-size: .92rem; }
+}
+
+/* ==========================================================================
+   v98 — b) MASAUSTU SONUC EKRANI: svg seridi ve buton EN ALTTA
+   Sahne kalan yuksekligin tamamini alir; icerik uzunsa yalniz sahne
+   kendi icinde kayar, boylece sik/satir yarim kesilmez.
+   ========================================================================== */
+@media (min-width: 900px){
+  #ekranOyunAdmin .biy-sonuc-ekran{ min-height: 0; }
+  #ekranOyunAdmin .biy-sonuc-baslik{ flex: 0 0 auto; order: 0; }
+  #ekranOyunAdmin .biy-sonuc-sahne{
+    order: 1; flex: 1 1 auto; min-height: 0; margin-top: clamp(6px, 1.6vh, 20px);
+  }
+  /* her sahne ogesi kendi icinde kaysin, dikey ortalansin */
+  #ekranOyunAdmin .biy-sonuc-sahne > .biy-sahne-oge{
+    max-height: 100%; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+    justify-content: center; padding-inline: 2px;
+  }
+  /* sonraki soru butonu, sonra en altta svg seridi */
+  #ekranOyunAdmin .biy-sonuc-ekran .biy-oyun-kontrol{
+    order: 2; flex: 0 0 auto; margin-top: auto; padding-top: clamp(6px,1.4vh,16px);
+  }
+  #ekranOyunAdmin .biy-sonuc-nokta{
+    order: 3; flex: 0 0 auto;
+    margin-top: clamp(8px, 1.6vh, 18px); padding-bottom: 2px;
+  }
+  /* sahne icindeki listeler artik dis kaydiriciyi kullanir */
+  #ekranOyunAdmin .biy-sonuc-lider .biy-lider-ol.biy-kaydir,
+  #ekranOyunAdmin .biy-reveal.biy-kaydir{ max-height: none; overflow: visible; }
+  #ekranOyunAdmin .oge-dogru .biy-a-optlar{ flex: 0 0 auto; overflow: visible; }
+}
+
+
+/* ==========================================================================
+   v98b — SONUC EKRANI KALABALIKTA KUCULUR
+   8+ kisi  -> .biy-sonuc-kalabalik
+   15+ kisi -> .biy-sonuc-kalabalik.biy-pek-cok
+   ========================================================================== */
+@media (min-width: 900px){
+  /* ---- 8+ ---- */
+  #ekranOyunAdmin .biy-sonuc-kalabalik .biy-sonuc-lider h4{
+    font-size: min(2rem, 3.6vh); margin-bottom: min(14px, 1.6vh);
+  }
+  #ekranOyunAdmin .biy-sonuc-kalabalik .biy-sonuc-lider li{
+    font-size: min(1.95rem, 3.3vh); padding: min(15px, 1.8vh) 28px;
+    margin-bottom: min(10px, 1.2vh); border-radius: 15px; gap: 16px;
+  }
+  #ekranOyunAdmin .biy-sonuc-kalabalik .biy-sonuc-lider li b{ font-size: min(2.05rem, 3.5vh); }
+  #ekranOyunAdmin .biy-sonuc-kalabalik .biy-lider-sira{ font-size: min(1.95rem, 3.3vh); min-width: 52px; }
+  #ekranOyunAdmin .biy-sonuc-kalabalik .biy-ok{ font-size: min(1.7rem, 2.9vh); min-width: 32px; }
+  #ekranOyunAdmin .biy-sonuc-kalabalik .biy-krk-mini{
+    width: min(40px, 4.6vh); height: min(40px, 4.6vh); margin-inline-end: 10px;
+  }
+  #ekranOyunAdmin .biy-sonuc-kalabalik .biy-reveal-tablo th{
+    font-size: min(1.6rem, 2.8vh); padding: min(13px, 1.6vh) 16px;
+  }
+  #ekranOyunAdmin .biy-sonuc-kalabalik .biy-reveal-tablo td{
+    font-size: min(1.9rem, 3.2vh); padding: min(13px, 1.6vh) 14px;
+  }
+
+  /* ---- 15+ ---- */
+  #ekranOyunAdmin .biy-sonuc-kalabalik.biy-pek-cok .biy-sonuc-lider h4{
+    font-size: min(1.6rem, 2.9vh); margin-bottom: min(10px, 1.2vh);
+  }
+  #ekranOyunAdmin .biy-sonuc-kalabalik.biy-pek-cok .biy-sonuc-lider li{
+    font-size: min(1.4rem, 2.4vh); padding: min(9px, 1.15vh) 20px;
+    margin-bottom: min(6px, .8vh); border-radius: 12px; gap: 12px;
+  }
+  #ekranOyunAdmin .biy-sonuc-kalabalik.biy-pek-cok .biy-sonuc-lider li b{ font-size: min(1.5rem, 2.6vh); }
+  #ekranOyunAdmin .biy-sonuc-kalabalik.biy-pek-cok .biy-lider-sira{ font-size: min(1.4rem, 2.4vh); min-width: 40px; }
+  #ekranOyunAdmin .biy-sonuc-kalabalik.biy-pek-cok .biy-ok{ font-size: min(1.25rem, 2.2vh); min-width: 24px; }
+  #ekranOyunAdmin .biy-sonuc-kalabalik.biy-pek-cok .biy-krk-mini{
+    width: min(30px, 3.4vh); height: min(30px, 3.4vh); margin-inline-end: 8px;
+  }
+  #ekranOyunAdmin .biy-sonuc-kalabalik.biy-pek-cok .biy-reveal-tablo th{
+    font-size: min(1.2rem, 2.2vh); padding: min(9px, 1.1vh) 12px;
+  }
+  #ekranOyunAdmin .biy-sonuc-kalabalik.biy-pek-cok .biy-reveal-tablo td{
+    font-size: min(1.4rem, 2.4vh); padding: min(9px, 1.1vh) 10px;
+  }
+}
+
+
+/* v98c — sahne icerigi olceklenebilir sarmalayici icinde */
+.biy-sahne-ic { width: 100%; display: flex; flex-direction: column; align-items: center; }
+@media (min-width: 900px){
+  #ekranOyunAdmin .biy-sonuc-sahne > .biy-sahne-oge { justify-content: center; }
+  #ekranOyunAdmin .biy-sahne-ic { justify-content: center; }
+}

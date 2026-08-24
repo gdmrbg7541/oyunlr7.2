@@ -64,10 +64,32 @@ const BICIM_BILGI = {
   "eslestir": { ad: "وَصْل",     emoji: "🔗" },
   "yazma":    { ad: "كِتابَة",  emoji: "⌨️" }
 };
+const BICIM_TR_AD = {
+  "test":"Çoktan seçmeli", "surukle":"Sıralama", "eslestir":"Eşleştirme", "yazma":"Yazma"
+};
+const BICIM_ACIKLAMA = {
+  "test":"Dört şıktan doğru olanı işaretlenir.",
+  "surukle":"Karışık kelimeler doğru sıraya dizilir.",
+  "eslestir":"Arapça kelime Türkçe karşılığıyla birleştirilir.",
+  "yazma":"Cevap harf harf klavyeyle yazılır."
+};
+const ZORLUK_ACIKLAMA = {
+  1:"Tek kelime, doğrudan anlam soruları.",
+  2:"Cümle kurma ve çeviri soruları.",
+  3:"Uzun cümle, yazma ve ayrıntı soruları."
+};
 function bicimAl(s){ return (s && s.bicim) || "test"; }
 /* Soru tipi suzgeci: kapatilan bicimler her yerde (liste sayilari, unite
    sayilari, havuz) elenir. */
 function bicimSecili(q){ return state.bicimSecim[bicimAl(q)] !== false; }
+/* Zorluk süzgeci: kolay / orta / zor ayrı ayrı açılıp kapanır. */
+const ZORLUK_TR = { 1:"Kolay", 2:"Orta", 3:"Zor" };
+function zorlukAl(s){ const z = s && s.zorluk; return (z === 2 || z === 3) ? z : 1; }
+function zorlukSecili(q){
+  return !state.zorlukSecim || state.zorlukSecim[zorlukAl(q)] !== false;
+}
+/* Soru her iki süzgeçten de geçiyor mu? */
+function suzgectenGecti(q){ return bicimSecili(q) && zorlukSecili(q); }
 // Metin Arapça mı? (kutulara doğru yazı tipini vermek için)
 function arMi(t){ return /[؀-ۿ]/.test(String(t == null ? "" : t)); }
 /* ---------------- Etiketler: animasyonlu SVG rozetler ----------------
@@ -621,7 +643,9 @@ const S_UNITE1 = [].concat(S_GUNLUK, S_YEMEK, S_SAAT, S_GUNLER, S_NAMAZ, S_ZAMIR
 const S_UNITE2 = [].concat(S_U2_MARKET, S_U2_SEBZE, S_U2_MEYVE, S_U2_ADED, S_U2_MUKAYESE);
 const S_UNITE3 = [].concat(S_U3_VASITA, S_U3_MEKAN, S_U3_YON, S_U3_MUKAYESE, S_U3_SEFER);
 const S_UNITE4 = [].concat(S_U4_SEHIR, S_U4_KONUM, S_U4_MESHUR, S_U4_SAAT, S_U4_SIFAT);
-const S_TUMU = [].concat(S_UNITE1, S_UNITE2, S_UNITE3, S_UNITE4);
+const S_TUMU  = [].concat(S_UNITE1, S_UNITE2, S_UNITE3, S_UNITE4);
+/* 2. ünite klasöründe "ilk iki ünitenin tamamı" seçeneği için birleşik havuz */
+const S_TUM12 = [].concat(S_UNITE1, S_UNITE2);
 const SORULAR = S_UNITE1;   // geriye donuk uyum
 
 
@@ -753,7 +777,35 @@ const SEVIYE_ZORLUK = { kolay: 1, orta: 2, zor: 3 };
 /* Bilgi yarismasi yalnizca 2. ve 4. unite sonunda acilir.
    2. unitede ilk iki unitenin, 4. unitede butun unitelerin sorulari secilebilir.
    Baska bir unite numarasi gelirse eski davranis korunur: yalniz o unite.   */
+/* Ders ve ünite adlarının Türkçesi cevrimdisi.js'teki CDTR sözlüğünden gelir;
+   karşılığı yoksa özgün Arapça ad kullanılır. */
+function dersAdi(k){
+  const t = (window.CDTR && window.CDTR.ders && k) ? window.CDTR.ders[k.id] : null;
+  return t || (k ? k.ad : "");
+}
+function dersAr(k){
+  return (window.CDTR && window.CDTR.ders && k && window.CDTR.ders[k.id]) ? k.ad : "";
+}
+function uniteBasligi(u){
+  const t = (window.CDTR && window.CDTR.unite && u) ? window.CDTR.unite[u.no] : null;
+  return t || (u ? u.ad : "");
+}
+function uniteAr(u){
+  return (window.CDTR && window.CDTR.unite && u && window.CDTR.unite[u.no]) ? u.ad : "";
+}
+const arEk = m => m ? '<i class="biy-ar-alt">' + kacis(m) + '</i>' : '';
+
+/* Klasörün kapsamına birebir uyan "hepsi bir arada" konusu. 2. ünite
+   dosyasında ilk iki ünite, 4. ünite dosyasında dördü birden. */
+function kapsamTumKonu(kilit){
+  const gor = gorunurUniteNolar(kilit);
+  return KONULAR.find(k => k.tumUnite && Array.isArray(k.kapsam)
+    && k.kapsam.length === gor.length
+    && k.kapsam.every((n, i) => n === gor[i])) || null;
+}
 function gorunurUniteNolar(kilit){
+  /* Klasör kapsamı: 2. ünite dosyasında ilk iki ünitenin BÜTÜN dersleri,
+     4. ünite dosyasında dört ünitenin tamamı seçilebilir. */
   if (!kilit) return [1, 2, 3, 4];
   if (kilit === 2) return [1, 2];
   if (kilit === 4) return [1, 2, 3, 4];
@@ -863,7 +915,10 @@ const KONULAR = [
   { id: "saat4",    unite: 4, ad: "السّاعَة (النِّصْف وَالرُّبْع)", pdf: "", sorular: S_U4_SAAT },
   { id: "sifat",    unite: 4, ad: "الصِّفات وَالجَمْع",      pdf: "", sorular: S_U4_SIFAT },
   /* ---- 5. satir: butun unitelerin sorulari ---- */
-  { id: "tumu", unite: 0, birlesik: true, tumUnite: true, ad: "كُلّ الوَحَدات", pdf: "", sorular: S_TUMU }
+  { id: "tumu",  unite: 0, birlesik: true, tumUnite: true, kapsam: [1,2,3,4],
+    ad: "كُلّ الوَحَدات", pdf: "", sorular: S_TUMU },
+  { id: "tum12", unite: 0, birlesik: true, tumUnite: true, kapsam: [1,2],
+    ad: "كُلّ أَسْئِلَة الوَحْدَتَيْن", pdf: "", sorular: S_TUM12 }
 ];
 
 /* ---------------- Biçime göre HTML üreticileri ---------------- */
@@ -930,6 +985,7 @@ function tahtaIcerikHtml(soru, sonucMu){
 const state = {
   mod: null, uid: null,
   bicimSecim: { "test": true, "surukle": true, "eslestir": true, "yazma": true },
+  zorlukSecim: { 1: true, 2: true, 3: true },
   oyunModu: "takim",         // takim | birey | okul  (yarışma biçimi)
   bekleyenListe: [],         // birey modu: onay bekleyen katılımcılar
   katilimId: null,           // öğrenci tarafı: kendi katılımcı kaydının id'si
@@ -1059,9 +1115,9 @@ function odaLinki(oda){
    birey : tek karekod, herkes kendi adını yazar, öğretmen onaylar
    okul  : tek karekod, öğrenci adını yazar + sınıfını seçer, sınıflar ORTALAMA puanla yarışır  */
 const MOD_BILGI = {
-  takim: { ad: "نِظام الفِرَق", emoji: "👥", kisi: "فَريق", cog: "فِرَق",      baslik: "إِنْشاء الفِرَق وَالانْتِظار" },
-  birey: { ad: "نِظام الأَفْراد", emoji: "🙋", kisi: "مُشارِك",  cog: "مُشارِكون", baslik: "المُشارِكون وَالانْتِظار" },
-  okul:  { ad: "نِظام الصُّفوف",  emoji: "🏫", kisi: "صَفّ", cog: "صُفوف",      baslik: "إِنْشاء الصُّفوف وَالانْتِظار" }
+  takim: { ad: "Takım sistemi", emoji: "👥", kisi: "Takım", cog: "Takımlar",      baslik: "Takımları oluştur ve bekle" },
+  birey: { ad: "Bireysel sistem", emoji: "🙋", kisi: "Katılımcı",  cog: "Katılımcılar", baslik: "Katılımcılar ve bekleme" },
+  okul:  { ad: "Sınıf sistemi",  emoji: "🏫", kisi: "Sınıf", cog: "Sınıflar",      baslik: "Sınıfları oluştur ve bekle" }
 };
 function modAl(){ return MOD_BILGI[state.oyunModu] ? state.oyunModu : "takim"; }
 function tekKarekod(){ return modAl() === "birey"; }   // yalnız birey: tek ortak karekod
@@ -1243,7 +1299,7 @@ const BIY = {
   // Geri: dosyadan çık. Bağlı cihaz varsa onay iste; çıkışta odayı kapat (cihazlar ayrılsın).
   geriDon(){
     if (state.odaId && (state.takimListe || []).some(t => t.bagli)){
-      BIY._onay("هَلْ تَخْرُجُ؟", "هُناك أَجْهِزَة مُتَّصِلَة — إِذا خَرَجْتَ سَيَنْقَطِع اتِّصالُها.", "نَعَمْ، اُخْرُجْ", function(){ BIY._geriCik(); });
+      BIY._onay("Çıkmak istiyor musun?", "Bağlı cihazlar var — çıkarsan bağlantıları kopar.", "Evet, çık", function(){ BIY._geriCik(); });
       return;
     }
     BIY._geriCik();
@@ -1267,7 +1323,7 @@ const BIY = {
     const k = BIY._aktifKonu();
     const ad = $("konuSeciciAd");
     if (ad) ad.textContent = (k && k.tumUnite) ? k.ad
-                           : (BIY._uniteAdi() + " · " + (k ? k.ad : "اِخْتَر الدَّرْس\u2026"));
+                           : (BIY._uniteAdi() + " · " + (k ? dersAdi(k) : "Ders seç\u2026"));
     const btn = $("konuSeciciBtn"); if (btn) btn.classList.toggle("secili", !!state.konuId);
     document.querySelectorAll("#konuSeciciListe .biy-ds-oge, #konuSeciciListe .biy-ak-tum").forEach(o => {
       const s = o.getAttribute("data-konu") === state.konuId;
@@ -1304,7 +1360,10 @@ const BIY = {
     const altlar = u => KONULAR.filter(k => k.unite === u && !k.birlesik);
     const k = BIY._aktifKonu();
     if (k){
-      if (k.tumUnite) return KONULAR.filter(x => !x.birlesik);
+      if (k.tumUnite){
+        const kap = Array.isArray(k.kapsam) ? k.kapsam : null;
+        return KONULAR.filter(x => !x.birlesik && (!kap || kap.indexOf(x.unite) >= 0));
+      }
       if (k.birlesik) return altlar(k.unite);
       return [k];
     }
@@ -1312,7 +1371,7 @@ const BIY = {
   },
   _havuzKapsamAdi(){
     const k = BIY._aktifKonu();
-    if (k) return k.tumUnite ? k.ad : (k.birlesik ? BIY._uniteAdi(k.unite) : k.ad);
+    if (k) return k.tumUnite ? dersAdi(k) : (k.birlesik ? BIY._uniteAdi(k.unite) : dersAdi(k));
     return BIY._uniteAdi(state.uniteAcik || state.uniteNo || 1);
   },
   _soruHavuzu(){
@@ -1326,7 +1385,10 @@ const BIY = {
   /* DIKKAT: "tumu" konusunun unite alani 0 — (k.unite || 1) yazilirsa 1. uniteye
      dusuyordu. Bu yuzden acikca null denetimi yapiliyor ve tumUnite disarida. */
   /* Bir konunun SUZGECTEN GECEN sorulari */
-  _konuSorulari(k){ return (k && Array.isArray(k.sorular)) ? k.sorular.filter(bicimSecili) : []; },
+  _konuSorulari(k){ return (k && Array.isArray(k.sorular)) ? k.sorular.filter(suzgectenGecti) : []; },
+  /* Süzgeçten geçmeyenler dâhil, konudaki bütün sorular. Havuz listesinde
+     soluk ve seçilemez olarak gösterilirler. */
+  _konuTumSorulari(k){ return (k && Array.isArray(k.sorular)) ? k.sorular.slice() : []; },
   _uniteKonulari(no){
     const u = no || state.uniteNo || 1;
     return KONULAR.filter(k => !k.tumUnite && (k.unite == null ? 1 : k.unite) === u);
@@ -1336,7 +1398,7 @@ const BIY = {
     return b ? BIY._konuSorulari(b).length
              : BIY._uniteKonulari(no).reduce((t, k) => t + BIY._konuSorulari(k).length, 0);
   },
-  _uniteAdi(no){ const u = UNITELER.find(x => x.no === (no || state.uniteNo)); return u ? u.ad : ""; },
+  _uniteAdi(no){ const u = UNITELER.find(x => x.no === (no || state.uniteNo)); return u ? uniteBasligi(u) : ""; },
   /* ---- "Ders seç" paneli: 5 satırlık akordiyon ----
      1-4 → ünite başlıkları (büyük, sağa yaslı); açılınca o ünitenin dersleri.
      5   → bütün ünitelerin soruları (tek dokunuşla seçilir).            */
@@ -1352,7 +1414,7 @@ const BIY = {
     const kilit = state.uniteKilit;
     const gor = gorunurUniteNolar(kilit);
     const satirlar = UNITELER.filter(u => gor.indexOf(u.no) >= 0);
-    const tumGoster = (!kilit || kilit === 4);
+    const tumKonu = kapsamTumKonu(kilit);
     let h = '<div class="biy-ak' + (kilit ? ' biy-ak-kilitli' : '') + '">';
     satirlar.forEach(u => {
       const acik = (state.uniteAcik === u.no);
@@ -1361,7 +1423,7 @@ const BIY = {
       h += '<div class="biy-ak-satir' + (acik ? ' acik' : '') + (icinde ? ' iceriden' : '') + '" data-u="' + u.no + '">'
         + '<button type="button" class="biy-ak-bas" data-u="' + u.no + '"'
         +   ' aria-expanded="' + (acik ? 'true' : 'false') + '" title="' + kacis(u.alt) + '">'
-        +   '<span class="biy-ak-ad">' + kacis(u.ad) + '</span>'
+        +   '<span class="biy-ak-ad">' + kacis(uniteBasligi(u)) + arEk(uniteAr(u)) + '</span>'
         +   '<span class="biy-ak-say">' + BIY._uniteSoruSayisi(u.no) + '</span>'
         +   ok
         + '</button>'
@@ -1370,31 +1432,52 @@ const BIY = {
               '<button type="button" role="option" style="--i:' + i + '" data-konu="' + kacis(k.id) + '"'
               + (k.pasif ? ' disabled aria-disabled="true"' : '')
               + ' class="biy-ds-oge' + (k.pasif ? ' biy-ds-pasif' : '') + (k.id === state.konuId ? ' secili' : '') + '">'
-              + '<span class="biy-ds-ad2">' + kacis(k.ad) + '</span>'
+              + '<span class="biy-ds-ad2">' + kacis(dersAdi(k)) + arEk(dersAr(k)) + '</span>'
               + '<span class="biy-ds-say2">' + BIY._konuSorulari(k).length + '</span>'
-              + (k.pasif ? '<span class="biy-ds-yakinda">قَريبًا</span>' : tik)
+              + (k.pasif ? '<span class="biy-ds-yakinda">yakında</span>' : tik)
               + '</button>').join("")
         + '</div></div>';
     });
     /* Yanlış tahmin çıkmaza sokmasın: kilitliyken diğer ünitelere geçiş */
-    if (kilit && satirlar.length < UNITELER.length){
+    if (kilit && satirlar.length === 1){
       h += '<button type="button" class="biy-ak-ac" onclick="BIY.kilidiAc()">'
         + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"'
         + ' stroke-linecap="round" stroke-linejoin="round">'
         + '<rect x="4" y="10.5" width="16" height="10" rx="2.5"/>'
         + '<path d="M8 10.5V7.6a4 4 0 0 1 7.5-1.9"/></svg>'
-        + '<span>الوَحَدات الأُخْرى</span></button>';
+        + '<span>Diğer üniteler</span></button>';
     }
-    const t = tumGoster ? KONULAR.find(k => k.tumUnite) : null;
+    const t = (satirlar.length > 1) ? tumKonu : null;
     if (t){
       h += '<button type="button" class="biy-ak-bas biy-ak-tum' + (state.konuId === t.id ? ' secili' : '') + '"'
          + ' data-konu="' + t.id + '">'
-         + '<span class="biy-ak-ad">' + kacis(t.ad) + '</span>'
+         + '<span class="biy-ak-ad">' + kacis(dersAdi(t)) + arEk(dersAr(t)) + '</span>'
          + '<span class="biy-ak-say">' + BIY._konuSorulari(t).length + '</span>'
          + tik + '</button>';
     }
     return h + '</div>';
   },
+  /* ---- MOD KAPISI ----------------------------------------------------
+     Öğretmen dosyayı açtığında iki yol sunulur: internet gerektiren canlı
+     yarışma ve sınıf içinde kâğıt + ekranla yürüyen çevrimdışı mod.      */
+  _modKapisi(){
+    const not = $("modUniteNot");
+    if (not){
+      const u = UNITELER.find(x => x.no === (state.uniteKilit || state.uniteNo));
+      const gor = gorunurUniteNolar(state.uniteKilit);
+      const tr = (window.CDTR && window.CDTR.unite && u) ? window.CDTR.unite[u.no] : null;
+      not.textContent = (tr || (u ? u.ad + " · " + u.alt : ""))
+        + (gor.length > 1 ? "  ·  " + gor.length + " ünitelik soru havuzu" : "");
+    }
+    ekranGoster("ekranMod");
+  },
+  modSec(hangi){
+    /* İki mod da aynı kurulum sayfasına girer; fark yalnız son adımda. */
+    if (window.COFF){ COFF.ac(hangi === "canli" ? "canli" : "cevrimdisi"); return; }
+    ekranGoster("ekranAnasayfa");
+  },
+  modaDon(){ BIY._modKapisi(); },
+
   /* Ünite kilidini kaldır: bütün üniteler yeniden listelenir. */
   kilidiAc(){
     state.uniteKilit = null;
@@ -1424,8 +1507,8 @@ const BIY = {
     el.id = "otoUniteNot"; el.className = "biy-oto-not";
     el.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"'
       + ' stroke-linecap="round" stroke-linejoin="round"><path d="M20 6.5L9.4 17.1 4.5 12.2"/></svg>'
-      + '<span>' + kacis(BIY._uniteAdi(o.no)) + ' — تَمَّ اخْتِيارُها تِلْقائِيًّا</span>'
-      + '<button type="button" class="biy-oto-degis" onclick="BIY.kilidiAc()">تَغْيير</button>';
+      + '<span>' + kacis(BIY._uniteAdi(o.no)) + ' — kendiliğinden seçildi</span>'
+      + '<button type="button" class="biy-oto-degis" onclick="BIY.kilidiAc()">Değiştir</button>';
     panel.insertAdjacentElement("afterend", el);
     setTimeout(() => { if (el.parentNode){ el.classList.add("biy-gec"); setTimeout(() => el.remove(), 600); } }, 5200);
   },
@@ -1446,9 +1529,10 @@ const BIY = {
   _konulariHazirla(){
     const KON = BIY._uniteKonulari();
     const sel = $("konuSecim"); if (!sel) return;
-    sel.innerHTML = '<option value=""'+(state.konuId?'':' selected')+' disabled hidden>اِخْتَر الدَّرْس…</option>' +
-      KON.concat(gorunurUniteNolar(state.uniteKilit).length < UNITELER.length ? [] : KONULAR.filter(k => k.tumUnite))
-         .map(k => '<option value="'+k.id+'"'+(k.pasif?' disabled':'')+(k.id===state.konuId?' selected':'')+'>'+kacis(k.ad)+(k.pasif?' · قَريبًا':'')+'</option>').join("");
+    sel.innerHTML = '<option value=""'+(state.konuId?'':' selected')+' disabled hidden>Ders seç…</option>' +
+      KON.concat((gorunurUniteNolar(state.uniteKilit).length > 1 && kapsamTumKonu(state.uniteKilit))
+                   ? [kapsamTumKonu(state.uniteKilit)] : [])
+         .map(k => '<option value="'+k.id+'"'+(k.pasif?' disabled':'')+(k.id===state.konuId?' selected':'')+'>'+kacis(dersAdi(k))+(k.pasif?' · yakında':'')+'</option>').join("");
     if (!state.konuId) sel.value = "";
     const liste = $("konuSeciciListe");
     if (liste){
@@ -1520,7 +1604,7 @@ const BIY = {
     ov.innerHTML =
       '<div class="biy-soru-sec-kutu">' +
         '<div class="biy-soru-sec-bas">' +
-          '<h3><span class="biy-hs-bas-ikon biy-anim">' + hvIkon + '</span> اِخْتَر الأَسْئِلَة</h3>' +
+          '<h3><span class="biy-hs-bas-ikon biy-anim">' + hvIkon + '</span> Soruları seç</h3>' +
           '<span class="biy-soru-sec-say" id="soruSecSecili"></span>' +
           '<button class="biy-soru-sec-kapat" onclick="BIY.soruSecKapat()">✕</button>' +
         '</div>' +
@@ -1528,8 +1612,8 @@ const BIY = {
         '<div class="biy-soru-sec-alt">' +
           BIY._sepetHtml() +
           '<div class="biy-soru-sec-butonlar">' +
-            '<button class="biy-btn biy-onay-hayir" onclick="BIY.soruSecTemizle()">مَسْح الكُلّ</button>' +
-            '<button class="biy-btn biy-btn-yesil" onclick="BIY.soruSecKapat()">تَمَّ</button>' +
+            '<button class="biy-btn biy-onay-hayir" onclick="BIY.soruSecTemizle()">Tümünü temizle</button>' +
+            '<button class="biy-btn biy-btn-yesil" onclick="BIY.soruSecKapat()">Tamam</button>' +
           '</div>' +
         '</div>' +
       '</div>';
@@ -1576,7 +1660,7 @@ const BIY = {
     const br = $("sepetBar"); if (br) br.style.width = oran + "%";
     const dg = $("sepetDolgu"); if (dg) dg.setAttribute("y", String(46 - (oran / 100) * 26));
     const nt = $("sepetNot");
-    if (nt) nt.textContent = !hedef ? "" : (dolu ? "اِكْتَمَل العَدَد" : ("يُمْكِنُك اخْتِيار " + (hedef - n) + " بَعْد"));
+    if (nt) nt.textContent = !hedef ? "" : (dolu ? "Sayı tamamlandı" : ("Daha seçebilirsin: " + (hedef - n) + " tane"));
     kap.classList.toggle("dolu", dolu);
     kap.classList.toggle("bos", n === 0);
     if (dusenVar){
@@ -1590,7 +1674,7 @@ const BIY = {
     kap.classList.remove("biy-salla"); void kap.offsetWidth; kap.classList.add("biy-salla");
     const nt = $("sepetNot");
     if (nt){
-      nt.textContent = "وَصَلْتَ إِلى العَدَد المُحَدَّد (" + BIY._havuzSinir() + ")";
+      nt.textContent = "Belirlenen sayıya ulaştın (" + BIY._havuzSinir() + ")";
       nt.classList.add("uyari");
       setTimeout(() => { nt.classList.remove("uyari"); BIY._sepetGuncelle(); }, 1800);
     }
@@ -1610,9 +1694,9 @@ const BIY = {
       + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"'
       + ' stroke-linecap="round" stroke-linejoin="round">'
       + '<path d="M12 3.6l9.2 16H2.8z"/><path d="M12 9.6v4.4"/><circle cx="12" cy="17" r=".9" fill="currentColor" stroke="none"/></svg>'
-      + '<span>عَدَد الأَسْئِلَة مُحَدَّد مُسْبَقًا: <b>' + n + '</b>.'
-      + ' لا يُمْكِنُك اخْتِيار أَكْثَر مِنْ هَذا العَدَد.</span>'
-      + '<button type="button" class="biy-hs-uyari-btn" onclick="BIY.sayiUyariKaldir()">أَلْغِ الحَدّ</button>'
+      + '<span>Soru sayısı önceden belirlendi: <b>' + n + '</b>.'
+      + ' Bundan fazlasını seçemezsin.</span>'
+      + '<button type="button" class="biy-hs-uyari-btn" onclick="BIY.sayiUyariKaldir()">Sınırı kaldır</button>'
       + '</div>';
   },
   sayiUyariKaldir(){
@@ -1624,41 +1708,54 @@ const BIY = {
     const kap = $("soruSecListe"); if (!kap) return;
     const set = BIY._secSet();
     const ara = state.soruSecArama;
-    const zorAd = { 1:"سَهْل", 2:"مُتَوَسِّط", 3:"صَعْب" };
+    const zorAd = { 1:"Kolay", 2:"Orta", 3:"Zor" };
     const doluMu = BIY._havuzDoluMu();
     let html = '<div class="biy-hs-kapsam">' + BIY._kapsamSvg()
              + '<span>' + kacis(BIY._havuzKapsamAdi()) + '</span></div>'
+             + '<div class="biy-hs-tipler">' + Object.keys(BICIM_BILGI).map(b =>
+                 '<span class="biy-hs-tip biy-hs-b-' + b + '">' + (ETIKET_BICIM[b] || "")
+                 + kacis(BICIM_TR_AD[b] || "") + '</span>').join("") + '</div>'
              + BIY._sayiUyariHtml();
     BIY._havuzKapsam().forEach(k => {
-      const tumu = BIY._konuSorulari(k);            // soru tipi süzgecinden geçenler
-      if (!tumu.length) return;
-      const sorular = tumu.filter(q => !ara || (q.soru + " " + (q.arapca||"") + " " + aramaMetni(q)).toLowerCase().indexOf(ara) >= 0);
+      const tumu = BIY._konuSorulari(k);            // süzgeçlerden geçenler
+      const hepsi = BIY._konuTumSorulari(k);        // süzgeç dışındakiler de listelenir
+      if (!hepsi.length) return;
+      const sorular = hepsi.filter(q => !ara || (q.soru + " " + (q.arapca||"") + " " + aramaMetni(q)).toLowerCase().indexOf(ara) >= 0);
       if (!sorular.length) return;
       const seciliSay = tumu.filter(q => set.has(k.id + "#" + q.id)).length;
+      const disiSay = hepsi.length - tumu.length;
       const acik = ara ? true : !!(state.soruSecAcik && state.soruSecAcik[k.id]);
       html += '<div class="biy-hs-grup'+(acik?' acik':'')+'" data-konu="'+k.id+'">' +
         '<div class="biy-hs-baslik" onclick="BIY.soruSecAkordiyon(\''+k.id+'\')">' +
         '<span class="biy-hs-ok">▸</span>' +
-        '<b>'+kacis(k.ad)+'</b> <span class="biy-hs-say'+(seciliSay>0?' dolu':'')+(seciliSay===tumu.length?' tam':'')+'"><b>'+seciliSay+'</b><i>/</i>'+tumu.length+'</span>' +
-        '<button class="biy-hs-tumu" title="تَحْديد الكُلّ" aria-label="تَحْديد الكُلّ" onclick="event.stopPropagation();BIY.soruSecTumu(\''+k.id+'\')">' +
+        '<b>'+kacis(dersAdi(k))+'</b> <span class="biy-hs-say'+(seciliSay>0?' dolu':'')+((seciliSay===tumu.length&&tumu.length)?' tam':'')+'"><b>'+seciliSay+'</b><i>/</i>'+tumu.length+'</span>' +
+        (disiSay ? '<span class="biy-hs-disi-say" title="Süzgeç dışında kaldığı için seçilemeyen soru">'+disiSay+' pasif</span>' : '') +
+        '<button class="biy-hs-tumu" title="Tümünü seç" aria-label="Tümünü seç" onclick="event.stopPropagation();BIY.soruSecTumu(\''+k.id+'\')">' +
           '<svg viewBox="0 0 24 24" class="biy-hs-tumu-svg" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
           '<rect x="3.2" y="3.2" width="17.6" height="17.6" rx="4.5"/><path class="biy-ea-ciz" d="M7.4 12.6l3 3 6.2-7.2"/></svg></button></div>' +
         '<div class="biy-hs-govde">';
       sorular.forEach(q => {
         const key = k.id + "#" + q.id; const sec = set.has(key);
         const dogruSik = dogruCevapMetni(q);
-        const kapali = (!sec && doluMu);
-        html += '<label class="biy-hs-satir'+(sec?' secili':'')+(kapali?' biy-hs-kapali':'')+'" data-key="'+key+'">' +
+        const disi = !suzgectenGecti(q);            // süzgeç dışı: soluk ve seçilemez
+        const kapali = disi || (!sec && doluMu);
+        const ipucu = disi
+          ? (!bicimSecili(q) ? (BICIM_TR_AD[bicimAl(q)]||"") + " türü süzgeçte kapalı"
+                             : (ZORLUK_TR[zorlukAl(q)]||"") + " sorular süzgeçte kapalı")
+          : (BICIM_TR_AD[bicimAl(q)]||"") + " · " + (ZORLUK_TR[zorlukAl(q)]||"");
+        html += '<label class="biy-hs-satir biy-hs-b-'+bicimAl(q)+' biy-hs-z'+zorlukAl(q)+(sec?' secili':'')+(disi?' biy-hs-disi':'')+(kapali?' biy-hs-kapali':'')+'" data-key="'+key+'" title="'+kacis(ipucu)+'">' +
           '<input type="checkbox" '+(sec?'checked':'')+(kapali?' disabled':'')+' onchange="BIY.soruSecTik(\''+key+'\', this)">' +
+          '<span class="biy-hs-zor z'+zorlukAl(q)+'">'+kacis(ZORLUK_TR[zorlukAl(q)]||"")+'</span>' +
           '<span class="biy-hs-metin">'+soruHtml(q)+(q.arapca?' <i>'+kacis(q.arapca)+'</i>':'')+
             ' <b class="biy-hs-dogru">✓ '+kacis(dogruSik)+'</b></span>' +
+          (disi ? '<span class="biy-hs-disi-not">süzgeç dışı</span>' : '') +
         '</label>';
       });
       html += '</div></div>';
     });
     kap.innerHTML = html;
     if (!kap.querySelector(".biy-hs-grup"))
-      kap.insertAdjacentHTML("beforeend", '<p class="biy-alt" style="text-align:center">لا نَتيجَة.</p>');
+      kap.insertAdjacentHTML("beforeend", '<p class="biy-alt" style="text-align:center">Sonuç yok.</p>');
     BIY._soruSecSayilar();
   },
   // sayaçları (grup başlıkları + toplam + buton) satırları yeniden çizmeden güncelle
@@ -1678,10 +1775,15 @@ const BIY = {
       const tb = g.querySelector(".biy-hs-tumu");
       if (tb) tb.classList.toggle("tam", sec === tumu.length);
     });
-    const say = $("soruSecSecili"); if (say) say.innerHTML = 'المُحَدَّد <b class="biy-say-rozet">' + set.size + '</b>';
+    const say = $("soruSecSecili"); if (say) say.innerHTML = 'Belirlenen <b class="biy-say-rozet">' + set.size + '</b>';
     // sınır dolunca/boşalınca satırların açık-kapalı hâli değişir
     const dolu = BIY._havuzDoluMu();
     document.querySelectorAll("#soruSecListe .biy-hs-satir").forEach(r => {
+      if (r.classList.contains("biy-hs-disi")){
+        r.classList.add("biy-hs-kapali");
+        const g = r.querySelector("input"); if (g) g.disabled = true;
+        return;
+      }
       const cb = r.querySelector("input"); if (!cb) return;
       const kapali = !cb.checked && dolu;
       cb.disabled = kapali; r.classList.toggle("biy-hs-kapali", kapali);
@@ -1694,7 +1796,14 @@ const BIY = {
     BIY._soruSecSayiGuncelle();
   },
   // tek satır: yeniden çizmeden aç/kapa (kaydırma korunur)
+  _suzgecDisiMi(key){
+    const p = String(key).split("#");
+    const k = KONULAR.find(x => x.id === p[0]); if (!k) return false;
+    const q = (k.sorular || []).find(x => String(x.id) === p[1]);
+    return !!q && !suzgectenGecti(q);
+  },
   soruSecTik(key, cb){
+    if (BIY._suzgecDisiMi(key)){ if (cb) cb.checked = false; return; }
     const set = BIY._secSet();
     if (set.has(key)) set.delete(key);
     else {
@@ -1742,16 +1851,79 @@ const BIY = {
   /* ---------- soru tipi (biçim) filtresi ---------- */
   // aktif konunun sorularından yalnız seçili biçimdekiler
   _bicimliSorular(){
-    return BIY._aktifSorular().filter(q => state.bicimSecim[bicimAl(q)] !== false);
+    return BIY._aktifSorular().filter(suzgectenGecti);
   },
   _bicimPanelDoldur(){
     const p = $("bicimSecPanel"); if (!p) return;
-    p.innerHTML = Object.keys(BICIM_BILGI).map(b =>
-      '<button type="button" class="biy-bs-oge'+(state.bicimSecim[b] ? ' secili' : '')+'" data-b="'+b+'"' +
-      ' title="'+kacis(BICIM_BILGI[b].ad)+'" aria-pressed="'+(state.bicimSecim[b] ? 'true' : 'false')+'"' +
-      ' onclick="BIY.bicimToggle(\''+b+'\')">' + (ETIKET_BICIM[b] || "") +
-      '<span class="biy-bs-tik" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12.5l4 4 8-9"/></svg></span></button>'
-    ).join("");
+    const tik = '<span class="biy-bs-tik" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"'
+      + ' stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">'
+      + '<path d="M6 12.5l4 4 8-9"/></svg></span>';
+    p.innerHTML =
+      '<div class="biy-bs-bas">Soru türleri'
+      + '<button type="button" class="biy-bs-kapat" title="Kapat" aria-label="Kapat"'
+      + ' onclick="BIY.bicimKapat()">✕</button></div>'
+      + Object.keys(BICIM_BILGI).map(b =>
+        '<button type="button" class="biy-bs-oge biy-hs-b-'+b+(state.bicimSecim[b] ? ' secili' : '')+'" data-b="'+b+'"' +
+        ' title="'+kacis(BICIM_BILGI[b].ad)+'" aria-pressed="'+(state.bicimSecim[b] ? 'true' : 'false')+'"' +
+        ' onclick="BIY.bicimToggle(\''+b+'\')">' + (ETIKET_BICIM[b] || "") +
+        '<span class="biy-bs-yazi"><b>'+kacis(BICIM_TR_AD[b] || "")+'</b>' +
+          '<small>'+kacis(BICIM_ACIKLAMA[b] || "")+'</small>' +
+          '<i class="biy-bs-ar">'+kacis(BICIM_BILGI[b].ad)+'</i></span>' + tik + '</button>'
+      ).join("");
+  },
+  /* Zorluk süzgeci kendi düğmesinde: soru türleri ile sürenin arasında. */
+  _zorlukPanelDoldur(){
+    const p = $("zorlukSecPanel"); if (!p) return;
+    const tik = '<span class="biy-bs-tik" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"'
+      + ' stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">'
+      + '<path d="M6 12.5l4 4 8-9"/></svg></span>';
+    p.innerHTML =
+      '<div class="biy-bs-bas">Zorluk'
+      + '<button type="button" class="biy-bs-kapat" title="Kapat" aria-label="Kapat"'
+      + ' onclick="BIY.zorlukKapat()">✕</button></div>'
+      + [1,2,3].map(z =>
+        '<button type="button" class="biy-bs-oge biy-bs-zor biy-hs-z'+z+(state.zorlukSecim[z] ? ' secili' : '')+'"' +
+        ' title="'+kacis(ZORLUK_AD[z] || "")+'" aria-pressed="'+(state.zorlukSecim[z] ? 'true' : 'false')+'"' +
+        ' onclick="BIY.zorlukToggle('+z+')">' + (ETIKET_ZORLUK[z] || "") +
+        '<span class="biy-bs-yazi"><b>'+kacis(ZORLUK_TR[z] || "")+'</b>' +
+          '<small>'+kacis(ZORLUK_ACIKLAMA[z] || "")+'</small>' +
+          '<i class="biy-bs-ar">'+kacis(ZORLUK_AD[z] || "")+'</i></span>' + tik + '</button>'
+      ).join("")
+      + '<p class="biy-bs-not">Kapattığın zorluktaki sorular havuzda soluk görünür, seçilemez.</p>';
+  },
+  zorlukAcKapat(){
+    const p = $("zorlukSecPanel"), b = $("zorlukSecBtn"); if (!p) return;
+    if (!p.hidden) return;                 // açıkken tuşa basmak kapatmaz; ✕ ile kapanır
+    BIY._ayarlariKapat("zorluk");
+    BIY._zorlukPanelDoldur();
+    p.hidden = false;
+    BIY._paneliYerlestir("zorlukSecPanel", "zorlukSecBtn");
+    if (b) b.setAttribute("aria-expanded", "true");
+    setTimeout(() => document.addEventListener("mousedown", BIY._zorlukDis), 0);
+  },
+  zorlukKapat(){
+    const p = $("zorlukSecPanel"), b = $("zorlukSecBtn");
+    if (p) p.hidden = true;
+    if (b) b.setAttribute("aria-expanded", "false");
+    document.removeEventListener("mousedown", BIY._zorlukDis);
+  },
+  _zorlukDis(e){ if (!e.target.closest || !e.target.closest("#zorlukSec")) BIY.zorlukKapat(); },
+  zorlukToggle(z){
+    z = Number(z) || 1;
+    const sec = state.zorlukSecim;
+    if (sec[z] && Object.keys(sec).filter(x => sec[x]).length <= 1) return;   // en az biri açık kalsın
+    sec[z] = !sec[z];
+    BIY._zorlukPanelDoldur();
+    /* süzgece uymayan seçimler havuzdan düşer, sayılar yeniden hesaplanır */
+    const gecerli = {}; BIY._soruHavuzu().forEach(h => gecerli[h.key] = true);
+    const set = BIY._secSet();
+    [...set].forEach(k => { if (!gecerli[k]) set.delete(k); });
+    BIY._konulariHazirla();
+    if ($("soruSecListe")) BIY._soruSecRender();
+    BIY._soruSecSayiGuncelle();
+    BIY._soruSayiSinir();
+    BIY._menuDurum();
+    try { if (window.COFF && COFF.bilgiTazele) COFF.bilgiTazele(); } catch(e){}
   },
   bicimToggle(b){
     const sec = state.bicimSecim;
@@ -1768,15 +1940,27 @@ const BIY = {
     BIY._soruSecSayiGuncelle();
     BIY._soruSayiSinir();
     BIY._menuDurum();
+    try { if (window.COFF && COFF.bilgiTazele) COFF.bilgiTazele(); } catch(e){}
+  },
+  /* Aynı anda tek bir ayar penceresi açık kalsın. */
+  _ayarlariKapat(haric){
+    if (haric !== "bicim") BIY.bicimKapat();
+    if (haric !== "zorluk") BIY.zorlukKapat();
+    if (haric !== "sure" && BIY.sureKapat) BIY.sureKapat();
+    if (haric !== "sayi"){
+      const a = $("sayiAkordiyon"), b = $("soruSayiEtiket");
+      if (a){ a.classList.remove("acik"); if (b) b.setAttribute("aria-expanded", "false"); }
+    }
   },
   bicimAcKapat(){
     const p = $("bicimSecPanel"), b = $("bicimSecBtn"); if (!p) return;
-    if (p.hidden){
-      BIY._bicimPanelDoldur();
-      p.hidden = false;
-      if (b) b.setAttribute("aria-expanded", "true");
-      setTimeout(() => document.addEventListener("mousedown", BIY._bicimDis), 0);
-    } else BIY.bicimKapat();
+    if (!p.hidden) return;                 // açıkken tuşa basmak kapatmaz; ✕ ile kapanır
+    BIY._ayarlariKapat("bicim");
+    BIY._bicimPanelDoldur();
+    p.hidden = false;
+    BIY._bicimPanelYerlestir();
+    if (b) b.setAttribute("aria-expanded", "true");
+    setTimeout(() => document.addEventListener("mousedown", BIY._bicimDis), 0);
   },
   bicimKapat(){
     const p = $("bicimSecPanel"), b = $("bicimSecBtn");
@@ -1785,6 +1969,18 @@ const BIY = {
     document.removeEventListener("mousedown", BIY._bicimDis);
   },
   _bicimDis(e){ if (!e.target.closest || !e.target.closest("#bicimSec")) BIY.bicimKapat(); },
+  /* Panel hangi tarafta yer varsa oraya açılsın, sığmıyorsa kendi içinde kaysın. */
+  _bicimPanelYerlestir(){ BIY._paneliYerlestir("bicimSecPanel", "bicimSecBtn"); },
+  _paneliYerlestir(panelId, tusId){
+    const p = $(panelId), b = $(tusId);
+    if (!p || !b) return;
+    const r = b.getBoundingClientRect();
+    const ust = r.top - 22;
+    const alt = window.innerHeight - r.bottom - 22;
+    const yukari = ust > alt;
+    p.classList.toggle("biy-bs-yukari", yukari);
+    p.style.maxHeight = Math.max(190, Math.floor(yukari ? ust : alt)) + "px";
+  },
   /* ---------- Zorluğa göre süre (yıldız akordiyonu) ---------- */
   _soruSuresi(s){
     const z = (s && s.zorluk) || 2;
@@ -1806,11 +2002,11 @@ const BIY = {
       + '</span></span>'
       /* v86: + ve − yer değiştirdi. Sürgü soldan sağa (ltr) çiziliyor; artık
          − sürgünün küçük ucunda (solda), + büyük ucunda (sağda) duruyor. */
-      + '<button type="button" class="biy-sr-art" aria-label="أَكْثَر" onclick="BIY.sureDegistir(' + z + ',1)">+</button>'
+      + '<button type="button" class="biy-sr-art" aria-label="Artır" onclick="BIY.sureDegistir(' + z + ',1)">+</button>'
       + '<input type="range" class="biy-sr-kaydir" min="' + SURE_MIN + '" max="' + SURE_MAX + '" step="' + SURE_ADIM + '"'
       + ' value="' + state.sureler[z] + '" aria-label="' + kacis(ZORLUK_AD[z] || "") + '"'
       + ' oninput="BIY.sureAyarla(' + z + ', this.value)">'
-      + '<button type="button" class="biy-sr-eks" aria-label="أَقَلّ" onclick="BIY.sureDegistir(' + z + ',-1)">−</button>'
+      + '<button type="button" class="biy-sr-eks" aria-label="Azalt" onclick="BIY.sureDegistir(' + z + ',-1)">−</button>'
       + '<span class="biy-sr-deg" id="sureDeg' + z + '">' + sureYazi(state.sureler[z]) + '</span>'
       + '</div>';
   },
@@ -1819,7 +2015,7 @@ const BIY = {
     a.innerHTML = [1,2,3].map(z => BIY._sureSatirHtml(z)).join("")
       + '<div class="biy-sr-alt">'
       + '<span class="biy-sr-not">' + sureYazi(SURE_MIN) + ' — ' + sureYazi(SURE_MAX) + '</span>'
-      + '<button type="button" class="biy-sr-sifirla" title="اِسْتِعادَة الافْتِراضِيّ" onclick="BIY.sureSifirla()">'
+      + '<button type="button" class="biy-sr-sifirla" title="Varsayılana dön" onclick="BIY.sureSifirla()">'
       + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">'
       + '<path d="M3.5 12a8.5 8.5 0 1 1 2.6 6.1"/><polyline points="3.5 6.5 3.5 12 9 12"/></svg></button>'
       + '</div>';
@@ -1842,7 +2038,7 @@ const BIY = {
   // saat düğmesinin başlığında seçili süreler görünsün
   _sureRozet(){
     const b = $("sureBtn"); if (!b) return;
-    const m = "مُدَّة السُّؤال: ★ " + sureYazi(state.sureler[1])
+    const m = "Soru süresi: ★ " + sureYazi(state.sureler[1])
             + " · ★★ " + sureYazi(state.sureler[2])
             + " · ★★★ " + sureYazi(state.sureler[3]);
     b.setAttribute("title", m);
@@ -1851,6 +2047,7 @@ const BIY = {
   sureAcKapat(){
     const a = $("sureAkordiyon"), b = $("sureBtn"); if (!a) return;
     if (a.hidden){
+      BIY._ayarlariKapat("sure");
       BIY._sureAkordiyonDoldur();
       a.hidden = false;
       if (b) b.setAttribute("aria-expanded", "true");
@@ -1871,8 +2068,10 @@ const BIY = {
   // hazir rakamlar akordiyonu: rakam SVG'sine tiklaninca acilir/kapanir
   sayiAcKapat(){
     const a = $("sayiAkordiyon"), b = $("soruSayiEtiket"); if (!a) return;
-    const acik = a.classList.toggle("acik");
-    if (b) b.setAttribute("aria-expanded", acik ? "true" : "false");
+    const acilacak = !a.classList.contains("acik");
+    if (acilacak) BIY._ayarlariKapat("sayi");
+    a.classList.toggle("acik", acilacak);
+    if (b) b.setAttribute("aria-expanded", acilacak ? "true" : "false");
   },
   // elle seçilen sorular (havuzdan) — sıralı liste
   _secilenSorular(){
@@ -1920,9 +2119,9 @@ const BIY = {
     if (svg){
       svg.classList.toggle("biy-ss-havuz",  kip === "havuz");
       svg.classList.toggle("biy-ss-secili", kip === "secili");
-      const metin = kip === "havuz"  ? "عَدَد الأَسْئِلَة (المُخْتار " + n + ")"
-                  : kip === "secili" ? "عَدَد الأَسْئِلَة: " + n
-                                     : "عَدَد الأَسْئِلَة (بِحَدّ أَقْصى " + n + ")";
+      const metin = kip === "havuz"  ? "Soru sayısı (seçilen " + n + ")"
+                  : kip === "secili" ? "Soru sayısı: " + n
+                                     : "Soru sayısı (en fazla " + n + ")";
       const bas = svg.querySelector("title"); if (bas) bas.textContent = metin;
       svg.setAttribute("aria-label", metin);
     }
@@ -1986,7 +2185,7 @@ const BIY = {
   _pdfOnizleGuncelle(){
     const havuz = BIY._secSet().size;
     const k = BIY._aktifKonu();
-    const baslik = $("pdfBaslik"); if (baslik) baslik.textContent = havuz > 0 ? "مُخْتَلِط" : (k ? (k.ad || "") : "");
+    const baslik = $("pdfBaslik"); if (baslik) baslik.textContent = havuz > 0 ? "Karışık" : (k ? (k.ad || "") : "");
     const kart = $("pdfKart"), indir = $("pdfIndir");
     // PDF'ler henüz hazır değil → tüm önizleme bloğunu gizle (PDF_AKTIF=true olunca geri gelir)
     const blok = kart && kart.closest(".biy-pdf-onizleme");
@@ -2012,7 +2211,7 @@ const BIY = {
     document.querySelectorAll(".biy-sekme").forEach(b => b.classList.toggle("secili", +b.getAttribute("data-z") === z));
     const liste = $("sorularListe"); liste.innerHTML = "";
     const list = BIY._aktifSorular().filter(s => s.zorluk === z);
-    if (!list.length){ liste.innerHTML = '<p class="biy-alt" style="text-align:center">لا أَمْثِلَة في هَذا المُسْتَوى بَعْد.</p>'; return; }
+    if (!list.length){ liste.innerHTML = '<p class="biy-alt" style="text-align:center">Bu düzeyde henüz örnek yok.</p>'; return; }
     // her soru tipinden yalnızca bir örnek göster (tüm sorular değil)
     const gorulen = new Set(); const ornekler = [];
     list.forEach(s => { if (!gorulen.has(s.tip)){ gorulen.add(s.tip); ornekler.push(s); } });
@@ -2052,7 +2251,7 @@ const BIY = {
       const bu = aktifOda && modAl() === m;
       el.classList.toggle("biy-bagli-var", bu);
       const r = el.querySelector(".biy-bagli-rozet");
-      if (r){ r.textContent = "● " + bagli + " جِهازًا مُتَّصِلًا"; r.classList.toggle("gizli", !bu); }
+      if (r){ r.textContent = "● " + bagli + " cihaz bağlı"; r.classList.toggle("gizli", !bu); }
     });
   },
 
@@ -2062,10 +2261,10 @@ const BIY = {
     if (!MOD_BILGI[mod]) mod = "takim";
     // başka modda açık bir oda varsa önce onay iste
     if (state.odaId && state.oyunModu !== mod){
-      const eskiAd = (MOD_BILGI[state.oyunModu] || {}).ad || "المُسابَقَة";
-      BIY._onay("هَلْ تُغَيِّر النِّظام؟",
-        "هُناك غُرْفَة مَفْتوحَة مِنْ " + eskiAd + ". إِذا غَيَّرْت النِّظام سَتُتْرَكُ تِلْك الغُرْفَة وَأَجْهِزَتُها.",
-        "نَعَمْ، غَيِّرْ", () => BIY._lobiAc(mod));
+      const eskiAd = (MOD_BILGI[state.oyunModu] || {}).ad || "Yarışma";
+      BIY._onay("Sistemi değiştirelim mi?",
+        "Şu sistemden açık bir oda var: " + eskiAd + ". Sistemi değiştirirsen o oda ve içindeki cihazlar bırakılır.",
+        "Evet, değiştir", () => BIY._lobiAc(mod));
       return;
     }
     BIY._lobiAc(mod);
@@ -2088,7 +2287,7 @@ const BIY = {
     // birey/okul: oda hemen kurulur ki ortak karekod ekranda dursun
     if (tekKarekod()){
       try { await BIY._odayiHazirla(); BIY._odaKarekodCiz(); }
-      catch(e){ console.error(e); $("baslatNot").textContent = "تَعَذَّرَ إِنْشاء الغُرْفَة: " + (e.code || e.message); }
+      catch(e){ console.error(e); $("baslatNot").textContent = "Oda oluşturulamadı: " + (e.code || e.message); }
     }
   },
   // odayı bırak (silmez): abonelikleri kapat, ekranı temizle
@@ -2114,9 +2313,9 @@ const BIY = {
     if (grid) grid.className = (m === "birey") ? "biy-kat-liste" : "biy-takimlar-grid";
     // ekleme alanının yazıları moda göre (takım adı / sınıf adı)
     const inp = $("takimAdiInput");
-    if (inp) inp.placeholder = (m === "okul") ? "اِسْم الصَّفّ (٧/أ)" : "اِسْم الفَريق";
+    if (inp) inp.placeholder = (m === "okul") ? "Sınıf adı (7/A)" : "Takım adı";
     const ekleBtn = $("takimEkleBtn");
-    if (ekleBtn) ekleBtn.textContent = (m === "okul") ? "+ أَضِفْ صَفًّا" : "+ أَضِفْ فَريقًا";
+    if (ekleBtn) ekleBtn.textContent = (m === "okul") ? "+ Sınıf ekle" : "+ Takım ekle";
   },
   // --- Kalıcılık (sayfa yenilense de oyun kaybolmasın) ---
   _kaydet(){
@@ -2150,7 +2349,7 @@ const BIY = {
     const eski = $("biyOnay"); if (eski) eski.remove();
     const ov = document.createElement("div"); ov.id = "biyOnay"; ov.className = "biy-onay-ov";
     ov.innerHTML = '<div class="biy-onay-kutu"><h3>'+kacis(baslik)+'</h3><p>'+kacis(metin)+'</p>' +
-      '<div class="biy-onay-btnlar"><button class="biy-onay-hayir">إِلْغاء</button><button class="biy-onay-evet">'+kacis(evetMetin)+'</button></div></div>';
+      '<div class="biy-onay-btnlar"><button class="biy-onay-hayir">Vazgeç</button><button class="biy-onay-evet">'+kacis(evetMetin)+'</button></div></div>';
     document.body.appendChild(ov);
     const kapat = () => { if (ov.parentNode) ov.remove(); };
     ov.querySelector(".biy-onay-hayir").onclick = kapat;
@@ -2159,9 +2358,9 @@ const BIY = {
   },
   // canlı yarışmadan çıkış → lobiye dön (takım bağlantıları KORUNUR)
   yaristanCik(){
-    BIY._onay("هَلْ تَعودُ إِلى الانْتِظار؟",
-      "سَتَتَوَقَّف المُسابَقَة وَتَعودُ إِلى الانْتِظار. تَبْقى الأَجْهِزَة مُتَّصِلَةً — يُمْكِنُكَ تَغْيير الدَّرْس أَو عَدَد الأَسْئِلَة ثُمّ البَدْء مِنْ جَديد.",
-      "نَعَمْ، عُدْ", function(){ BIY.lobiyeDon(); });
+    BIY._onay("Beklemeye dönülsün mü?",
+      "Yarışma durur ve beklemeye dönersin. Cihazlar bağlı kalır — dersi ya da soru sayısını değiştirip yeniden başlayabilirsin.",
+      "Evet, dön", function(){ BIY.lobiyeDon(); });
   },
   // oyunu durdurup lobiye döner; oda + takım karekod bağlantıları kopmaz
   async lobiyeDon(){
@@ -2250,7 +2449,7 @@ const BIY = {
       await db.collection(KOLEKSIYON).doc(oda).collection("takimlar").doc(takimId).set({
         ad: ad, bagli: false, puan: 0, olusturmaZamani: firebase.firestore.FieldValue.serverTimestamp()
       });
-    } catch(e){ console.error(e); $("baslatNot").textContent = (modAl()==="okul"?"صَفّ":"فَريق") + " لَمْ يُضَفْ: " + (e.code || e.message); }
+    } catch(e){ console.error(e); $("baslatNot").textContent = (modAl()==="okul"?"Sınıf":"Takım") + " eklenemedi: " + (e.code || e.message); }
   },
   _takimlariCiz(snap){
     state.takimListe = []; state.bekleyenListe = [];
@@ -2300,7 +2499,7 @@ const BIY = {
   kopyala(btn){
     const inp = btn.parentElement.querySelector("input");
     inp.select(); inp.setSelectionRange(0, 99999);
-    try { navigator.clipboard.writeText(inp.value); btn.textContent = "✓"; setTimeout(()=>btn.textContent="نَسْخ", 1200); } catch(e){ document.execCommand("copy"); }
+    try { navigator.clipboard.writeText(inp.value); btn.textContent = "✓"; setTimeout(()=>btn.textContent="Kopyala", 1200); } catch(e){ document.execCommand("copy"); }
   },
 
   /* ---------- YARIŞMAYI BAŞLAT (oyun döngüsü) ---------- */
@@ -2348,7 +2547,7 @@ const BIY = {
       yedek = [];   // görülmemiş yedek sorulmaz
     } else {
       const tumu = BIY._bicimliSorular().slice();   // konunun tüm soruları (yalnız seçili biçimler)
-      if (!tumu.length){ $("baslatNot").textContent = "«" + (BIY._aktifKonu() ? BIY._aktifKonu().ad : "") + "» لا تَحْتَوي عَلى أَسْئِلَة بَعْد."; return; }
+      if (!tumu.length){ $("baslatNot").textContent = "«" + (BIY._aktifKonu() ? BIY._aktifKonu().ad : "") + "» henüz soru içermiyor."; return; }
       for (let i = tumu.length-1; i > 0; i--){ const j = Math.floor(Math.random()*(i+1)); const g = tumu[i]; tumu[i] = tumu[j]; tumu[j] = g; }
       const hedefSayi = Math.max(1, Math.min(50, state.soruSayisi || TUR_SORU_SAYISI));
       secilen = tumu.slice(0, Math.min(hedefSayi, tumu.length)).map(soruHazirla);
@@ -2371,7 +2570,7 @@ const BIY = {
       });
       BIY._kaydet();
       BIY._adminOyunaGec();
-    } catch(e){ console.error(e); $("baslatNot").textContent = "تَعَذَّر البَدْء: " + (e.code || e.message); }
+    } catch(e){ console.error(e); $("baslatNot").textContent = "Başlatılamadı: " + (e.code || e.message); }
   },
 
   _adminOyunaGec(){
@@ -2401,7 +2600,7 @@ const BIY = {
     const ber = (o.durum === "beraberlik");
     const idx = o.aktifIndex || 0;
     const soru = BIY._soruByIndex(idx);
-    if (!soru){ kap.innerHTML = '<div class="biy-oyun-orta"><p class="biy-alt">أَسْئِلَة هَذِه الجَوْلَة غَيْر مَوْجودَة (رُبَّما حُدِّثَت الصَّفْحَة). اِبْدَأ المُسابَقَة مِنْ جَديد.</p><button class="biy-btn biy-btn-mavi" onclick="BIY.anasayfa()">القائِمَة الرَّئيسَة</button></div>'; return; }
+    if (!soru){ kap.innerHTML = '<div class="biy-oyun-orta"><p class="biy-alt">Bu turun soruları bulunamadı (sayfa yenilenmiş olabilir). Yarışmayı yeniden başlat.</p><button class="biy-btn biy-btn-mavi" onclick="BIY.anasayfa()">القائِمَة الرَّئيسَة</button></div>'; return; }
     const sonuc = (o.faz === "sonuc");
     const t = TIP_BILGI[soru.tip] || { ad: soru.tip, emoji: "❓" };
     // SONUÇ EKRANI — soru ekranından tamamen ayrı (adım adım animasyonlu)
@@ -2436,12 +2635,12 @@ const BIY = {
     const gozSvg = state.soruGizli
       ? '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20C5 20 1 12 1 12a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'
       : '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
-    const gozBtn = '<button class="biy-gizle-svg" title="'+(state.soruGizli?'أَظْهِر السُّؤال':'أَخْفِ السُّؤال')+'" onclick="BIY.soruGizleToggle()">'+gozSvg+'</button>';
+    const gozBtn = '<button class="biy-gizle-svg" title="'+(state.soruGizli?'Soruyu göster':'Soruyu gizle')+'" onclick="BIY.soruGizleToggle()">'+gozSvg+'</button>';
     // durdur / devam (tek tuş) — yalnız cevap fazında anlamlı
     const duruyor = duraklatiliyorMu();
     const durBtn = '<button class="biy-durdur-svg'+(duruyor?' duruyor':'')+'" title="'
-      + (duruyor ? 'مُتابَعَة' : 'إيقاف مُؤَقَّت') + '" aria-label="'
-      + (duruyor ? 'مُتابَعَة' : 'إيقاف مُؤَقَّت') + '" onclick="BIY.duraklatToggle()">'
+      + (duruyor ? 'Devam et' : 'Duraklat') + '" aria-label="'
+      + (duruyor ? 'Devam et' : 'Duraklat') + '" onclick="BIY.duraklatToggle()">'
       + (duruyor ? _SVG_DEVAM : _SVG_DURDUR) + '</button>';
 
     const cips = BIY._ciplerHtml(katilan, buCevaplar);
@@ -2450,10 +2649,10 @@ const BIY = {
     const sayacHtml = '<div class="biy-sayac'+(duruyor?' biy-donuk':'')+'"><span id="sayacNum">'+kalan+'</span><small>ث</small></div>';
     const barHtml = '<div class="biy-sayac-bar'+(duruyor?' biy-donuk':'')+'"><i style="width:'+yuzde+'%"></i></div>';
     const duraklatSerit = duruyor
-      ? '<div class="biy-duraklat-serit">'+_SVG_DURDUR+'<span>المُسابَقَة مُتَوَقِّفَة مُؤَقَّتًا</span></div>' : '';
+      ? '<div class="biy-duraklat-serit">'+_SVG_DURDUR+'<span>Yarışma duraklatıldı</span></div>' : '';
     const siraMetin = ber
-      ? '⚔️ '+(o.berHedef===1?'المَرْكَز الأَوَّل':'المَرْكَز الثّاني')+' · سُؤال التَّعادُل '+o.berNo
-      : 'سُؤال '+(idx+1)+' / '+(o.toplamSoru||state.oyunSorulari.length);
+      ? '⚔️ '+(o.berHedef===1?'Birinci':'İkinci')+' · Beraberlik sorusu '+o.berNo
+      : 'Soru '+(idx+1)+' / '+(o.toplamSoru||state.oyunSorulari.length);
 
     let govde =
       '<div class="biy-oyun-ust">' +
@@ -2474,11 +2673,11 @@ const BIY = {
     /* v96: kalabalik olunca cipler kuculur (yazi boyu CSS'te) */
     const kaydir = ((modAl() === "birey" && katilan.length > 10) ? " biy-kaydir" : "")
                  + (katilan.length > 16 ? " biy-cok biy-pek-cok" : (katilan.length > 8 ? " biy-cok" : ""));
-    govde += '<div class="biy-cevap-durum'+(gizli?' biy-dev':'')+'">'+cevapSayisi+' / '+katilan.length+' أَجابوا'+(hepsi?' — تَظْهَر النَّتيجَة…':'')+'</div>' +
+    govde += '<div class="biy-cevap-durum'+(gizli?' biy-dev':'')+'">'+cevapSayisi+' / '+katilan.length+' cevapladı'+(hepsi?' — sonuç geliyor…':'')+'</div>' +
              '<div class="biy-cipler'+(gizli?' biy-dev':'')+kaydir+'">'+cips+'</div>';
     // gizliyken geri sayım AŞAĞIDA ve devasa
     if (gizli){
-      govde += '<div class="biy-alt-sayac">'+barHtml+'<div class="biy-sayac biy-sayac-dev"><span id="sayacNum">'+kalan+'</span><small>ث</small></div></div>';
+      govde += '<div class="biy-alt-sayac">'+barHtml+'<div class="biy-sayac biy-sayac-dev"><span id="sayacNum">'+kalan+'</span><small>sn</small></div></div>';
     }
 
     kap.innerHTML = '<div class="biy-oyun-orta">'+govde+'</div>';
@@ -2549,7 +2748,7 @@ const BIY = {
     const satir = cevapTakimlari.map((tk,ri) => {
       const c = buCevaplar[tk.id]; const dogruMu = !!(c && cevapDogruMu(soru, c.secilen));
       const secim = c ? secimHtml(soru, c.secilen) : '<span class="biy-rev-yok">—</span>';
-      const durum = c ? (dogruMu ? '✅ صَحيح' : '❌ خَطَأ') : '⏳ بِلا إِجابَة';
+      const durum = c ? (dogruMu ? '✅ Doğru' : '❌ Yanlış') : '⏳ Cevapsız';
       return '<tr class="'+(c?(dogruMu?'dogru':'yanlis'):'yok')+'" style="--r:'+ri+'"><td>'+krkSvg(tk.krk, "biy-krk-mini")+kacis(tk.ad)+'</td><td class="biy-rev-sik">'+secim+'</td><td>'+durum+'</td></tr>';
     }).join("");
     // puan durumu (yedekler dahil) + sıra değişimi
@@ -2569,7 +2768,7 @@ const BIY = {
     const adOf  = id => { const t = state.takimListe.find(x => x.id === id) || {}; return t.ad || ""; };
     const krkOf = id => { const t = state.takimListe.find(x => x.id === id) || {}; return t.krk || ""; };
     // sonuç tablosunun ilk sütun başlığı moda göre
-    const basSutun = modAl() === "birey" ? "مُشارِك" : (modAl() === "okul" ? "صَفّ" : "فَريق");
+    const basSutun = modAl() === "birey" ? "Katılımcı" : (modAl() === "okul" ? "Sınıf" : "Takım");
     const lider = newOrder.map(id => {
       const ns = newR[id] || ids.length, ps = prevR[id] || ids.length, delta = ps - ns;
       const ok = delta > 0 ? '<span class="biy-ok biy-ok-yukari">▲</span>' : (delta < 0 ? '<span class="biy-ok biy-ok-asagi">▼</span>' : '<span class="biy-ok biy-ok-sabit"></span>');
@@ -2581,8 +2780,8 @@ const BIY = {
     const step = taze ? 0 : 2;   // yenileme olursa doğrudan son sahne (liderlik)
     const t = TIP_BILGI[soru.tip] || { ad: soru.tip, emoji: "❓" };
     const baslik = ber
-      ? '⚔️ '+(o.berHedef===1?'المَرْكَز الأَوَّل':'المَرْكَز الثّاني')+' · تَعادُل · سُؤال '+o.berNo
-      : '📊 النَّتيجَة · سُؤال '+(idx+1)+' / '+toplam;
+      ? '⚔️ '+(o.berHedef===1?'Birinci':'İkinci')+' · Beraberlik · Soru '+o.berNo
+      : '📊 Sonuç · Soru '+(idx+1)+' / '+toplam;
     /* kalabalik sinifta satirlar otomatik kuculsun (kaydirmadan sigsin) */
     const kisiSay = Math.max(cevapTakimlari.length, newOrder.length);
     const kalabalik = kisiSay > 14 ? " biy-sonuc-kalabalik biy-pek-cok"
@@ -2602,18 +2801,18 @@ const BIY = {
         '</div></div>' +
         // SAHNE 3: güncel puan durumu (devasa)
         '<div class="biy-sahne-oge oge-lider"><div class="biy-sahne-ic">' +
-          '<div class="biy-sonuc-lider"><h4>🏆 النَّتائِج</h4><ol class="biy-lider-ol'+(newOrder.length>10?' biy-kaydir':'')+'">'+lider+'</ol></div>' +
+          '<div class="biy-sonuc-lider"><h4>🏆 Sonuçlar</h4><ol class="biy-lider-ol'+(newOrder.length>10?' biy-kaydir':'')+'">'+lider+'</ol></div>' +
         '</div></div>' +
       '</div>' +
       // aşağıda üç ilerleme çizgisi — tıklayınca ilgili sayfaya geçer
       '<div class="biy-sonuc-nokta">' +
-        '<button class="biy-nokta" data-adim="0" onclick="BIY.sonucAdim(0)" title="السُّؤال وَالإِجابَة الصَّحيحَة"><span class="biy-nk-ikon"><svg viewBox="0 0 24 24" class="biy-nk-svg" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M8.2 12.4l2.6 2.6 5-5.8"/></svg></span><i class="biy-nk-cizgi"></i></button>' +
-        '<button class="biy-nokta" data-adim="1" onclick="BIY.sonucAdim(1)" title="إِجابات المُشارِكين"><span class="biy-nk-ikon"><svg viewBox="0 0 24 24" class="biy-nk-svg" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.6" cy="6" r="1.5"/><path d="M10 6h8.4"/><circle cx="5.6" cy="12" r="1.5"/><path d="M10 12h8.4"/><circle cx="5.6" cy="18" r="1.5"/><path d="M10 18h8.4"/></svg></span><i class="biy-nk-cizgi"></i></button>' +
-        '<button class="biy-nokta" data-adim="2" onclick="BIY.sonucAdim(2)" title="النَّتائِج"><span class="biy-nk-ikon"><svg viewBox="0 0 24 24" class="biy-nk-svg" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="13" width="4.6" height="7.4" rx="1.2"/><rect x="9.7" y="8.4" width="4.6" height="12" rx="1.2"/><rect x="15.4" y="15" width="4.6" height="5.4" rx="1.2"/></svg></span><i class="biy-nk-cizgi"></i></button>' +
+        '<button class="biy-nokta" data-adim="0" onclick="BIY.sonucAdim(0)" title="Soru ve doğru cevap"><span class="biy-nk-ikon"><svg viewBox="0 0 24 24" class="biy-nk-svg" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M8.2 12.4l2.6 2.6 5-5.8"/></svg></span><i class="biy-nk-cizgi"></i></button>' +
+        '<button class="biy-nokta" data-adim="1" onclick="BIY.sonucAdim(1)" title="Katılımcı cevapları"><span class="biy-nk-ikon"><svg viewBox="0 0 24 24" class="biy-nk-svg" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.6" cy="6" r="1.5"/><path d="M10 6h8.4"/><circle cx="5.6" cy="12" r="1.5"/><path d="M10 12h8.4"/><circle cx="5.6" cy="18" r="1.5"/><path d="M10 18h8.4"/></svg></span><i class="biy-nk-cizgi"></i></button>' +
+        '<button class="biy-nokta" data-adim="2" onclick="BIY.sonucAdim(2)" title="Sonuçlar"><span class="biy-nk-ikon"><svg viewBox="0 0 24 24" class="biy-nk-svg" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="13" width="4.6" height="7.4" rx="1.2"/><rect x="9.7" y="8.4" width="4.6" height="12" rx="1.2"/><rect x="15.4" y="15" width="4.6" height="5.4" rx="1.2"/></svg></span><i class="biy-nk-cizgi"></i></button>' +
       '</div>' +
       '<div class="biy-oyun-kontrol"><button class="biy-btn biy-btn-buyuk" onclick="BIY.sonrakiSoru()">'+
-        (ber ? ((BIY._beraberlikCozuldu() || state.berNo >= state.yedekSorular.length) ? '🏁 اِعْتِماد التَّرْتيب' : 'سُؤال التَّعادُل التّالي ›')
-             : (son ? '🏁 إِنْهاء المُسابَقَة' : 'السُّؤال التّالي ›')) +
+        (ber ? ((BIY._beraberlikCozuldu() || state.berNo >= state.yedekSorular.length) ? '🏁 Sıralamayı onayla' : 'Sonraki beraberlik sorusu ›')
+             : (son ? '🏁 Yarışmayı bitir' : 'Sonraki soru ›')) +
       '</button></div>' +
     '</div>';
   },
@@ -2661,7 +2860,7 @@ const BIY = {
     return state.takimListe.slice().sort((a,b) => (b.puan||0) - (a.puan||0));
   },
   _miniLiderHtml(){
-    return '<h4>النَّتائِج</h4><ol class="biy-lider-ol">' +
+    return '<h4>Sonuçlar</h4><ol class="biy-lider-ol">' +
       BIY._siraliTakimlar().map(t => '<li><span>'+kacis(t.ad)+'</span><b>'+(t.puan||0)+'</b></li>').join("") + '</ol>';
   },
   _leaderboardHtml(final){
@@ -2682,8 +2881,8 @@ const BIY = {
         sirali.map((t,i) => '<li class="'+(i<3?'podyum':'')+(i===0?' birinci':'')+'" style="--i:'+i+'"><span class="biy-final-sira">'+(madalya[i]||(i+1))+'</span><span class="biy-final-ad">'+kacis(t.ad)+'</span><b>'+puanOf(t)+'</b></li>').join("") +
       '</ol>' +
       '<div class="biy-final-butonlar">' +
-        '<button class="biy-btn biy-btn-yesil" onclick="BIY.lobiyeDon()">🔄 العَوْدَة إِلى الانْتِظار (' + cogSozu() + ' يَبْقَوْنَ مُتَّصِلين)</button>' +
-        '<button class="biy-btn biy-btn-mavi" onclick="BIY.oyunuBitir()">إِنْهاء &amp; القائِمَة</button>' +
+        '<button class="biy-btn biy-btn-yesil" onclick="BIY.lobiyeDon()">🔄 Beklemeye dön (' + cogSozu() + ' bağlı kalır)</button>' +
+        '<button class="biy-btn biy-btn-mavi" onclick="BIY.oyunuBitir()">Bitir &amp; menü</button>' +
       '</div>' +
     '</div>';
   },
@@ -2872,7 +3071,7 @@ const BIY = {
     try {
       const snap = await takimRef.get();
       if (!snap.exists){ BIY._takimIcerik('❌','لَمْ يوجَد الفَريق','الرّابِط غَيْر صالِح أَو حُذِف الفَريق.'); return; }
-      state.takimAd = snap.data().ad || "فَريق";
+      state.takimAd = snap.data().ad || "Takım";
       state.takimKrk = snap.data().krk || "";
       BIY._krkIzle(oda);                     // alinan avatarlari canli izle
       // yenileme sonrası: bu soruyu zaten cevapladıysa hatırla
@@ -3072,7 +3271,7 @@ const BIY = {
           .forEach(b => b.setAttribute("disabled",""));
         const kap = $("biyCalisma"); if (kap) kap.classList.add("kilitli");
         const ip = document.querySelector(".biy-t-ipucu");
-        if (ip){ ip.className = "biy-t-alindi biy-gec"; ip.textContent = "⌛ اِنْتَهى الوَقْت"; }
+        if (ip){ ip.className = "biy-t-alindi biy-gec"; ip.textContent = "⌛ Süre bitti"; }
       }
     });
   },
@@ -3476,17 +3675,17 @@ const BIY = {
     const sayi  = state.takimListe.length;
     const bagli = state.takimListe.filter(t => t.bagli).length;
     const bek   = state.bekleyenListe.length;
-    const bekNot = bek ? " · " + bek + " في انْتِظار المُوافَقَة" : "";
+    const bekNot = bek ? " · " + bek + " onay bekliyor" : "";
     // Takım ve Okul: her ada bir karekod → hepsi bağlanınca başlar (aynı mantık)
     if (m !== "birey"){
-      const c = cogSozu();                        // "فِرَق" | "صُفوف"
+      const c = cogSozu();                        // "Takımlar" | "Sınıflar"
       if (sayi === 0) return { olur:false, not:"" };
-      if (sayi < 2)   return { olur:false, not: c + ": " + sayi + " · يَلْزَم اثْنان عَلى الأَقَلّ" };
-      if (bagli < sayi) return { olur:false, not: c + ": " + sayi + " · اِتَّصَلَ " + bagli + " · نَنْتَظِرُ " + (sayi-bagli) };
-      return { olur:true, not: "✓ " + c + ": " + sayi + " · يُمْكِنُك البَدْء" };
+      if (sayi < 2)   return { olur:false, not: c + ": " + sayi + " · en az iki tane gerekir" };
+      if (bagli < sayi) return { olur:false, not: c + ": " + sayi + " · bağlanan " + bagli + " · beklenen " + (sayi-bagli) };
+      return { olur:true, not: "✓ " + c + ": " + sayi + " · başlayabilirsin" };
     }
-    if (sayi < 2) return { olur:false, not: "مُشارِكون: " + sayi + " · يَلْزَم اثْنان عَلى الأَقَلّ" + bekNot };
-    return { olur:true, not: "✓ مُشارِكون: " + sayi + " · يُمْكِنُك البَدْء" + bekNot };
+    if (sayi < 2) return { olur:false, not: "Katılımcı: " + sayi + " · en az iki tane gerekir" + bekNot };
+    return { olur:true, not: "✓ Katılımcı: " + sayi + " · başlayabilirsin" + bekNot };
   },
 
   /* ---------- TAKIM & OKUL lobisi: her takıma/sınıfa ayrı karekod ---------- */
@@ -3506,11 +3705,11 @@ const BIY = {
       const kart = document.createElement("div");
       kart.className = "biy-takim-kart " + (t.bagli ? "biy-kart-bagli" : "biy-kart-bekliyor");
       kart.innerHTML =
-        '<button class="biy-sil" title="حَذْف" onclick="BIY.takimSil(&quot;'+t.id+'&quot;)">✕</button>' +
+        '<button class="biy-sil" title="Sil" onclick="BIY.takimSil(&quot;'+t.id+'&quot;)">✕</button>' +
         '<h3>'+ krkSvg(t.krk, "biy-krk-kart-ikon") + kacis(t.ad) +'</h3>' +
-        '<div class="biy-takim-durum '+(t.bagli?"biy-bagli":"biy-bekliyor")+'">'+(t.bagli?"● مُتَّصِل":"○ في الانْتِظار")+'</div>' +
+        '<div class="biy-takim-durum '+(t.bagli?"biy-bagli":"biy-bekliyor")+'">'+(t.bagli?"● Bağlı":"○ Bekliyor")+'</div>' +
         '<div class="biy-qr" id="'+qrId+'"></div>' +
-        '<div class="biy-takim-link"><input readonly value="'+ kacis(link) +'"><button class="biy-kopya" onclick="BIY.kopyala(this)">نَسْخ</button></div>';
+        '<div class="biy-takim-link"><input readonly value="'+ kacis(link) +'"><button class="biy-kopya" onclick="BIY.kopyala(this)">Kopyala</button></div>';
       grid.appendChild(kart);
       try { const box = $(qrId); if (box && window.QRCode){ box.innerHTML=""; new QRCode(box, { text: link, width: 170, height: 170, correctLevel: QRCode.CorrectLevel.M }); } }
       catch(err){ console.warn("QR:", err); }
@@ -3521,13 +3720,13 @@ const BIY = {
   _odaKarekodCiz(){
     const kap = $("lobiOdaAlan"); if (!kap || !state.odaId) return;
     const link = odaLinki(state.odaId);
-    const ipucu = "يَمْسَح الجَميع هَذا الرَّمْز وَيَكْتُبُ كُلّ اِسْمَه. يَدْخُلون القائِمَة بَعْد مُوافَقَتِك.";
+    const ipucu = "Herkes bu karekodu okutup adını yazar; sen onayladıktan sonra listeye girerler.";
     kap.innerHTML =
       '<div class="biy-oda-kart">' +
         '<div class="biy-oda-sol">' +
-          '<span class="biy-oda-etiket">رَمْز الغُرْفَة</span>' +
+          '<span class="biy-oda-etiket">Oda kodu</span>' +
           '<span class="biy-oda-kod">'+ kacis(state.odaId) +'</span>' +
-          '<div class="biy-takim-link"><input readonly value="'+ kacis(link) +'"><button class="biy-kopya" onclick="BIY.kopyala(this)">نَسْخ</button></div>' +
+          '<div class="biy-takim-link"><input readonly value="'+ kacis(link) +'"><button class="biy-kopya" onclick="BIY.kopyala(this)">Kopyala</button></div>' +
           '<p class="biy-oda-ipucu">'+ ipucu +'</p>' +
         '</div>' +
         '<div class="biy-qr biy-oda-qr" id="odaQrKutu"></div>' +
@@ -3544,16 +3743,16 @@ const BIY = {
     if (bek){
       const b = state.bekleyenListe;
       bek.innerHTML = !b.length
-        ? '<div class="biy-bek-bos">⏳ لا أَحَد يَنْتَظِرُ — مَن يَمْسَح الرَّمْز يَظْهَرُ هُنا.</div>'
-        : '<div class="biy-bek-ust"><h3>⏳ في انْتِظار المُوافَقَة ('+b.length+')</h3>' +
-            (b.length > 1 ? '<button class="biy-btn biy-btn-yesil biy-btn-mini" onclick="BIY.hepsiniOnayla()">المُوافَقَة عَلى الكُلّ</button>' : '') +
+        ? '<div class="biy-bek-bos">⏳ Bekleyen yok — karekodu okutan burada görünür.</div>'
+        : '<div class="biy-bek-ust"><h3>⏳ Onay bekleyenler ('+b.length+')</h3>' +
+            (b.length > 1 ? '<button class="biy-btn biy-btn-yesil biy-btn-mini" onclick="BIY.hepsiniOnayla()">Tümünü onayla</button>' : '') +
           '</div>' +
           '<div class="biy-bek-liste">' + b.map(k =>
             '<div class="biy-bek-kart">' +
-              '<button class="biy-bek-ad" title="صَحِّح الاسْم" onclick="BIY.katilimciAdDegistir(&quot;'+k.id+'&quot;)">'+krkSvg(k.krk, "biy-krk-mini")+kacis(k.ad)+'</button>' +
+              '<button class="biy-bek-ad" title="Adı düzelt" onclick="BIY.katilimciAdDegistir(&quot;'+k.id+'&quot;)">'+krkSvg(k.krk, "biy-krk-mini")+kacis(k.ad)+'</button>' +
               '<span class="biy-bek-btnlar">' +
-                '<button class="biy-onay-ok" title="مُوافَقَة" onclick="BIY.katilimciOnayla(&quot;'+k.id+'&quot;)">✓</button>' +
-                '<button class="biy-onay-red" title="رَفْض" onclick="BIY.katilimciReddet(&quot;'+k.id+'&quot;)">✕</button>' +
+                '<button class="biy-onay-ok" title="Onayla" onclick="BIY.katilimciOnayla(&quot;'+k.id+'&quot;)">✓</button>' +
+                '<button class="biy-onay-red" title="Reddet" onclick="BIY.katilimciReddet(&quot;'+k.id+'&quot;)">✕</button>' +
               '</span>' +
             '</div>').join("") +
           '</div>';
@@ -3562,18 +3761,18 @@ const BIY = {
     const grid = $("takimlarGrid"); if (!grid) return;
     const L = state.takimListe;
     if (!L.length){
-      grid.innerHTML = '<div class="biy-kat-bos">لا مُشارِكين بَعْد.</div>';
+      grid.innerHTML = '<div class="biy-kat-bos">Henüz katılımcı yok.</div>';
       return;
     }
     grid.innerHTML =
-      '<div class="biy-kat-ust"><span>👥 المُشارِكون ('+L.length+')</span>' +
-        '<span class="biy-kat-ipucu">الْمِس الاسْم لِتُصَحِّحَهُ · ✕ لِلْإِخْراج</span></div>' +
+      '<div class="biy-kat-ust"><span>👥 Katılımcılar ('+L.length+')</span>' +
+        '<span class="biy-kat-ipucu">Adı düzeltmek için dokun · ✕ çıkarmak için</span></div>' +
       '<div class="biy-kat-satirlar'+(L.length > 12 ? ' biy-kaydir' : '')+'">' +
         L.map(k =>
           '<div class="biy-kat-satir '+(k.bagli ? 'bagli' : 'kopuk')+'">' +
-            '<span class="biy-kat-nokta" title="'+(k.bagli?'مُتَّصِل':'غَيْر مُتَّصِل')+'"></span>' +
-            '<button class="biy-kat-ad" title="صَحِّح الاسْم" onclick="BIY.katilimciAdDegistir(&quot;'+k.id+'&quot;)">'+krkSvg(k.krk, "biy-krk-mini")+kacis(k.ad)+'</button>' +
-            '<button class="biy-kat-at" title="أَخْرِجْ مِن المُسابَقَة" onclick="BIY.katilimciAt(&quot;'+k.id+'&quot;)">✕</button>' +
+            '<span class="biy-kat-nokta" title="'+(k.bagli?'Bağlı':'Bağlı değil')+'"></span>' +
+            '<button class="biy-kat-ad" title="Adı düzelt" onclick="BIY.katilimciAdDegistir(&quot;'+k.id+'&quot;)">'+krkSvg(k.krk, "biy-krk-mini")+kacis(k.ad)+'</button>' +
+            '<button class="biy-kat-at" title="Yarışmadan çıkar" onclick="BIY.katilimciAt(&quot;'+k.id+'&quot;)">✕</button>' +
           '</div>').join("") +
       '</div>';
   },
@@ -3594,18 +3793,18 @@ const BIY = {
   },
   katilimciReddet(id){
     const k = state.bekleyenListe.find(x => x.id === id) || {};
-    BIY._onay("هَلْ تَرْفُض المُشارَكَة؟", "«" + (k.ad||"") + "» لَنْ يَدْخُل القائِمَة. يُمْكِنُه المُحاوَلَة بِاسْم جَديد.",
-      "رَفْض", async () => { try { await BIY._katilimciRef(id).update({ red: true }); } catch(e){ console.error(e); } });
+    BIY._onay("Katılımı reddedelim mi?", "«" + (k.ad||"") + "» listeye giremeyecek. Yeni bir adla tekrar deneyebilir.",
+      "Reddet", async () => { try { await BIY._katilimciRef(id).update({ red: true }); } catch(e){ console.error(e); } });
   },
   katilimciAt(id){
     const k = state.takimListe.find(x => x.id === id) || {};
-    BIY._onay("هَلْ تُخْرِجُهُ مِن المُسابَقَة؟", "«" + (k.ad||"") + "» سَيَخْرُجُ مِن القائِمَة وَسَيَظْهَرُ إِشْعار عَلى جِهازِه.",
-      "إِخْراج", async () => { try { await BIY._katilimciRef(id).update({ atildi: true, bagli: false }); } catch(e){ console.error(e); } });
+    BIY._onay("Yarışmadan çıkaralım mı?", "«" + (k.ad||"") + "» listeden çıkacak ve cihazında bir bildirim görünecek.",
+      "Çıkar", async () => { try { await BIY._katilimciRef(id).update({ atildi: true, bagli: false }); } catch(e){ console.error(e); } });
   },
   katilimciAdDegistir(id){
     const k = state.takimListe.find(x => x.id === id) || state.bekleyenListe.find(x => x.id === id);
     if (!k) return;
-    BIY._metinSor("صَحِّح الاسْم", k.ad, "حِفْظ", async (yeni) => {
+    BIY._metinSor("Adı düzelt", k.ad, "Kaydet", async (yeni) => {
       const ad = isimTemizle(yeni);
       if (ad.length < 2) return;
       try { await BIY._katilimciRef(id).update({ ad: ad }); } catch(e){ console.error(e); }
@@ -3617,7 +3816,7 @@ const BIY = {
     const ov = document.createElement("div"); ov.id = "biyOnay"; ov.className = "biy-onay-ov";
     ov.innerHTML = '<div class="biy-onay-kutu"><h3>'+kacis(baslik)+'</h3>' +
       '<input id="biyMetinInput" class="biy-onay-input" type="text" maxlength="18" value="'+kacis(mevcut||"")+'">' +
-      '<div class="biy-onay-btnlar"><button class="biy-onay-hayir">إِلْغاء</button><button class="biy-onay-evet">'+kacis(evetMetin)+'</button></div></div>';
+      '<div class="biy-onay-btnlar"><button class="biy-onay-hayir">Vazgeç</button><button class="biy-onay-evet">'+kacis(evetMetin)+'</button></div></div>';
     document.body.appendChild(ov);
     const kapat = () => { if (ov.parentNode) ov.remove(); };
     const inp = ov.querySelector("#biyMetinInput");
@@ -3716,7 +3915,7 @@ const BIY = {
     state.katilimAbone = ref.onSnapshot(d => {
       if (!d.exists){ try { localStorage.removeItem("biy_katilim"); } catch(e){} BIY._katilFormu(); return; }
       const t = d.data() || {};
-      state.takimAd = t.ad || "مُشارِك";
+      state.takimAd = t.ad || "Katılımcı";
       state.takimKrk = t.krk || "";
       if (t.atildi){
         state.atildiMi = true;
@@ -3843,7 +4042,7 @@ window.addEventListener("beforeunload", function(e){
     // sayfa yenilenmişse aktif odaya/oyuna dön
     let kayit = null; try { kayit = JSON.parse(localStorage.getItem('biy_aktif') || 'null'); } catch(e){}
     if (kayit && kayit.oda){ BIY._devamEt(kayit); }
-    else ekranGoster("ekranAnasayfa");
+    else BIY._modKapisi();
   } catch(err){
     console.error("[BIY] Açılış hatası:", err);
     const not = $("girisRolNot");
