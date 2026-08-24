@@ -1340,7 +1340,20 @@ const BIY = {
     btn.classList.add("biy-ds-acik");
     document.addEventListener("mousedown", BIY._konuListeDis);
     document.addEventListener("keydown", BIY._konuListeTus);
+    BIY._konuListeYerlestir();
     const s = l.querySelector(".biy-ds-oge.secili"); if (s) s.scrollIntoView({ block: "nearest" });
+  },
+  /* Liste pencereden taşmasın: hangi tarafta yer varsa oraya açılsın ve
+     boyu o alana göre kısılsın; son satır hep görünür kalsın. */
+  _konuListeYerlestir(){
+    const btn = $("konuSeciciBtn"), l = $("konuSeciciListe");
+    if (!btn || !l || l.hidden) return;
+    const r = btn.getBoundingClientRect();
+    const ust = r.top - 20;
+    const alt = window.innerHeight - r.bottom - 20;
+    const yukari = alt < 260 && ust > alt;
+    l.classList.toggle("biy-ds-yukari", yukari);
+    l.style.maxHeight = Math.max(200, Math.floor(yukari ? ust : alt)) + "px";
   },
   konuListeKapat(){
     const btn = $("konuSeciciBtn"), l = $("konuSeciciListe");
@@ -1716,7 +1729,12 @@ const BIY = {
                  '<span class="biy-hs-tip biy-hs-b-' + b + '">' + (ETIKET_BICIM[b] || "")
                  + kacis(BICIM_TR_AD[b] || "") + '</span>').join("") + '</div>'
              + BIY._sayiUyariHtml();
-    BIY._havuzKapsam().forEach(k => {
+    const kapsam = BIY._havuzKapsam();
+    /* Havuz birden çok üniteyi kapsıyorsa hangi dersin hangi üniteden geldiği
+       belli olsun: araya ünite başlığı, ders satırına küçük rozet. */
+    const cokUnite = [...new Set(kapsam.map(k => k.unite == null ? 1 : k.unite))].length > 1;
+    let sonUnite = null;
+    kapsam.forEach(k => {
       const tumu = BIY._konuSorulari(k);            // süzgeçlerden geçenler
       const hepsi = BIY._konuTumSorulari(k);        // süzgeç dışındakiler de listelenir
       if (!hepsi.length) return;
@@ -1724,11 +1742,22 @@ const BIY = {
       if (!sorular.length) return;
       const seciliSay = tumu.filter(q => set.has(k.id + "#" + q.id)).length;
       const disiSay = hepsi.length - tumu.length;
+      const uNo = (k.unite == null ? 1 : k.unite);
+      if (cokUnite && uNo !== sonUnite){
+        sonUnite = uNo;
+        const u = UNITELER.find(x => x.no === uNo);
+        html += '<div class="biy-hs-unite">'
+          + '<span class="biy-hs-unite-no">' + uNo + '</span>'
+          + '<span class="biy-hs-unite-ad">' + kacis(uniteBasligi(u)) + arEk(uniteAr(u)) + '</span>'
+          + '<span class="biy-hs-unite-say">' + BIY._uniteSoruSayisi(uNo) + ' soru</span>'
+          + '</div>';
+      }
       const acik = ara ? true : !!(state.soruSecAcik && state.soruSecAcik[k.id]);
       html += '<div class="biy-hs-grup'+(acik?' acik':'')+'" data-konu="'+k.id+'">' +
         '<div class="biy-hs-baslik" onclick="BIY.soruSecAkordiyon(\''+k.id+'\')">' +
         '<span class="biy-hs-ok">▸</span>' +
-        '<b>'+kacis(dersAdi(k))+'</b> <span class="biy-hs-say'+(seciliSay>0?' dolu':'')+((seciliSay===tumu.length&&tumu.length)?' tam':'')+'"><b>'+seciliSay+'</b><i>/</i>'+tumu.length+'</span>' +
+        (cokUnite ? '<span class="biy-hs-u-rozet" title="'+kacis(BIY._uniteAdi(uNo))+'">'+uNo+'. ünite</span>' : '')
+        + '<b>'+kacis(dersAdi(k))+'</b> <span class="biy-hs-say'+(seciliSay>0?' dolu':'')+((seciliSay===tumu.length&&tumu.length)?' tam':'')+'"><b>'+seciliSay+'</b><i>/</i>'+tumu.length+'</span>' +
         (disiSay ? '<span class="biy-hs-disi-say" title="Süzgeç dışında kaldığı için seçilemeyen soru">'+disiSay+' pasif</span>' : '') +
         '<button class="biy-hs-tumu" title="Tümünü seç" aria-label="Tümünü seç" onclick="event.stopPropagation();BIY.soruSecTumu(\''+k.id+'\')">' +
           '<svg viewBox="0 0 24 24" class="biy-hs-tumu-svg" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +

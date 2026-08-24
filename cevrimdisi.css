@@ -807,17 +807,28 @@
 .cd-sunum.cevap-acik .cd-mini{width:44px;height:44px;font-size:1.5rem}
 .cd-sunum.cevap-acik .cd-puan-deger{font-size:1.5rem;min-width:2.4em}
 .cd-sunum.cevap-acik .cd-sira{width:32px;height:32px;line-height:32px;font-size:.95rem}
-.cd-cevap-serit{grid-area:2 / 1 / 3 / 2;align-self:start;
-  display:flex;align-items:center;gap:clamp(10px,1.6vw,22px);flex-wrap:wrap;
-  margin:clamp(12px,2.4vh,26px) clamp(16px,3vw,42px);padding:clamp(12px,2.2vh,20px) clamp(16px,2.4vw,28px);
-  background:#E9FBF4;border:2.5px solid #20C997;border-radius:18px;
+/* Puanlama sürerken doğru cevap boş alanı doldursun: sınıfın arkasından
+   okunacak kadar büyük. */
+.cd-cevap-serit{grid-area:2 / 1 / 3 / 2;align-self:stretch;min-height:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:clamp(8px,2vh,22px);text-align:center;overflow:hidden;
+  margin:clamp(10px,2vh,24px) clamp(14px,2.6vw,38px);
+  padding:clamp(14px,2.6vh,30px) clamp(16px,2.4vw,32px);
+  background:#E9FBF4;border:2.5px solid #20C997;border-radius:22px;
   box-shadow:0 6px 20px rgba(32,201,151,.18)}
-.cd-cs-etiket{flex:0 0 auto;font-size:clamp(11px,1.5vh,13px);font-weight:800;color:#0E9E86;
-  text-transform:uppercase;letter-spacing:.6px;background:#fff;border-radius:99px;padding:5px 12px}
-.cd-cs-metin{flex:1 1 auto;min-width:0;font-size:clamp(1.3rem,5vh,3rem);font-weight:800;color:#0E6E5C;
-  line-height:1.5;direction:ltr;text-align:start}
-.cd-cs-metin.ar{direction:rtl;font-family:"Nunito","Segoe UI",Arial,"Arakom","Harmattan","Traditional Arabic",serif}
-.cd-cs-no{flex:0 0 auto;font-size:clamp(11px,1.5vh,13px);font-weight:800;color:#8C97A3}
+.cd-cs-etiket{flex:0 0 auto;font-size:clamp(12px,1.9vh,17px);font-weight:900;color:#0E9E86;
+  text-transform:uppercase;letter-spacing:1px;background:#fff;border-radius:99px;
+  padding:clamp(5px,1vh,9px) clamp(12px,1.6vw,20px)}
+.cd-cs-metin{flex:0 1 auto;min-width:0;max-width:100%;
+  font-size:clamp(2rem,9vh,6rem);font-weight:900;color:#0E6E5C;
+  line-height:1.2;direction:ltr;text-align:center;overflow-wrap:anywhere}
+.cd-cs-metin.ar{direction:rtl;line-height:1.45;
+  font-family:"Nunito","Segoe UI",Arial,"Arakom","Harmattan","Traditional Arabic",serif}
+.cd-cs-metin.uzun{font-size:clamp(1.4rem,5.4vh,3.4rem);line-height:1.3}
+.cd-cs-metin.ar.uzun{font-size:clamp(1.55rem,6vh,3.8rem);line-height:1.5}
+.cd-cs-metin.cok-uzun{font-size:clamp(1.1rem,3.8vh,2.4rem);line-height:1.32}
+.cd-cs-metin.ar.cok-uzun{font-size:clamp(1.2rem,4.2vh,2.7rem);line-height:1.48}
+.cd-cs-no{flex:0 0 auto;font-size:clamp(11px,1.6vh,14px);font-weight:800;color:#8C97A3}
 /* cevap açıkken puan tablosu tam boy dursun */
 .cd-sunum.cevap-acik .cd-yan{grid-area:2 / 2 / 4 / 3}
 
@@ -1364,3 +1375,178 @@
 #konuSeciciListe .biy-ds-say2{flex:0 0 auto;margin-inline-start:auto}
 #konuSeciciListe .biy-ds-oge .biy-ds-tik,
 #konuSeciciListe .biy-ds-oge .biy-ds-yakinda{flex:0 0 auto}
+
+/* ==========================================================================
+   EŞLEŞTİRME CEVABI — her çift bölünmeden, büyük punto
+   ========================================================================== */
+.cd-pk-ciftler{direction:ltr;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:clamp(5px,1.4vh,18px) clamp(16px,2.6vw,40px);width:100%;
+  align-content:center;justify-items:center}
+.cd-pk-cift{display:inline-flex;align-items:baseline;justify-content:center;
+  gap:clamp(7px,.9vw,16px);white-space:nowrap;max-width:100%;
+  font-size:clamp(1.45rem,4.8vh,3.4rem);font-weight:900;color:#1F3864;line-height:1.28}
+.cd-pk-cift b{font-weight:900}
+.cd-pk-cift b.ar,.cd-pk-cift span.ar{direction:rtl;unicode-bidi:isolate;
+  font-size:1.08em;line-height:1.5}
+.cd-pk-cift i{flex:0 0 auto;font-style:normal;font-weight:900;color:#16A085;opacity:.8;
+  font-size:.86em}
+.cd-pk-yazi.esle{top:11%;height:52%}
+/* dört çiftten fazlaysa biraz küçülsün */
+.cd-pk-ciftler:has(> :nth-child(5)) .cd-pk-cift{font-size:clamp(1.15rem,3.5vh,2.4rem)}
+.cd-pk-ciftler:has(> :nth-child(7)) .cd-pk-cift{font-size:clamp(1rem,2.8vh,1.95rem)}
+@media (max-width:720px){ .cd-pk-ciftler{grid-template-columns:minmax(0,1fr)} }
+
+/* üstteki cevap şeridinde de çiftler bölünmesin */
+/* eşleştirme: çiftler ikişerli, bölünmeden, iri punto */
+.cd-cs-ciftler{direction:ltr;flex:0 1 auto;min-width:0;max-width:100%;
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  align-content:center;justify-items:center;
+  gap:clamp(5px,1.6vh,20px) clamp(16px,2.8vw,44px)}
+.cd-cs-cift{display:inline-flex;align-items:baseline;justify-content:center;
+  gap:clamp(7px,.9vw,16px);white-space:nowrap;max-width:100%;
+  font-size:clamp(1.35rem,5vh,3.4rem);font-weight:900;color:#0E6E5C;line-height:1.28}
+.cd-cs-cift b.ar,.cd-cs-cift span.ar{direction:rtl;unicode-bidi:isolate;
+  font-size:1.06em;line-height:1.5}
+.cd-cs-cift i{flex:0 0 auto;font-style:normal;font-weight:900;color:#16A085;opacity:.85;
+  font-size:.85em}
+.cd-cs-ciftler:has(> :nth-child(5)) .cd-cs-cift{font-size:clamp(1.1rem,3.6vh,2.4rem)}
+.cd-cs-ciftler:has(> :nth-child(7)) .cd-cs-cift{font-size:clamp(.95rem,2.9vh,1.95rem)}
+@media (max-width:820px){ .cd-cs-ciftler{grid-template-columns:minmax(0,1fr)} }
+
+/* ==========================================================================
+   3. ADIM — bütün ekranı kullan, elementler iri olsun
+   ========================================================================== */
+.cdw-govde-ders{align-items:stretch;padding-top:clamp(10px,2vh,26px)}
+.cdw-govde-ders .cdw-sahne{max-width:min(94vw,1720px);width:100%;
+  display:flex;flex-direction:column;justify-content:center;
+  gap:clamp(6px,1.2vh,14px)}
+.cdw-govde-ders .cdw-bas{font-size:clamp(24px,4.4vh,44px)}
+.cdw-govde-ders .cdw-alt-bas{font-size:clamp(14px,2.2vh,22px);margin-bottom:clamp(8px,1.6vh,20px)}
+.cdw-govde-ders .cdw-bilgi{font-size:clamp(14px,2.1vh,20px);margin-top:clamp(4px,1vh,12px)}
+
+/* ders + soru havuzu kartları: geniş ve iri */
+.cdw-govde-ders .cdw-panel .biy-konu-panel{gap:clamp(18px,2.6vw,44px);max-width:100%}
+.cdw-govde-ders .biy-konu-secim,
+.cdw-govde-ders .biy-soru-sec-secim{flex:1 1 clamp(320px,42%,760px);max-width:780px}
+.cdw-govde-ders .biy-sec-ikon{width:clamp(64px,9vh,104px);height:clamp(64px,9vh,104px)}
+.cdw-govde-ders .biy-sec-ikon svg{width:100%;height:100%}
+.cdw-govde-ders .biy-ds{min-width:0;width:100%}
+.cdw-govde-ders .biy-ds-btn{font-size:clamp(15px,2.4vh,23px);
+  padding:clamp(12px,2vh,20px) clamp(14px,1.6vw,22px)}
+.cdw-govde-ders .biy-soru-sec-btn{width:100%;font-size:clamp(15px,2.4vh,23px);
+  padding:clamp(12px,2vh,20px) clamp(14px,1.6vw,22px)}
+.cdw-govde-ders .biy-sec-etiket{font-size:clamp(12px,1.9vh,17px);letter-spacing:1px}
+
+/* ayar şeridi: kutu genişlesin, ikonlar zaten iri */
+.cdw-govde-ders .cdw-panel-ayar{padding:clamp(14px,2.4vh,26px) clamp(16px,2vw,30px)}
+.cdw-govde-ders .cdw-panel-ayar .biy-sorusayi-secim{max-width:1200px}
+
+/* alçak ekranlarda geri çekil */
+@media (max-height:760px){
+  .cdw-govde-ders .biy-sec-ikon{width:clamp(52px,7.4vh,78px);height:clamp(52px,7.4vh,78px)}
+  .cdw-govde-ders .cdw-bas{font-size:clamp(22px,3.8vh,34px)}
+  .cdw-govde-ders .cdw-panel-ayar{padding:10px 16px}
+}
+
+/* ==========================================================================
+   TAKIM KADROSU — numaraları sürükleyerek ya da dokunarak taşı
+   ========================================================================== */
+.cdw-takim{transition:border-color .15s, box-shadow .15s, transform .12s}
+.cdw-takimlar .cdw-no{cursor:grab;user-select:none;-webkit-user-select:none;
+  transition:transform .12s, box-shadow .15s, opacity .15s}
+.cdw-takimlar .cdw-no:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(31,56,100,.16)}
+.cdw-takimlar .cdw-no:active{cursor:grabbing}
+.cdw-takimlar .cdw-no.tasiniyor{background:var(--tr);color:#fff;border-color:var(--tr);
+  transform:translateY(-3px) scale(1.06);box-shadow:0 8px 20px rgba(31,56,100,.26);
+  animation:cdTasi 1s ease-in-out infinite}
+@keyframes cdTasi{0%,100%{transform:translateY(-3px) scale(1.06)}50%{transform:translateY(-6px) scale(1.09)}}
+/* taşıma sürerken hedef takımlar belli olsun */
+.cdw-takimlar.tasima-var .cdw-takim{cursor:pointer}
+.cdw-takimlar.tasima-var .cdw-takim:hover,
+.cdw-takim.hedef{border-color:var(--tr);box-shadow:0 0 0 4px color-mix(in srgb, var(--tr) 22%, transparent);
+  transform:translateY(-2px)}
+.cdw-tasima-not{margin:clamp(8px,1.6vh,16px) 0 0;text-align:center;
+  font-size:clamp(12px,1.8vh,15.5px);font-weight:600;color:#6B7A8C;line-height:1.5}
+.cdw-tasima-not b{color:#1F3864;font-weight:900}
+.cdw-tasima-vaz{margin-inline-start:8px;border:1.5px solid #E4EBF2;background:#F4F7FB;
+  color:#6B7A8C;font-weight:800;font-size:.94em;border-radius:99px;padding:3px 12px;cursor:pointer}
+.cdw-tasima-vaz:hover{background:#FDECEA;border-color:#EF5350;color:#C0392B}
+@media (prefers-reduced-motion:reduce){
+  .cdw-takimlar .cdw-no.tasiniyor{animation:none}
+  .cdw-takimlar .cdw-no:hover{transform:none}
+}
+
+/* ==========================================================================
+   EŞLEŞTİRME SORUSU — iki sütun: numaralı kelimeler + harfli karşılıklar
+   ========================================================================== */
+.cd-esle-alan{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:clamp(14px,2.4vw,42px);width:100%;align-items:start}
+.cd-esle-sutun,.cd-esle-banka{list-style:none;margin:0;padding:0;
+  display:flex;flex-direction:column;gap:clamp(6px,1.2vh,14px)}
+.cd-esle-sat,.cd-esle-sik{display:flex;align-items:center;gap:clamp(9px,1.2vw,16px);
+  background:#fff;border:2px solid #E4EBF2;border-radius:14px;
+  padding:clamp(9px,1.5vh,17px) clamp(12px,1.4vw,20px);
+  font-size:clamp(1.05rem,3.2vh,2.3rem);font-weight:800;color:#20303F;line-height:1.35;
+  transition:border-color .15s, background .15s}
+.cd-esle-sol,.cd-esle-karsi{flex:1 1 auto;min-width:0;text-align:start;overflow-wrap:anywhere}
+.cd-esle-sol.ar,.cd-esle-karsi.ar{direction:rtl;text-align:start;
+  font-family:"Nunito","Segoe UI",Arial,"Arakom","Harmattan","Traditional Arabic",serif;
+  font-size:1.1em;line-height:1.6}
+.cd-esle-cevap{flex:0 0 auto;min-width:1.9em;text-align:center}
+/* öğrencinin harfi yazacağı boşluk belli olsun */
+.cd-esle-cevap i{display:inline-flex;align-items:center;justify-content:center;
+  min-width:1.9em;height:1.9em;border-radius:10px;border:2px dashed #C3CFDC;
+  color:#B7C4D3;font-style:normal;font-weight:900;font-size:.82em}
+.cd-esle-cevap b{display:inline-flex;align-items:center;justify-content:center;
+  min-width:1.8em;height:1.8em;border-radius:99px;background:#16A085;color:#fff;
+  font-size:.86em;font-weight:900}
+/* cevap açılınca iki taraf da yeşile döner */
+.cd-esle-sat.acik,.cd-esle-sik.acik{background:#EAFBF4;border-color:#A7E8CF}
+@media (max-width:820px){ .cd-esle-alan{grid-template-columns:minmax(0,1fr)} }
+
+/* ders listesi: pencereye sığdır, son satır kesilmesin */
+#konuSeciciListe{overflow-y:auto;overscroll-behavior:contain;
+  padding-bottom:clamp(6px,1vh,12px)}
+#konuSeciciListe.biy-ds-yukari{top:auto;bottom:calc(100% + 8px)}
+
+/* ==========================================================================
+   SORU HAVUZU — birden çok ünite varken ünite başlıkları
+   ========================================================================== */
+.biy-hs-unite{display:flex;align-items:center;gap:clamp(9px,1.2vw,14px);
+  margin:clamp(14px,2.4vh,26px) 2px clamp(8px,1.2vh,14px);
+  padding:clamp(9px,1.4vh,15px) clamp(12px,1.4vw,20px);
+  background:linear-gradient(90deg,#EEF3FB,#F7FAFD 70%);
+  border:1.5px solid #DCE6F3;border-inline-start:6px solid #5B9BD5;border-radius:14px}
+.biy-hs-unite:first-child{margin-top:0}
+.biy-hs-unite-no{flex:0 0 auto;width:clamp(28px,3.4vh,36px);height:clamp(28px,3.4vh,36px);
+  border-radius:99px;background:#5B9BD5;color:#fff;font-weight:900;
+  font-size:clamp(13px,1.8vh,17px);display:flex;align-items:center;justify-content:center}
+.biy-hs-unite-ad{flex:1 1 auto;min-width:0;font-size:clamp(14px,2vh,19px);font-weight:900;
+  color:#1F3864;line-height:1.3;text-align:start;direction:ltr}
+.biy-hs-unite-ad .biy-ar-alt{font-size:.78em;text-align:left}
+.biy-hs-unite-say{flex:0 0 auto;font-size:clamp(11px,1.5vh,13.5px);font-weight:800;
+  color:#5B9BD5;background:#fff;border:1.5px solid #DCE6F3;border-radius:99px;
+  padding:3px 11px;white-space:nowrap}
+/* ders başlığındaki küçük ünite rozeti */
+.biy-hs-u-rozet{flex:0 0 auto;font-size:11px;font-weight:900;letter-spacing:.03em;
+  color:#5B9BD5;background:#EEF3FB;border:1.5px solid #DCE6F3;border-radius:99px;
+  padding:3px 10px;margin-inline-end:8px;white-space:nowrap}
+
+/* ==========================================================================
+   ALTTA İLERLEME ÇUBUĞU — kaçıncı sorudayız, kaçı bitti
+   ========================================================================== */
+.cd-ilerleme-serit{flex:0 0 100%;order:-1;display:flex;align-items:center;
+  gap:clamp(10px,1.6vw,20px);margin-bottom:clamp(6px,1.2vh,12px)}
+.cd-il-sayi,.cd-il-bitti{flex:0 0 auto;font-size:clamp(11.5px,1.6vh,14px);font-weight:800;
+  color:#8C97A3;white-space:nowrap;font-variant-numeric:tabular-nums}
+.cd-il-sayi b{color:#1F3864;font-size:1.15em}
+.cd-il-bitti{color:#16A085}
+.cd-il-kutular{flex:1 1 auto;min-width:0;display:flex;gap:clamp(2px,.35vw,5px)}
+.cd-il-adim{flex:1 1 0;min-width:3px;height:clamp(8px,1.3vh,13px);border-radius:99px;
+  background:#E4EBF2;transition:background .2s, transform .2s}
+.cd-il-adim.tamam{background:#20C997}
+.cd-il-adim.simdi{background:#1F3864;transform:scaleY(1.45)}
+@media (max-width:760px){
+  .cd-il-bitti{display:none}
+  .cd-ilerleme-serit{gap:10px}
+}

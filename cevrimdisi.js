@@ -58,6 +58,7 @@ const D = {
   bicim: "takim",              // kisi | takim | sinif  (canlı taraftaki birey|takim|okul karşılığı)
   bas: 1, son: 24, yok: "", takimSayi: 4,
   sinifAdlari: "",             // sınıf sisteminde yarışan sınıflar (öğretmen yazar)
+  tasinan: null,               // takımlar arasında taşınan sıra numarası
   katilim: [],                 // {id, ad, alt, renk, puan}
   sorular: [],
   aktif: 0, cevapAcik: false, sayacKalan: 0, sayacId: null, sure: 30,
@@ -1159,16 +1160,29 @@ function katHtml(){
         </div>
       </div>`).join("") + `</div>`;
   }
-  return `<div class="cdw-takimlar">` + D.katilim.map(k => `
-    <div class="cdw-takim" style="--tr:${k.renk}">
+  const el_ = D.tasinan;
+  return `<div class="cdw-takimlar${el_ != null ? " tasima-var" : ""}">` + D.katilim.map(k => `
+    <div class="cdw-takim" style="--tr:${k.renk}" data-tkm="${k.id}"
+         ondragover="COFF._uzerinde(event,this)"
+         ondragleave="this.classList.remove('hedef')"
+         ondrop="COFF._birak(event,this,'${k.id}')"
+         onclick="COFF.takimaTasi('${k.id}')">
       <div class="cdw-takim-bas">
         <span class="cdw-bayrak">${bayrakSvg(k.renk)}</span>
         <b>${kacisi(k.tr || k.ad)}</b>
         <span class="cdw-takim-say">${(k.uyeler || []).length}</span>
       </div>
       <div class="cdw-nolar">${(k.uyeler || []).map(n =>
-        `<span class="cdw-no" style="--tr:${k.renk}">${n}</span>`).join("")}</div>
-    </div>`).join("") + `</div>`;
+        `<span class="cdw-no${el_ === n ? " tasiniyor" : ""}" style="--tr:${k.renk}"
+               draggable="true" data-no="${n}"
+               ondragstart="COFF._suruklBasla(event,${n})"
+               ondragend="COFF._suruklBitir()"
+               onclick="event.stopPropagation();COFF.noSec(${n})"
+               title="Taşımak için dokun ya da sürükle">${n}</span>`).join("")}</div>
+    </div>`).join("") + `</div>
+    <p class="cdw-tasima-not">${el_ != null
+      ? `<b>${el_}</b> numarayı taşıyorsun — bırakmak istediğin takıma dokun, yer değiştirmek için başka bir numaraya dokun. <button type="button" class="cdw-tasima-vaz" onclick="COFF.noSec(${el_})">Vazgeç</button>`
+      : `Numaraları takımlar arasında <b>sürükleyip bırakabilir</b> ya da önce numaraya, sonra takıma dokunarak taşıyabilirsin. İki numaraya arka arkaya dokunursan yerleri değişir.`}</p>`;
 }
 
 function bayrakSvg(renk){
@@ -1199,6 +1213,18 @@ function dogruMetin(s){
   return s.cevapYazi || "";
 }
 
+/* Eşleştirme cevabı tek uzun satır olunca hem küçülüyor hem de bir çiftin
+   iki kelimesi ayrı satırlara düşüyordu. Her çift kendi kutusunda, bölünmeden
+   duruyor; böylece punto da büyük kalabiliyor. */
+function ciftlerHtml(s, on){
+  const c = s.ciftler || [];
+  if (!c.length) return "";
+  return `<span class="${on}-ciftler">` + c.map(x =>
+    `<span class="${on}-cift"><b${arMi(x[0]) ? ' class="ar"' : ""}>${kacisi(x[0])}</b>` +
+    `<i aria-hidden="true">→</i>` +
+    `<span${arMi(x[1]) ? ' class="ar"' : ""}>${kacisi(x[1])}</span></span>`).join("") + `</span>`;
+}
+
 function sunumHtml(){
   const s = SORULAR()[D.aktif];
   if (!s) return "";
@@ -1218,11 +1244,27 @@ function sunumHtml(){
       govde += `<div class="cd-cevap${arMi(tam)?" ar":""}">${kacisi(tam)}</div>`;
     }
   } else if (b === "eslestir"){
+    /* Eşleştirmede iki liste de görünmeli: solda numaralı kelimeler, sağda
+       harflendirilmiş karışık karşılıklar. Öğrenci "1-C" diye yazar. */
     const c = s.ciftler || [];
-    govde = `<div class="cd-secenekler${c.some(x => arMi(x[0])) ? " ar" : ""}">` + c.map((x,i) =>
-      `<div class="cd-secenek cd-esle${arMi(x[0])?" ar":""}"><span class="cd-harf">${i+1}</span>
-       <span class="cd-esle-sol">${kacisi(x[0])}</span>
-       <span class="cd-esle-sag${arMi(x[1])?" ar":""}">${D.cevapAcik ? kacisi(x[1]) : "?"}</span></div>`).join("") + `</div>`;
+    const sag = (s.sagKarisik && s.sagKarisik.length === c.length)
+      ? s.sagKarisik : c.map(x => x[1]);
+    const harfi = v => { const i = sag.indexOf(v); return i >= 0 ? HARF[i] : "?"; };
+    govde = `<div class="cd-esle-alan">
+      <ol class="cd-esle-sutun">` + c.map((x, i) =>
+        `<li class="cd-esle-sat${D.cevapAcik ? " acik" : ""}">
+           <span class="cd-harf">${i + 1}</span>
+           <span class="cd-esle-sol${arMi(x[0]) ? " ar" : ""}">${kacisi(x[0])}</span>
+           <span class="cd-esle-cevap">${D.cevapAcik
+             ? `<b>${harfi(x[1])}</b>`
+             : `<i>?</i>`}</span>
+         </li>`).join("") + `</ol>
+      <ul class="cd-esle-banka">` + sag.map((v, i) =>
+        `<li class="cd-esle-sik${D.cevapAcik ? " acik" : ""}">
+           <span class="cd-harf">${HARF[i]}</span>
+           <span class="cd-esle-karsi${arMi(v) ? " ar" : ""}">${kacisi(v)}</span>
+         </li>`).join("") + `</ul>
+    </div>`;
   } else {
     govde = D.cevapAcik
       ? `<div class="cd-cevap${arMi(s.cevapYazi)?" ar":""}">${kacisi(s.cevapYazi || "")}</div>`
@@ -1246,9 +1288,14 @@ function sunumHtml(){
       <button class="cd-tus" onclick="COFF.yanAcKapa()">Puan tablosu</button>
     </div>
     ${D.siralamaAcik ? siralamaHtml() : (D.cevapAcik ? `
-    <div class="cd-cevap-serit">
+    <div class="cd-cevap-serit${(b === "eslestir" && (s.ciftler || []).length) ? " esle" : ""}">
       <span class="cd-cs-etiket">Doğru cevap</span>
-      <span class="cd-cs-metin${arMi(dogruMetin(s))?" ar":""}">${kacisi(dogruMetin(s))}</span>
+      ${(b === "eslestir" && (s.ciftler || []).length)
+        ? ciftlerHtml(s, "cd-cs")
+        : (() => { const m = dogruMetin(s);
+            return `<span class="cd-cs-metin${arMi(m) ? " ar" : ""}${
+              m.length > 96 ? " cok-uzun" : (m.length > 52 ? " uzun" : "")
+            }">${kacisi(m)}</span>`; })()}
       <span class="cd-cs-no" dir="ltr">Soru ${D.aktif+1} / ${SORULAR().length}</span>
     </div>` : `
     <div class="cd-sunum-orta">
@@ -1258,11 +1305,13 @@ function sunumHtml(){
       ${govde}
     </div>`)}
     <div class="cd-sunum-alt">
+      ${ilerlemeHtml()}
       <button class="cd-tus" onclick="COFF.sayacBasDur()" id="cdSayacTus">${D.sayacId?"⏸ Duraklat":"▶ Süreyi başlat"}</button>
       <button class="cd-tus cd-tus-ana" onclick="COFF.cevapAc()">${D.cevapAcik?"Cevap açık":"Cevabı göster"}</button>
       <button class="cd-tus" onclick="COFF.geri()" ${D.aktif?"":"disabled"}>‹ Önceki</button>
-      <button class="cd-tus${D.cevapAcik && !hepsiIsaretli() ? " kilitli" : ""}" id="cdIleriTus"
-              onclick="COFF.ileri()" ${D.cevapAcik && !hepsiIsaretli() ? "disabled" : ""}>
+      <button class="cd-tus${ileriKilitli() ? " kilitli" : ""}" id="cdIleriTus"
+              onclick="COFF.ileri()" ${ileriKilitli() ? "disabled" : ""}
+              title="${ileriKilitli() ? kacisi(ileriNeden()) : ""}">
         ${D.aktif+1>=SORULAR().length?(D.mac?"Maçı bitir":"Bitir"):"Sonraki ›"}</button>
       <span class="cd-kisayol">boşluk: cevap · ← →: soru · S: süre · P: puan · +: doğru, −: geri al</span>
     </div>
@@ -1287,6 +1336,35 @@ function isaretSayisi(){
   return YAR().filter(k => t[k.id]).length;
 }
 function hepsiIsaretli(){ return YAR().length > 0 && isaretSayisi() === YAR().length; }
+/* Soru "çözülmüş" sayılması için önce cevabın açılması, sonra herkesin
+   işaretlenmiş olması gerekir. İkisi tamamlanmadan sonraki soruya geçilmez. */
+function ileriKilitli(){ return !D.cevapAcik || !hepsiIsaretli(); }
+/* i. soru tamamlandı mı: herkes işaretlenmişse bitmiş sayılır. */
+function soruBitti(i){
+  const t = D.turPuan[i]; if (!t) return false;
+  const y = YAR();
+  return y.length > 0 && y.every(k => !!t[k.id]);
+}
+/* Alttaki ilerleme çubuğu: her soru için bir kutucuk. */
+function ilerlemeHtml(){
+  const n = SORULAR().length;
+  const bitmis = [];
+  for (let i = 0; i < n; i++) if (soruBitti(i)) bitmis.push(i);
+  return `<div class="cd-ilerleme-serit" role="progressbar"
+       aria-valuemin="1" aria-valuemax="${n}" aria-valuenow="${D.aktif + 1}"
+       aria-label="Soru ${D.aktif + 1} / ${n}">
+    <span class="cd-il-sayi">Soru <b>${D.aktif + 1}</b> / ${n}</span>
+    <span class="cd-il-kutular">${Array.from({ length: n }, (_, i) =>
+      `<i class="cd-il-adim${i === D.aktif ? " simdi" : (soruBitti(i) ? " tamam" : "")}"
+          title="Soru ${i + 1}${soruBitti(i) ? " · tamamlandı" : ""}"></i>`).join("")}</span>
+    <span class="cd-il-bitti">${bitmis.length} / ${n} tamam</span>
+  </div>`;
+}
+function ileriNeden(){
+  if (!D.cevapAcik) return "Önce cevabı göster.";
+  const eksik = YAR().length - isaretSayisi();
+  return "Önce herkesi işaretle — " + eksik + " tanesi kaldı.";
+}
 
 /* Sorular arasında ve sonunda gösterilen tam ekran sıralama. */
 function siralamaHtml(){
@@ -1359,7 +1437,8 @@ function puanHtml(){
 
 /* Puan tablosunun başındaki ilerleme notu. */
 function isaretNotu(){
-  if (!D.cevapAcik) return "";
+  if (!D.cevapAcik)
+    return `<span class="cd-isaret-not">Süre bitince <b>Cevabı göster</b>, sonra herkesi işaretle</span>`;
   const n = isaretSayisi(), t = YAR().length;
   const ad = D.bicim === "kisi" ? "öğrenci" : (D.bicim === "sinif" ? "sınıf" : "takım");
   return hepsiIsaretli()
@@ -1780,7 +1859,84 @@ const COFF = {
     if (D.konuId !== id) D.konuId = id;
     COFF.ciz();
   },
-  listeKur(){ listeKur(); const k = el("cdKat"); if (k) k.innerHTML = katHtml(); sayacTazele(); },
+  listeKur(){ D.tasinan = null; listeKur(); COFF._katTazele(); sayacTazele(); },
+  /* --- takım kadrosu: numaraları elle dağıt --- */
+  _katTazele(){
+    const k = el("cdKat"); if (k) k.innerHTML = katHtml();
+  },
+  _takimBul(no){ return D.katilim.find(k => (k.uyeler || []).indexOf(no) >= 0) || null; },
+  /* numaraya dokun: al / bırak / yer değiştir */
+  noSec(no){
+    no = Number(no);
+    if (D.tasinan == null){ D.tasinan = no; COFF._katTazele(); return; }
+    if (D.tasinan === no){ D.tasinan = null; COFF._katTazele(); return; }
+    COFF.noDegistir(D.tasinan, no);
+    D.tasinan = null;
+    COFF._katTazele();
+  },
+  /* iki numaranın takımlarını değiştir (takım mevcutları korunur) */
+  noDegistir(a, b){
+    a = Number(a); b = Number(b);
+    const ta = COFF._takimBul(a), tb = COFF._takimBul(b);
+    if (!ta || !tb || ta === tb) return;
+    const ia = ta.uyeler.indexOf(a), ib = tb.uyeler.indexOf(b);
+    ta.uyeler[ia] = b; tb.uyeler[ib] = a;
+    ta.uyeler.sort((x, y) => x - y); tb.uyeler.sort((x, y) => x - y);
+    ta.alt = ta.uyeler.join(" · "); tb.alt = tb.uyeler.join(" · ");
+  },
+  /* numarayı başka takıma taşı (mevcutlar değişir) */
+  noTasi(no, hedefId){
+    no = Number(no);
+    const kaynak = COFF._takimBul(no);
+    const hedef = D.katilim.find(k => k.id === hedefId);
+    if (!hedef || !kaynak || kaynak === hedef) return false;
+    if (kaynak.uyeler.length <= 1){ uyar("Bir takım boş kalamaz."); return false; }
+    kaynak.uyeler.splice(kaynak.uyeler.indexOf(no), 1);
+    hedef.uyeler.push(no);
+    hedef.uyeler.sort((x, y) => x - y);
+    kaynak.alt = kaynak.uyeler.join(" · ");
+    hedef.alt = hedef.uyeler.join(" · ");
+    return true;
+  },
+  takimaTasi(hedefId){
+    if (D.tasinan == null) return;
+    COFF.noTasi(D.tasinan, hedefId);
+    D.tasinan = null;
+    COFF._katTazele();
+  },
+  /* --- fare ile sürükle-bırak --- */
+  _suruklBasla(e, no){
+    D.tasinan = Number(no);
+    try { e.dataTransfer.setData("text/plain", String(no)); e.dataTransfer.effectAllowed = "move"; } catch(x){}
+    const t = e.currentTarget || e.target;
+    if (t && t.classList) t.classList.add("tasiniyor");
+  },
+  _suruklBitir(){
+    D.tasinan = null;
+    document.querySelectorAll(".cdw-takim.hedef").forEach(x => x.classList.remove("hedef"));
+    COFF._katTazele();
+  },
+  _uzerinde(e, kart){
+    if (D.tasinan == null) return;
+    e.preventDefault();
+    try { e.dataTransfer.dropEffect = "move"; } catch(x){}
+    if (kart && kart.dataset.tkm !== (COFF._takimBul(D.tasinan) || {}).id) kart.classList.add("hedef");
+  },
+  _birak(e, kart, hedefId){
+    e.preventDefault();
+    if (kart) kart.classList.remove("hedef");
+    let no = D.tasinan;
+    try { const v = e.dataTransfer.getData("text/plain"); if (v) no = Number(v); } catch(x){}
+    if (no == null) return;
+    /* doğrudan bir numaranın üstüne bırakıldıysa yer değiştir */
+    const ust = e.target && e.target.closest ? e.target.closest(".cdw-no") : null;
+    if (ust && ust.dataset && ust.dataset.no && Number(ust.dataset.no) !== Number(no))
+      COFF.noDegistir(no, Number(ust.dataset.no));
+    else COFF.noTasi(no, hedefId);
+    D.tasinan = null;
+    COFF._katTazele();
+  },
+
   /* --- sınıf sistemi: adları elle ekle / sil --- */
   sinifEkle(){
     const g = el("cdSinifAd"); if (!g) return;
@@ -1913,6 +2069,12 @@ const COFF = {
     const s = SORULAR()[D.aktif]; if (!s) return;
     const metin = dogruMetin(s);
     if (!metin) return;
+    const esle = (s.bicim === "eslestir") && (s.ciftler || []).length;
+    const govde = esle
+      ? ciftlerHtml(s, "cd-pk")
+      : `<span class="cd-pk-metin${arMi(metin) ? " ar" : ""}${
+          metin.length > 96 ? " cok-uzun" : (metin.length > 52 ? " uzun" : "")
+        }" dir="auto">${kacisi(metin)}</span>`;
     if (D.pkT){ clearTimeout(D.pkT); D.pkT = null; }
     const eski = k.querySelector(".cd-pankart-ov"); if (eski) eski.remove();
     const kimNot = D.bicim === "kisi" ? "Herkes cevabını göstersin!"
@@ -1929,11 +2091,9 @@ const COFF = {
       <div class="cd-pk-perde cd-pk-perde2" onclick="COFF.pankartKapat()">
         <div class="cd-pankart">
           ${CIZ.pankart}
-          <div class="cd-pk-yazi">
+          <div class="cd-pk-yazi${esle ? " esle" : ""}">
             <span class="cd-pk-etiket">Doğru cevap</span>
-            <span class="cd-pk-metin${arMi(metin) ? " ar" : ""}${
-              metin.length > 96 ? " cok-uzun" : (metin.length > 52 ? " uzun" : "")
-            }" dir="auto">${kacisi(metin)}</span>
+            ${govde}
           </div>
         </div>
         <button type="button" class="cd-tus cd-tus-ana cd-pk-kapat"
@@ -1963,11 +2123,8 @@ const COFF = {
     setTimeout(() => { if (o.parentNode) o.remove(); }, 320);
   },
   ileri(){
-    if (D.cevapAcik && !hepsiIsaretli()){
-      const eksik = YAR().length - isaretSayisi();
-      uyarSunum("Önce herkesi işaretle — " + eksik + " tanesi kaldı.");
-      return;
-    }
+    /* Cevap gösterilmeden ve herkes değerlendirilmeden sonraki soruya geçilmez. */
+    if (!D.siralamaAcik && ileriKilitli()){ uyarSunum(ileriNeden()); return; }
     /* Soru bitti: önce herkesin puanı tam ekranda görünsün. */
     if (D.cevapAcik && !D.siralamaAcik){ COFF.siralamaAc(); return; }
     D.siralamaAcik = false;
@@ -2040,9 +2197,10 @@ const COFF = {
     const n = y.querySelector(".cd-isaret-yuva"); if (n) n.innerHTML = isaretNotu();
     const i = el("cdIleriTus");
     if (i){
-      const kilit = D.cevapAcik && !hepsiIsaretli();
+      const kilit = ileriKilitli();
       i.disabled = kilit;
       i.classList.toggle("kilitli", kilit);
+      i.title = kilit ? ileriNeden() : "";
     }
   },
 
