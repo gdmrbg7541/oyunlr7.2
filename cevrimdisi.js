@@ -932,11 +932,11 @@ function switchTazele(aktif){
    seçilir seçilmez altında o biçmin listesi açılır, çıktı da orada. */
 const ADIM_CD    = [["ders","Ders ve sorular"], ["bicim","Takımlar ve çıktı"],
                     ["bas","Başlat"]];
-/* Canlıda son iki adım kurulum ekranının dışında yaşıyor: 3 karekod lobisi,
-   4 yansıtılan yarışma. Ayrı bir "Başlat" sayfası yok — 2. adımdaki İleri
-   soruları hazırlayıp doğrudan karekodu açıyor. */
+/* Canlıda son adım kurulum ekranının dışında yaşıyor: 3 karekod lobisi.
+   Ayrı bir "Başlat" sayfası yok — 2. adımdaki İleri soruları hazırlayıp
+   doğrudan karekodu açıyor. Yarışma başlayınca hiçbir şerit görünmez. */
 const ADIM_CANLI = [["ders","Ders ve sorular"], ["bicim","Kimler yarışacak?"],
-                    ["karekod","Karekod"], ["yarisma","Yarışma"]];
+                    ["karekod","Karekod"]];
 function adimlar(){
   if (D.mod === "canli") return ADIM_CANLI;
   const ad = D.bicim === "sinif" ? "Sınıflar ve çıktı" : "Takımlar ve çıktı";
@@ -950,12 +950,13 @@ function eksikler(){
   else if (!seciliSorular().length)
     e.push({ ad: "ders", yazi: "Seçtiğin süzgeçlerde soru kalmadı", git: "ders" });
   else {
-    /* Havuzdan elle seçim başlanmışsa soru sayısı süzgecindeki sayıya
-       ulaşılmalı; hiç seçim yoksa sorular kendiliğinden çekilir. */
+    /* Sorular elle seçilmeden yarışma başlamaz: soru sayısı süzgecindeki
+       sayı kadar soru havuzdan işaretlenmiş olmalı. */
     const s = havuzSecili(), h = Math.min(hedefSoru(), seciliSorular().length);
-    if (s > 0 && s < h)
+    if (s < h)
       e.push({ ad: "ders", git: "ders",
-               yazi: "Havuzdan " + h + " soru seçmelisin — şu an " + s + " seçili" });
+               yazi: s ? "Havuzdan " + h + " soru seçmelisin — şu an " + s + " seçili"
+                       : "Havuzdan " + h + " soru seç" });
   }
   if (D.mod === "cevrimdisi"){
     if (D.bicim === "sinif" && !sinifAdlari().length)
@@ -987,7 +988,6 @@ function oyunAkiyor(){
 }
 function adimTamam(k){
   if (k === "karekod")  return odaVar();
-  if (k === "yarisma")  return oyunAkiyor();
   const e = eksikler();
   if (k === "bas") return !e.length && D.sorular.length > 0;
   return !e.some(x => x.ad === k);
@@ -1024,7 +1024,8 @@ function yolSeridi(){
 function canliEkran(){
   if (D.mod !== "canli") return "";
   const ac = id => { const e = el(id); return e && !e.classList.contains("gizli"); };
-  if (ac("ekranOyunAdmin")) return "yarisma";
+  /* Yarışma başlayınca tahtada yalnız soru olsun: şerit de başlık da yok. */
+  if (ac("ekranOyunAdmin")) return "";
   if (ac("ekranTakimlar"))  return "karekod";
   return "";
 }
@@ -1043,7 +1044,6 @@ function canliYolCiz(){
     s.className = "cdw-yol-serit";
     document.body.appendChild(s);
   }
-  s.classList.toggle("oyunda", yer === "yarisma");
   s.innerHTML = `<button type="button" class="cdw-geri-tus" onclick="COFF.yolGeri()"
       title="Bir önceki adım" aria-label="Geri">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"
@@ -2306,12 +2306,8 @@ const COFF = {
     const hedef = (yol[n - 1] || [])[0];
     const su = canliEkran();
     /* Canlının 4-5. sekmeleri kurulum sayfasının dışında: lobi ve yarışma. */
-    if (D.mod === "canli" && (hedef === "karekod" || hedef === "yarisma")){
-      if (hedef === "yarisma"){
-        if (!oyunAkiyor()){ uyar("Yarışma başlamadı — karekod ekranından başlat."); return; }
-        D.adim = n; ekranGoster("ekranOyunAdmin"); canliYolCiz(); return;
-      }
-      if (su === "yarisma" && odaVar()){    // oyun sürerken karekoda göz at
+    if (D.mod === "canli" && hedef === "karekod"){
+      if (oyunAkiyor() && odaVar()){       // oyun sürerken karekoda göz at
         D.adim = n; ekranGoster("ekranTakimlar"); canliYolCiz(); return;
       }
       const eks = eksikler();

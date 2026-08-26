@@ -2210,12 +2210,5 @@ body.cd-serit-acik #ekranTakimlar .biy-takim-yap .biy-btn{
 body.cd-serit-acik #ekranTakimlar .biy-oda-alan{padding-block:clamp(6px,1.2vh,14px) 4px}
 body.cd-serit-acik #ekranTakimlar .biy-bekleyen-alan{padding-block:clamp(6px,1.2vh,14px) 0}
 body.cd-serit-acik #ekranTakimlar .biy-baslat-alan{padding-block:clamp(4px,.8vh,10px) clamp(10px,2vh,22px)}
-#cdYolCanli.oyunda{padding:5px clamp(12px,2.4vw,26px);gap:10px;
-  background:rgba(255,255,255,.9);backdrop-filter:blur(6px)}
-#cdYolCanli.oyunda .cdw-geri-tus{width:32px;height:32px;border-radius:10px}
-#cdYolCanli.oyunda .cdw-geri-tus svg{width:18px;height:18px}
-#cdYolCanli.oyunda .cdw-yol-no{width:26px;height:26px;line-height:26px;font-size:12.5px}
-#cdYolCanli.oyunda .cdw-yol-ad{font-size:12px}
-body.cd-serit-acik #ekranTakimlar,
-body.cd-serit-acik #ekranOyunAdmin{padding-top:var(--cd-serit-h,52px)}
+body.cd-serit-acik #ekranTakimlar{padding-top:var(--cd-serit-h,52px)}
 @media (max-width:820px){ #cdYolCanli .cdw-yol-ad{display:none} }
