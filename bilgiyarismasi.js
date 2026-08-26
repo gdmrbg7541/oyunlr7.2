@@ -1301,6 +1301,12 @@ function sayacDurdur(){ if (state.sayacInterval){ clearInterval(state.sayacInter
 const BIY = {
 
   anasayfa(){ sayacDurdur(); ekranGoster("ekranAnasayfa"); BIY._menuDurum(); },
+  /* Kurulum tek sayfa: turuncu başlıklı eski yönetici ana sayfası yerine
+     çevrimdışı/canlı ortak kurulum ekranına dönülür. */
+  _kurulumaDon(){
+    if (window.COFF && COFF.ac){ try { COFF.ac(); return; } catch(e){} }
+    sayacDurdur(); ekranGoster("ekranAnasayfa"); BIY._menuDurum();
+  },
 
   // Geri: dosyadan çık. Bağlı cihaz varsa onay iste; çıkışta odayı kapat (cihazlar ayrılsın).
   geriDon(){
@@ -1607,11 +1613,14 @@ const BIY = {
     k.classList.toggle("biy-sira-geldi", goster);
   },
   konuSec(id){
+    /* Aynı ders yeniden seçilirse (mod değişimi gibi durumlarda) havuzdan
+       yapılan seçim ve soru sayısı korunur; yalnız ders değişince sıfırlanır. */
+    const ayniDers = (id || null) === (state.konuId || null);
     state.konuId = id || null;
     state.havuzVurguGorildi = false;
-    if (state.konuId){
+    if (state.konuId && !ayniDers){
       const set = BIY._secSet();
-      if (set.size){ set.clear(); state.soruSayisi = null; }   // havuzdan vazgeçildi → seçimi + soru sayısını sıfırla
+      if (set.size){ set.clear(); state.soruSayisi = null; }   // ders değişti → seçim + soru sayısı sıfırlanır
     }
     BIY._konuVurgu();
     BIY._soruSecSayiGuncelle();   // havuz tuşu/sayaç + pdf + sınır + menü hepsini günceller
@@ -2554,12 +2563,12 @@ const BIY = {
   _temizleKayit(){ try { localStorage.removeItem('biy_aktif'); } catch(e){} },
   async _devamEt(kayit){
     try {
-      if (kayit.ts && (Date.now() - kayit.ts) > 12*3600*1000){ BIY._temizleKayit(); ekranGoster('ekranAnasayfa'); return; }
+      if (kayit.ts && (Date.now() - kayit.ts) > 12*3600*1000){ BIY._temizleKayit(); BIY._kurulumaDon(); return; }
       const ref = db.collection(KOLEKSIYON).doc(kayit.oda);
       const snap = await ref.get();
       const dr0 = snap.exists ? snap.data().durum : null;
       // yalnızca AKTİF oyun (oyun/beraberlik) kaldığı yerden devam eder; lobi/bitti → ana sayfa
-      if (dr0 !== 'oyun' && dr0 !== 'beraberlik'){ BIY._temizleKayit(); ekranGoster('ekranAnasayfa'); return; }
+      if (dr0 !== 'oyun' && dr0 !== 'beraberlik'){ BIY._temizleKayit(); BIY._kurulumaDon(); return; }
       state.odaId = kayit.oda;
       const od0 = snap.data() || {};
       state.oyunModu = MOD_BILGI[od0.mod] ? od0.mod : "takim";
@@ -2571,7 +2580,7 @@ const BIY = {
       if (state.takimAbone) state.takimAbone();
       state.takimAbone = ref.collection('takimlar').orderBy('olusturmaZamani').onSnapshot(s => BIY._takimlariCiz(s));
       BIY._adminOyunaGec();   // aktif oyuna geri dön
-    } catch(e){ console.error('Devam hatası:', e); BIY._temizleKayit(); ekranGoster('ekranAnasayfa'); }
+    } catch(e){ console.error('Devam hatası:', e); BIY._temizleKayit(); BIY._kurulumaDon(); }
   },
   // özel onay penceresi (native confirm yerine)
   _onay(baslik, metin, evetMetin, onEvet){

@@ -117,8 +117,9 @@ function canliyaAktar(){
     if (!state.odaId) state.oyunModu = BICIM_ES[D.bicim] || "takim";
     const k = konuBul(D.konuId);
     if (k && k.unite && state.uniteNo !== k.unite && BIY.uniteSec) BIY.uniteSec(k.unite);
-    if (k && BIY.konuSec) BIY.konuSec(k.id);
-    if (BIY.setSoruSayisi && D.soruSayisi) BIY.setSoruSayisi(D.soruSayisi);
+    /* Ders zaten ortak durumda; yeniden seçmek havuz seçimini boşuna riske
+       atıyordu. Yalnız gerçekten farklıysa dokunuyoruz. */
+    if (k && BIY.konuSec && state.konuId !== k.id) BIY.konuSec(k.id);
     /* Çevrimdışıda seçilen yarışma biçiminin karşılığı olan kart işaretlensin. */
     const kart = { birey:"kartBirey", takim:"kartTakim", okul:"kartOkul" };
     Object.keys(kart).forEach(m => {
@@ -847,34 +848,65 @@ CIZ.modCevrimdisi = `<svg viewBox="0 0 170 100" class="cdw-mod-ciz" aria-hidden=
   </g>
 </svg>`;
 
-function switchBuyukHtml(){
-  const yol = [
-    ["cevrimdisi", "Çevrimdışı", "Sınıfta kâğıt ve tahta ile. İnternet gerekmez.", CIZ.modCevrimdisi],
-    ["canli",      "Canlı",      "Öğrenciler karekodu telefonla okutup katılır.",  CIZ.modCanli]
-  ];
-  return `
-  <div class="cdw-mod" role="group" aria-label="Yarışma modu">
-    ${yol.map(([v, ad, not, ciz]) => `
-      <button type="button" class="cdw-mod-yol${D.mod === v ? " ac" : ""}"
-              onclick="COFF.modDegis('${v}')" aria-pressed="${D.mod === v}">
-        <span class="cdw-mod-tik">✓</span>
-        ${ciz}
-        <b>${ad}</b>
-        <small>${not}</small>
-      </button>`).join("")}
-  </div>`;
-}
+/* Büyük mod kartları kaldırıldı: mod seçimi 1. sayfadaki anahtarda. */
 
 /* ---------- küçük mod anahtarı (üst çubuk) ---------- */
+/* Anahtarın içindeki küçük canlı çizimler. Amaç iki şeyi tek bakışta
+   anlatmak: canlıda karekodla girilir ve internet gerekir; çevrimdışında
+   kâğıt–tahta yeter, internet gerekmez (üstü çizili wifi).
+   Renkler currentColor'dan gelir; seçili olan hareket eder. */
+CIZ.swCevrimdisi = `<svg viewBox="0 0 45 32" class="cdw-sw-ciz" aria-hidden="true">
+  <!-- defter: kâğıt ve tahta yeter -->
+  <rect x="2" y="5" width="17" height="22" rx="2.4" fill="#E9FBF4"/>
+  <rect x="2" y="5" width="17" height="22" rx="2.4" fill="none" stroke="#16A085" stroke-width="2"/>
+  <path d="M6.5 5 v22" stroke="#16A085" stroke-width="1.6" opacity=".45"/>
+  <g stroke="#0E8C74" stroke-width="2" stroke-linecap="round" opacity=".8">
+    <path d="M9 11 h7"/><path d="M9 16 h7"/><path d="M9 21 h4"/>
+  </g>
+  <!-- internet gerekmez: üstü çizili wifi -->
+  <g class="sw-wifi kapali" fill="none" stroke="#94A6B8" stroke-linecap="round">
+    <path class="sw-a3" d="M28 15.5 a10 10 0 0 1 14 0" stroke-width="2"/>
+    <path class="sw-a2" d="M31 19 a6 6 0 0 1 8 0" stroke-width="2"/>
+  </g>
+  <circle class="sw-nokta" cx="35" cy="23.5" r="2" fill="#94A6B8"/>
+  <path class="sw-cizik" d="M28.5 27 L41.5 12" stroke="#EF5350" stroke-width="2.8"
+        stroke-linecap="round" fill="none"/>
+</svg>`;
+CIZ.swCanli = `<svg viewBox="0 0 45 32" class="cdw-sw-ciz" aria-hidden="true">
+  <!-- karekod: telefonla okutup girilir -->
+  <rect x="2" y="6" width="20" height="20" rx="2.6" fill="#EEF2FF"/>
+  <rect x="2" y="6" width="20" height="20" rx="2.6" fill="none" stroke="#4C5FD5" stroke-width="2"/>
+  <g fill="none" stroke="#4C5FD5" stroke-width="1.9">
+    <rect x="5" y="9" width="5" height="5" rx="1"/>
+    <rect x="14" y="9" width="5" height="5" rx="1"/>
+    <rect x="5" y="18" width="5" height="5" rx="1"/>
+  </g>
+  <g fill="#4C5FD5" opacity=".9">
+    <rect x="14" y="18" width="2.2" height="2.2" rx=".6"/>
+    <rect x="16.8" y="20.8" width="2.2" height="2.2" rx=".6"/>
+    <rect x="14" y="21.6" width="1.6" height="1.6" rx=".5"/>
+  </g>
+  <!-- tarama ışını -->
+  <path class="sw-tara" d="M3.5 16 h17" stroke="#EF5350" stroke-width="2.2"
+        stroke-linecap="round" opacity=".9"/>
+  <!-- internet gerekir: yayılan wifi -->
+  <g class="sw-wifi acik" fill="none" stroke="#16A085" stroke-linecap="round">
+    <path class="sw-a3" d="M30 15.5 a10 10 0 0 1 14 0" stroke-width="2.2"/>
+    <path class="sw-a2" d="M33 19 a6 6 0 0 1 8 0" stroke-width="2.2"/>
+  </g>
+  <circle class="sw-nokta" cx="37" cy="23.5" r="2.1" fill="#16A085"/>
+</svg>`;
+
 function switchHtml(aktif, pasif){
-  const yol = [["cevrimdisi","Çevrimdışı","Kâğıt ve tahta"], ["canli","Canlı","Telefonla katılım"]];
+  const yol = [["cevrimdisi","Çevrimdışı","Kâğıt ve tahta", CIZ.swCevrimdisi],
+               ["canli","Canlı","Telefonla katılım", CIZ.swCanli]];
   const ipucu = pasif ? "Mod 1. adımda seçilir" : "";
   return `<div class="cdw-switch${pasif?" pasif":""}" role="group" aria-label="Yarışma modu"
        title="${ipucu}">
-    ${yol.map(([v, ad, not]) => `<button type="button" class="cdw-sw${aktif===v?" ac":""}"
+    ${yol.map(([v, ad, not, ciz]) => `<button type="button" class="cdw-sw${aktif===v?" ac":""}"
         ${pasif ? "disabled" : `onclick="COFF.modDegis('${v}')"`}
         aria-pressed="${aktif===v}" title="${pasif ? ipucu : not}">
-        <span class="cdw-sw-ad">${ad}</span></button>`).join("")}
+        ${ciz}<span class="cdw-sw-ad">${ad}</span></button>`).join("")}
   </div>`;
 }
 
@@ -896,16 +928,19 @@ function switchTazele(aktif){
 /* ---------- adım adım kurulum (slayt) ---------- */
 /* Kurulum tek sayfa: iki mod da aynı adımlardan geçer. Yalnız "Sınıf listesi"
    çevrimdışına özeldir — canlıda öğrenciler karekodla kendileri katılır. */
-const ADIM_CD    = [["ders","Ders ve sorular"], ["bicim","Kimler yarışacak?"],
-                    ["liste","Sınıf listesi"], ["bas","Başlat"]];
-const ADIM_CANLI = [["ders","Ders ve sorular"], ["bicim","Kimler yarışacak?"],
+/* Çevrimdışında "kimler yarışacak" ve listeyi kurma tek adımda: biçim
+   seçilir seçilmez altında o biçmin listesi açılır, çıktı da orada. */
+const ADIM_CD    = [["ders","Ders ve sorular"], ["bicim","Takımlar ve çıktı"],
                     ["bas","Başlat"]];
+/* Canlıda son iki adım kurulum ekranının dışında yaşıyor: 3 karekod lobisi,
+   4 yansıtılan yarışma. Ayrı bir "Başlat" sayfası yok — 2. adımdaki İleri
+   soruları hazırlayıp doğrudan karekodu açıyor. */
+const ADIM_CANLI = [["ders","Ders ve sorular"], ["bicim","Kimler yarışacak?"],
+                    ["karekod","Karekod"], ["yarisma","Yarışma"]];
 function adimlar(){
   if (D.mod === "canli") return ADIM_CANLI;
-  /* 2. adımın adı biçime göre değişir: sınıflar mı, takımlar mı? */
-  const ad = D.bicim === "sinif" ? "Yarışan sınıflar"
-           : D.bicim === "takim" ? "Takımlar" : "Sınıf listesi";
-  return ADIM_CD.map(a => a[0] === "liste" ? ["liste", ad] : a);
+  const ad = D.bicim === "sinif" ? "Sınıflar ve çıktı" : "Takımlar ve çıktı";
+  return ADIM_CD.map(a => a[0] === "bicim" ? ["bicim", ad] : a);
 }
 /* Kurulumda eksik kalan ne varsa listeler. Sekmeler arasında serbestçe
    gezilebilir; ama bu liste boşalmadan yarışma başlatılamaz. */
@@ -924,9 +959,9 @@ function eksikler(){
   }
   if (D.mod === "cevrimdisi"){
     if (D.bicim === "sinif" && !sinifAdlari().length)
-      e.push({ ad: "liste", yazi: "Yarışan sınıf yazılmadı", git: "liste" });
+      e.push({ ad: "bicim", yazi: "Yarışan sınıf yazılmadı", git: "bicim" });
     else if (!D.katilim.length)
-      e.push({ ad: "liste", yazi: "Takım/sınıf listesi boş", git: "liste" });
+      e.push({ ad: "bicim", yazi: "Takım/sınıf listesi boş", git: "bicim" });
   }
   return e;
 }
@@ -942,10 +977,19 @@ function turImza(){
 }
 function turGerekli(){ return !D.sorular.length || D.turImza !== turImza(); }
 /* Sekmeler serbest gezilebildiği için ✓ "geçildi" değil "tamam" demek. */
+function odaVar(){
+  try { return !!(typeof state !== "undefined" && state.odaId); } catch(e){ return false; }
+}
+function oyunAkiyor(){
+  try { return !!(typeof state !== "undefined" && state.oda &&
+                  (state.oda.durum === "oyun" || state.oda.durum === "beraberlik" ||
+                   state.oda.durum === "bitti")); } catch(e){ return false; }
+}
 function adimTamam(k){
+  if (k === "karekod")  return odaVar();
+  if (k === "yarisma")  return oyunAkiyor();
   const e = eksikler();
-  if (k === "bas")  return !e.length && D.sorular.length > 0;
-  if (k === "bicim") return true;                       // biçim hep seçili
+  if (k === "bas") return !e.length && D.sorular.length > 0;
   return !e.some(x => x.ad === k);
 }
 
@@ -957,9 +1001,73 @@ function adimNo(anahtar){
   return i >= 0 ? i + 1 : 1;
 }
 
+/* Sekme şeridi: kurulum ekranında da, canlının karekod/yarışma
+   ekranlarında da aynı işaretler görünsün diye tek yerden üretiliyor. */
+function yolSeridi(){
+  return `<ol class="cdw-yol">
+    ${adimlar().map(([k, a], i) => {
+      const n = i + 1;
+      const tamam = adimTamam(k);
+      const simdi = (n === D.adim);
+      const durum = (simdi ? "simdi " : "") + (tamam ? "bitti" : (n < D.adim ? "eksik" : ""));
+      return `<li class="${durum.trim()}">
+        <button type="button" class="cdw-yol-tus"
+                title="${kacisi(a)}${tamam ? "" : " — eksik"}" onclick="COFF.adimGit(${n})">
+          <span class="cdw-yol-no">${tamam && !simdi ? "✓" : n}</span>
+          <span class="cdw-yol-ad">${a}</span>
+        </button></li>`;
+    }).join("")}
+  </ol>`;
+}
+
+/* Hangi canlı ekranı açık: karekod lobisi mi, yansıtılan yarışma mı? */
+function canliEkran(){
+  if (D.mod !== "canli") return "";
+  const ac = id => { const e = el(id); return e && !e.classList.contains("gizli"); };
+  if (ac("ekranOyunAdmin")) return "yarisma";
+  if (ac("ekranTakimlar"))  return "karekod";
+  return "";
+}
+/* Şerit gövdeye asılı duruyor: yarışma ekranının içeriği her anlık
+   görüntüde baştan çiziliyor, içine koyulan bir düğüm silinirdi. */
+function canliYolCiz(){
+  const yer = canliEkran();
+  let s = el("cdYolCanli");
+  /* Not: "cd-yol-canli" adı mod kapısındaki karta ait, çakışmasın. */
+  document.body.classList.toggle("cd-serit-acik", !!yer);
+  if (!yer){ if (s) s.remove(); return; }
+  D.adim = adimNo(yer);
+  if (!s){
+    s = document.createElement("div");
+    s.id = "cdYolCanli";
+    s.className = "cdw-yol-serit";
+    document.body.appendChild(s);
+  }
+  s.classList.toggle("oyunda", yer === "yarisma");
+  s.innerHTML = `<button type="button" class="cdw-geri-tus" onclick="COFF.yolGeri()"
+      title="Bir önceki adım" aria-label="Geri">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+      </svg></button>` + yolSeridi();
+  /* Üstteki boşluk şeridin gerçek yüksekliği kadar olsun. */
+  requestAnimationFrame(() => document.body.style.setProperty(
+    "--cd-serit-h", s.offsetHeight + "px"));
+}
+/* Ekran değişimini yakala: .gizli sınıfı gidip gelince şeridi tazele. */
+let yolGozcu = null;
+function canliYolGozle(){
+  if (yolGozcu) return;
+  yolGozcu = new MutationObserver(() => canliYolCiz());
+  ["ekranTakimlar", "ekranOyunAdmin", "ekranCevrimdisi"].forEach(id => {
+    const e = el(id); if (e) yolGozcu.observe(e, { attributes: true, attributeFilter: ["class"] });
+  });
+}
+
 function kurulumHtml(){
   const yol = adimlar();
-  const son = D.adim >= yol.length;
+  /* Canlıda 3-4 kurulum dışında; alt satır yalnız "Başlat" adımında biter. */
+  const son = adimAnahtar() === "bas";
   return `
   <div class="cdw" dir="ltr">
     <div class="cdw-ust">
@@ -970,21 +1078,7 @@ function kurulumHtml(){
           <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
         </svg>
       </button>
-      <ol class="cdw-yol">
-        ${yol.map(([k, a], i) => {
-          const n = i + 1;
-          const tamam = adimTamam(k);
-          const simdi = (n === D.adim);
-          const durum = (simdi ? "simdi " : "") + (tamam ? "bitti" : (n < D.adim ? "eksik" : ""));
-          return `<li class="${durum.trim()}">
-            <button type="button" class="cdw-yol-tus"
-                    title="${kacisi(a)}${tamam ? "" : " — eksik"}" onclick="COFF.adimGit(${n})">
-              <span class="cdw-yol-no">${tamam && !simdi ? "✓" : n}</span>
-              <span class="cdw-yol-ad">${a}</span>
-            </button></li>`;
-        }).join("")}
-      </ol>
-      ${switchHtml(D.mod, true)}
+      ${yolSeridi()}
     </div>
 
     <div class="cdw-govde cdw-govde-${adimAnahtar()}">${adimHtml()}</div>
@@ -998,7 +1092,9 @@ function kurulumHtml(){
             ? `<span class="cdw-bitti-not">Her şey hazır 🎉</span>`
             : `<span class="cdw-bitti-not eksik">${eksikler().length} eksik var</span>`)
         : `<button type="button" class="cdw-tus cdw-tus-ana" onclick="COFF.adimIleri()">
-             ${sonrakiAnahtar() === "bas" ? "Soruları hazırla ›" : "İleri ›"}</button>`}
+             ${sonrakiAnahtar() === "bas" ? "Soruları hazırla ›"
+               : sonrakiAnahtar() === "karekod" ? "Soruları hazırla ve karekodu aç ›"
+               : "İleri ›"}</button>`}
     </div>
   </div>`;
 }
@@ -1006,7 +1102,6 @@ function kurulumHtml(){
 function adimHtml(){
   const k = adimAnahtar();
   if (k === "bicim") return adim1();
-  if (k === "liste") return adim2();
   if (k === "ders")  return adim3();
   return D.mod === "canli" ? adimCanliBas() : adim5();
 }
@@ -1014,7 +1109,10 @@ function adimHtml(){
 /* --- 1 · yarışma biçimi ---
    Canlı taraftaki üç kartın ta kendisi: aynı çizimler, aynı Arapça adlar.
    Artık iki modda da bu ekran geliyor; tıklayınca yalnız seçim yapılır. */
-const menuKartlar = () => [
+const menuKartlar = () => {
+/* Çevrimdışında bireysel yarış hiç kullanılmıyor (her öğrenciye tek tek
+   puan vermek zor): kartı soluk göstermek yerine hiç çıkarmıyoruz. */
+const hepsi = [
   `<button class="biy-menu-kart${D.bicim==='sinif'?' cdw-secili':''}" onclick="COFF.bicimSec('sinif')">
         <span class="biy-menu-emoji biy-anim" aria-hidden="true">
           <svg viewBox="0 0 64 64" class="biy-svg biy-svg-okul">
@@ -1082,30 +1180,37 @@ const menuKartlar = () => [
           ? `<span class="cdw-menu-kilit">Çevrimiçine geç</span>` : `<span class="cdw-menu-tik">✓</span>`}
       </button>`
 ];
+  return (D.mod === "cevrimdisi") ? hepsi.slice(0, 2) : hepsi;
+};
 
 function adim1(){
+  /* Canlıda yalnız biçim seçilir; çevrimdışında hemen altında listenin
+     kendisi ve çıktı bölümü açılır — çıktı takımlara göre hazırlanır. */
+  const cd = D.mod === "cevrimdisi";
   return `
-  <div class="cdw-sahne cdw-genis">
-    ${switchBuyukHtml()}
+  <div class="cdw-sahne cdw-genis${cd ? " cdw-birlesik" : ""}${
+      cd && D.katilim.length ? " liste-hazir" : ""}">
     <h2 class="cdw-bas cdw-bas-ince">Kimler yarışacak?</h2>
-    <p class="cdw-alt-bas cdw-alt-ar">نِظام المُسابَقَة</p>
+    ${cd ? "" : `<p class="cdw-alt-bas cdw-alt-ar">نِظام المُسابَقَة</p>`}
     <div class="biy-menu cdw-menu" dir="rtl">
       ${menuKartlar().join("")}
     </div>
+    ${cd ? `<div class="cdw-liste-govde">${listeGovdesi()}</div>
+            <div id="cdCiktiYuva">${ciktiHtml()}</div>` : ""}
   </div>`;
 }
 
-/* --- 2 · sınıf listesi --- */
-function adim2(){
+/* --- birleşik adımın alt yarısı: takım / sınıf listesi --- */
+function listeGovdesi(){
   const takimMi = D.bicim === "takim";
   const sinifMi = D.bicim === "sinif";
   const yokSay = String(D.yok || "").split(/[^0-9]+/).filter(Boolean).length;
   const toplam = Math.max(0, Math.max(D.bas, D.son) - Math.max(1, D.bas) + 1) - yokSay;
   const kacSinif = sinifAdlari().length;
   return `
-  <div class="cdw-sahne cdw-genis">
-    <h2 class="cdw-bas">${sinifMi ? "Yarışan sınıflar" : "Takımları kuralım"}</h2>
-    <p class="cdw-alt-bas">${sinifMi
+  <div class="cdw-liste-bolum">
+    <h3 class="cdw-bolum-bas">${sinifMi ? "Yarışan sınıflar" : "Takımları kuralım"}</h3>
+    <p class="cdw-bolum-alt">${sinifMi
       ? "Hangi sınıflar yarışacak? Adını yaz, ekle; istemediğini ✕ ile çıkar."
       : "Sınıfın sıra numaralarını yaz, <b>bugün gelmeyenleri çıkar</b>; kalan numaralar takımlara dağılsın."}</p>
     ${sinifMi ? "" : `
@@ -1193,16 +1298,23 @@ function ciktiHtml(){
   const secili = (typeof state !== "undefined" && state.secilenSet) ? state.secilenSet.size : 0;
   /* Çıktı ancak havuzdan hedef sayıda soru işaretlendikten sonra açılır. */
   const hedef = Math.min(hedefSoru(), havuz);
-  const cikabilir = !!D.konuId && havuz > 0 && secili >= hedef;
+  /* Cevap kâğıdı takımlara/sınıflara göre basıldığı için liste de hazır
+     olmalı; soru tarafı ile katılımcı tarafı birlikte tamamlanır. */
+  const listeEksik = eksikler().find(x => x.ad === "bicim");
+  const cikabilir = !!D.konuId && havuz > 0 && secili >= hedef && !listeEksik;
   return `
     <div class="cdw-cikti${cikabilir ? "" : " kapali"}">
       <span class="cdw-cikti-bas">Kâğıda dökmek istersen</span>
       ${cikabilir ? "" : `<span class="cdw-cikti-not">
-        ${D.konuId && havuz > 0
-          ? `Havuzdan <b>${hedef}</b> soru işaretle${secili ? ` — şu an <b>${secili}</b> seçili` : ""}.`
-          : `Önce bir ders seç, sonra havuzdan soruları işaretle.`}
-        <button type="button" class="cdw-cikti-git" ${D.konuId && havuz > 0 ? "" : "disabled"}
-                onclick="COFF.havuzAc()">Soruları seç ›</button>
+        ${!D.konuId || havuz === 0
+          ? `Önce bir ders seç, sonra havuzdan soruları işaretle.`
+          : secili < hedef
+            ? `Havuzdan <b>${hedef}</b> soru işaretle${secili ? ` — şu an <b>${secili}</b> seçili` : ""}.`
+            : kacisi(listeEksik ? listeEksik.yazi + " — cevap kâğıdı listeye göre basılır." : "")}
+        ${(!D.konuId || havuz === 0 || secili < hedef)
+          ? `<button type="button" class="cdw-cikti-git" ${D.konuId && havuz > 0 ? "" : "disabled"}
+                     onclick="COFF.havuzAc()">Soruları seç ›</button>`
+          : ""}
       </span>`}
       <div class="cdw-cikti-tuslar">
         <button type="button" class="cdw-cikti-tus" ${cikabilir ? "" : "disabled"}
@@ -1228,11 +1340,12 @@ function ciktiHtml(){
 function adim3(){
   return `
   <div class="cdw-sahne cdw-genis cdw-ust-hizali">
+    <!-- Yarışma çevrimdışı mı canlı mı: kurulumun ilk kararı, en başta. -->
+    <div class="cdw-mod-secim">${switchHtml(D.mod)}</div>
     <h2 class="cdw-bas">Hangi dersten soru gelsin?</h2>
     <div class="cdw-panel cdw-panel-ayar" id="cdPanelAyar"></div>
     <div class="cdw-panel" id="cdPanelSure"></div>
     <div class="cdw-panel" id="cdPanelDers"></div>
-    <div id="cdCiktiYuva">${ciktiHtml()}</div>
   </div>`;
 }
 
@@ -1733,12 +1846,11 @@ function sunumHtml(){
       <button class="cd-tus cd-tus-ek" id="cdSureEkTus" onclick="COFF.sureEkle(15)"
               ${D.cevapAcik ? "disabled" : ""} title="Süreye 15 saniye ekle">+15 sn</button>
       <button class="cd-tus cd-tus-ana" onclick="COFF.cevapAc()">${D.cevapAcik?"Cevap açık":"Cevabı göster"}</button>
-      <button class="cd-tus" onclick="COFF.geri()" ${D.aktif?"":"disabled"}>‹ Önceki</button>
       <button class="cd-tus${ileriKilitli() ? " kilitli" : " hazir"}" id="cdIleriTus"
               onclick="COFF.ileri()" ${ileriKilitli() ? "disabled" : ""}
               title="${ileriKilitli() ? kacisi(ileriNeden()) : "Herkes değerlendirildi — sonraki soruya geçebilirsin"}">
         ${D.aktif+1>=SORULAR().length?(D.mac?"Maçı bitir":"Bitir"):"Sonraki ›"}</button>
-      <span class="cd-kisayol">boşluk: cevap · ← →: soru · S: süre · P: puan · +: doğru, −: geri al</span>
+      <span class="cd-kisayol">boşluk: cevap · S: süre · P: puan · +: doğru, −: geri al</span>
     </div>
     <aside class="cd-yan${D.yanAcik?" acik":""}${YAR().length>10?" cok-kalabalik":(YAR().length>6?" kalabalik":"")}" id="cdYan">
       <h4>${D.mac ? "Maç puanı" : "Puan tablosu"}</h4>
@@ -2120,6 +2232,7 @@ const COFF = {
        hangi dersten soru geleceğine öğretmen karar verir. */
     D.adim = 1;
     ekranGoster("ekranCevrimdisi");
+    canliYolGozle();
     COFF.ciz();
   },
   kapat(){ COFF.sunumKapat(); BIY._modKapisi(); },
@@ -2141,7 +2254,7 @@ const COFF = {
     else if (alan === "sinifAdlari"){ D.sinifAdlari = String(v || ""); listeKur(); COFF.ciz(); return; }
     else if (sayisal[alan]) D[alan] = Math.max(1, parseInt(v, 10) || 1);
     if (alan === "sure") D.sure = Math.max(10, Math.min(180, parseInt(v,10) || 30));
-    if (adimAnahtar() === "liste") sayacTazele();
+    if (adimAnahtar() === "bicim") sayacTazele();
   },
   bicimSec(v){
     /* Çevrimdışında her öğrenciye tek tek puan vermek zor; bireysel sistem
@@ -2180,13 +2293,35 @@ const COFF = {
   canliBaslat(){
     if (!D.sorular.length && !seciliSorular().length){ uyar("Önce bir ders seç."); return; }
     canliyaAktar();
+    canliYolGozle();
     try { BIY.acLobi(BICIM_ES[D.bicim] || "takim"); }
     catch(e){ console.warn("[CD] lobi:", e); uyar("Lobi açılamadı."); }
+    setTimeout(canliYolCiz, 0);
   },
 
   /* ---- adım adım gezinme ---- */
   adimGit(n){
-    D.adim = Math.max(1, Math.min(adimlar().length, n));
+    const yol = adimlar();
+    n = Math.max(1, Math.min(yol.length, n));
+    const hedef = (yol[n - 1] || [])[0];
+    const su = canliEkran();
+    /* Canlının 4-5. sekmeleri kurulum sayfasının dışında: lobi ve yarışma. */
+    if (D.mod === "canli" && (hedef === "karekod" || hedef === "yarisma")){
+      if (hedef === "yarisma"){
+        if (!oyunAkiyor()){ uyar("Yarışma başlamadı — karekod ekranından başlat."); return; }
+        D.adim = n; ekranGoster("ekranOyunAdmin"); canliYolCiz(); return;
+      }
+      if (su === "yarisma" && odaVar()){    // oyun sürerken karekoda göz at
+        D.adim = n; ekranGoster("ekranTakimlar"); canliYolCiz(); return;
+      }
+      const eks = eksikler();
+      if (eks.length){ COFF.adimGit(adimNo(eks[0].git)); uyar(eks[0].yazi); return; }
+      /* Ayrı "Başlat" sayfası kalmadığı için soru seti burada kuruluyor. */
+      if (turGerekli() && !setKur()){ uyar("Bu derste seçtiğin çeşitlerde soru yok."); return; }
+      D.adim = n; COFF.canliBaslat(); return;
+    }
+    D.adim = n;
+    if (su) ekranGoster("ekranCevrimdisi");   // 4-5'ten kuruluma dön
     /* "Başlat" sekmesine girerken soru seti hazır değilse kurulur; hazırsa
        olduğu gibi kalır — puanlar ve seçilmiş sorular korunur. */
     if (adimAnahtar() === "bas" && D.konuId && seciliSorular().length && turGerekli()){
@@ -2195,18 +2330,24 @@ const COFF = {
     COFF.ciz();
   },
   adimGeri(){ if (D.adim > 1) COFF.adimGit(D.adim - 1); },
+  /* Karekod/yarışma ekranındaki şeritten bir önceki sekmeye. */
+  yolGeri(){ COFF.adimGit(Math.max(1, D.adim - 1)); },
   adimIleri(){
     const k = adimAnahtar();
     if (k === "ders"){
       if (!D.konuId){ uyar("Önce bir ders seç."); return; }
       if (!seciliSorular().length){ uyar("Bu derste seçtiğin çeşitlerde soru yok."); return; }
     }
-    if (k === "liste" && D.bicim === "sinif" && !D.katilim.length){
-      uyar("En az bir sınıf ekle.");
-      const g = el("cdSinifAd"); if (g) g.focus();
-      return;
+    if (k === "bicim" && D.mod === "cevrimdisi"){
+      if (D.bicim === "sinif" && !D.katilim.length){
+        uyar("En az bir sınıf ekle.");
+        const g = el("cdSinifAd"); if (g) g.focus();
+        return;
+      }
+      if (!D.katilim.length) listeKur();
     }
-    if (k === "liste" && !D.katilim.length) listeKur();
+    /* Canlıda "Başlat" sayfası yok: soruları hazırlayıp karekodu açıyoruz. */
+    if (sonrakiAnahtar() === "karekod"){ COFF.adimGit(adimNo("karekod")); return; }
     /* Son adıma ("Başlat") geçerken soruları burada hazırlıyoruz. */
     if (sonrakiAnahtar() === "bas"){
       const eski = D.sorular.length;
@@ -2500,8 +2641,6 @@ const COFF = {
       return;
     }
     if (k === " "){ e.preventDefault(); COFF.cevapAc(); }
-    else if (k === "ArrowLeft"){ e.preventDefault(); COFF.ileri(); }
-    else if (k === "ArrowRight"){ e.preventDefault(); COFF.geri(); }
     else if (k === "s" || k === "S"){ COFF.sayacBasDur(); }
     else if (k === "p" || k === "P"){ COFF.yanAcKapa(); }
     else if (k === "Escape"){ COFF.cikSor(); }
@@ -2877,7 +3016,7 @@ window.COFF = COFF;
         const eski = BIY.anasayfa;
         const sarmal = function(){
           const r = eski.apply(BIY, arguments);
-          if (D.mod === "canli"){ ekranGoster("ekranCevrimdisi"); COFF.ciz(); }
+          ekranGoster("ekranCevrimdisi"); COFF.ciz();
           return r;
         };
         sarmal._cdSarmal = true;
