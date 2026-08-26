@@ -1903,7 +1903,31 @@ const BIY = {
     BIY._soruSecSayiGuncelle();   // once sayilar/sinir tazelensin
     BIY._soruSecRender();          // sonra liste + uyari seridi cizilsin
   },
-  soruSecKapat(){ const ov = $("biySoruSec"); if (ov) ov.remove(); BIY._soruSecSayiGuncelle(); },
+  soruSecKapat(zorla){
+    /* Soru sayısı süzgecinde bir sayı seçiliyse esas o sayıdır: havuzdan
+       o kadar soru işaretlenmeden pencere kapanmaz, önce uyarı verilir. */
+    const hedef = Math.max(1, state.soruSayisi || 0);
+    const secili = BIY._secSet().size;
+    if (zorla !== true && secili > 0 && secili < hedef){
+      BIY._havuzEksikUyar(hedef - secili);
+      return;
+    }
+    const ov = $("biySoruSec"); if (ov) ov.remove();
+    BIY._soruSecSayiGuncelle();
+    try { if (window.COFF && COFF.ciz && document.getElementById("ekranCevrimdisi")) COFF.ciz(); } catch(e){}
+  },
+  /* Havuz penceresinin içinde kısa bir uyarı şeridi göster. */
+  _havuzEksikUyar(kalan){
+    const kutu = document.querySelector("#biySoruSec .biy-soru-sec-kutu"); if (!kutu) return;
+    const eski = $("havuzEksikNot"); if (eski) eski.remove();
+    const s = document.createElement("div");
+    s.id = "havuzEksikNot"; s.className = "biy-havuz-eksik";
+    s.innerHTML = '<span><b>' + kalan + ' soru daha</b> seçmen gerekiyor —'
+      + ' soru sayısı süzgecinde belirlediğin sayıya ulaşılmadı.</span>'
+      + '<button type="button" class="biy-he-tus" onclick="BIY.soruSecKapat(true)">Yine de kapat</button>';
+    kutu.appendChild(s);
+    setTimeout(() => { if (s.parentNode){ s.classList.add("biy-gec"); setTimeout(() => s.remove(), 500); } }, 6000);
+  },
   /* ---------- soru tipi (biçim) filtresi ---------- */
   // aktif konunun sorularından yalnız seçili biçimdekiler
   _bicimliSorular(){
@@ -1979,27 +2003,33 @@ const BIY = {
       + '<button type="button" class="biy-bs-kapat" title="Kapat" aria-label="Kapat"'
       + ' onclick="BIY.puanKapat()">✕</button></div>'
 
+      + '<div class="biy-pn-grup">Doğru cevap nasıl puanlansın?</div>'
       + '<button type="button" class="biy-bs-oge biy-pn-oge'+(p.yon === "sabit" ? ' secili' : '')+'"'
-      + ' aria-pressed="'+(p.yon === "sabit" ? 'true' : 'false')+'" onclick="BIY.puanYon(\'sabit\')">'
+      + ' role="radio" aria-checked="'+(p.yon === "sabit" ? 'true' : 'false')+'" onclick="BIY.puanYon(\'sabit\')">'
+      + '<span class="biy-pn-radyo" aria-hidden="true"></span>'
       + '<span class="biy-bs-yazi"><b>Her doğru eşit puan</b>'
-      + '<small>Soru hangi zorlukta olursa olsun aynı puanı getirir.</small></span>' + tik + '</button>'
+      + '<small>Soru hangi zorlukta olursa olsun aynı puanı getirir.</small></span></button>'
       + '<div class="biy-pn-satir biy-pn-cipli'+(p.yon === "sabit" ? '' : ' biy-pn-pasif')+'">'
       +   '<span>Doğru cevap</span>'
       +   '<span class="biy-pn-cipler">' + cip("dogru", p.dogru, [1,2,3,5,10], "+") + '</span></div>' 
 
       + '<button type="button" class="biy-bs-oge biy-pn-oge'+(p.yon === "zorluk" ? ' secili' : '')+'"'
-      + ' aria-pressed="'+(p.yon === "zorluk" ? 'true' : 'false')+'" onclick="BIY.puanYon(\'zorluk\')">'
+      + ' role="radio" aria-checked="'+(p.yon === "zorluk" ? 'true' : 'false')+'" onclick="BIY.puanYon(\'zorluk\')">'
+      + '<span class="biy-pn-radyo" aria-hidden="true"></span>'
       + '<span class="biy-bs-yazi"><b>Zorluğa göre puan</b>'
-      + '<small>Zor soru daha çok kazandırır; sorunun yıldızı kullanılır.</small></span>' + tik + '</button>'
+      + '<small>Zor soru daha çok kazandırır; sorunun yıldızı kullanılır.</small></span></button>'
       + '<div class="biy-pn-satir biy-pn-uclu'+(p.yon === "zorluk" ? '' : ' biy-pn-pasif')+'">'
       +   '<span class="biy-pn-ikili"><i class="biy-hs-z1">Kolay</i>'  + sayi("kolay", p.kolay) + '</span>'
       +   '<span class="biy-pn-ikili"><i class="biy-hs-z2">Orta</i>'   + sayi("orta",  p.orta)  + '</span>'
       +   '<span class="biy-pn-ikili"><i class="biy-hs-z3">Zor</i>'    + sayi("zor",   p.zor)   + '</span></div>'
 
+      + '<div class="biy-pn-grup">Yanlış cevap</div>'
       + '<button type="button" class="biy-bs-oge biy-pn-oge biy-pn-eksi'+(p.yanlisAc ? ' secili' : '')+'"'
-      + ' aria-pressed="'+(p.yanlisAc ? 'true' : 'false')+'" onclick="BIY.puanYanlisAc()">'
+      + ' role="switch" aria-checked="'+(p.yanlisAc ? 'true' : 'false')+'" onclick="BIY.puanYanlisAc()">'
       + '<span class="biy-bs-yazi"><b>Yanlışa eksi puan</b>'
-      + '<small>Kapalıyken yanlış işaretlemek puanı düşürmez.</small></span>' + tik + '</button>'
+      + '<small>' + (p.yanlisAc ? 'Açık — yanlış işaretlenen puan kaybeder.'
+                                : 'Kapalı — yanlış işaretlemek puanı düşürmez.') + '</small></span>'
+      + '<span class="biy-pn-anahtar" aria-hidden="true"><i></i></span></button>'
       + '<div class="biy-pn-satir biy-pn-cipli biy-pn-kirmizi'+(p.yanlisAc ? '' : ' biy-pn-pasif')+'">'
       +   '<span>Yanlış cevap</span>'
       +   '<span class="biy-pn-cipler">' + cip("yanlis", p.yanlis, [1,2,3,5], "−") + '</span></div>' 
@@ -2114,6 +2144,7 @@ const BIY = {
     if (haric !== "sayi"){
       const a = $("sayiAkordiyon"), b = $("soruSayiEtiket");
       if (a){ a.classList.remove("acik"); if (b) b.setAttribute("aria-expanded", "false"); }
+      document.removeEventListener("mousedown", BIY._sayiDis);
     }
   },
   bicimAcKapat(){
@@ -2138,16 +2169,18 @@ const BIY = {
   _paneliYerlestir(panelId, tusId){
     const p = $(panelId), b = $(tusId);
     if (!p || !b) return;
+    /* önceki yerleşimi temizle */
+    p.classList.remove("biy-bs-yukari", "biy-bs-tam");
+    p.style.position = ""; p.style.top = ""; p.style.left = "";
+    p.style.maxHeight = ""; p.style.transform = "translateX(-50%)";
     const r = b.getBoundingClientRect();
-    const ust = r.top - 22;
-    const alt = window.innerHeight - r.bottom - 22;
+    const pay = 12;
+    const ust = r.top - pay, alt = window.innerHeight - r.bottom - pay;
     const yukari = ust > alt;
     p.classList.toggle("biy-bs-yukari", yukari);
     p.style.maxHeight = Math.max(190, Math.floor(yukari ? ust : alt)) + "px";
     /* Yatayda da pencereden taşmasın: sağa/sola kayarak içeri alınır. */
-    p.style.transform = "translateX(-50%)";
     const pr = p.getBoundingClientRect();
-    const pay = 12;
     let kay = 0;
     if (pr.right > window.innerWidth - pay) kay = (window.innerWidth - pay) - pr.right;
     if (pr.left + kay < pay) kay = pay - pr.left;
@@ -2172,13 +2205,13 @@ const BIY = {
       + Array.from({ length: z }, () =>
           '<svg viewBox="0 0 24 24" fill="currentColor"><path d="' + _YILDIZ + '"/></svg>').join("")
       + '</span></span>'
-      /* v86: + ve − yer değiştirdi. Sürgü soldan sağa (ltr) çiziliyor; artık
-         − sürgünün küçük ucunda (solda), + büyük ucunda (sağda) duruyor. */
-      + '<button type="button" class="biy-sr-art" aria-label="Artır" onclick="BIY.sureDegistir(' + z + ',1)">+</button>'
+      /* Sürgü soldan sağa çiziliyor: − sürgünün küçük ucunda (solda),
+         + büyük ucunda (sağda) dursun — puan tuşlarıyla da aynı düzen. */
+      + '<button type="button" class="biy-sr-eks" aria-label="Azalt" onclick="BIY.sureDegistir(' + z + ',-1)">−</button>'
       + '<input type="range" class="biy-sr-kaydir" min="' + SURE_MIN + '" max="' + SURE_MAX + '" step="' + SURE_ADIM + '"'
       + ' value="' + state.sureler[z] + '" aria-label="' + kacis(ZORLUK_AD[z] || "") + '"'
       + ' oninput="BIY.sureAyarla(' + z + ', this.value)">'
-      + '<button type="button" class="biy-sr-eks" aria-label="Azalt" onclick="BIY.sureDegistir(' + z + ',-1)">−</button>'
+      + '<button type="button" class="biy-sr-art" aria-label="Artır" onclick="BIY.sureDegistir(' + z + ',1)">+</button>'
       + '<span class="biy-sr-deg" id="sureDeg' + z + '">' + sureYazi(state.sureler[z]) + '</span>'
       + '</div>';
   },
@@ -2223,6 +2256,7 @@ const BIY = {
       BIY._sureAkordiyonDoldur();
       a.hidden = false;
       if (b) b.setAttribute("aria-expanded", "true");
+      BIY._paneliYerlestir("sureAkordiyon", "sureBtn");
       setTimeout(() => document.addEventListener("mousedown", BIY._sureDis), 0);
     } else BIY.sureKapat();
   },
@@ -2244,6 +2278,38 @@ const BIY = {
     if (acilacak) BIY._ayarlariKapat("sayi");
     a.classList.toggle("acik", acilacak);
     if (b) b.setAttribute("aria-expanded", acilacak ? "true" : "false");
+    if (acilacak){
+      BIY._akordiyonYerlestir("sayiAkordiyon", "soruSayiEtiket");
+      setTimeout(() => document.addEventListener("mousedown", BIY._sayiDis), 0);
+    } else document.removeEventListener("mousedown", BIY._sayiDis);
+  },
+  /* Soru sayısı akordiyonu düğmenin içinde değil, şeridin çocuğu; bu yüzden
+     yatay konumunu düğmenin ortasına göre elle hesaplıyoruz. */
+  _akordiyonYerlestir(panelId, tusId){
+    const p = $(panelId), b = $(tusId);
+    if (!p || !b) return;
+    p.classList.remove("biy-bs-yukari", "biy-bs-tam");
+    p.style.position = ""; p.style.top = ""; p.style.maxHeight = "";
+    const kap = p.offsetParent; if (!kap) return;
+    const kr = kap.getBoundingClientRect(), br = b.getBoundingClientRect();
+    const pay = 12, gen = p.offsetWidth;
+    const ust = br.top - pay, alt = window.innerHeight - br.bottom - pay;
+    let sol = (br.left + br.width / 2) - gen / 2;              // pencereye göre
+    sol = Math.max(pay, Math.min(window.innerWidth - pay - gen, sol));
+    p.style.transform = "none";
+    const yukari = ust > alt;
+    p.classList.toggle("biy-bs-yukari", yukari);
+    p.style.maxHeight = Math.max(190, Math.floor(yukari ? ust : alt)) + "px";
+    p.style.left = Math.round(sol - kr.left) + "px";           // kapsayıcıya göre
+  },
+  _sayiDis(e){
+    if (!e.target.closest) return;
+    if (!e.target.closest("#sayiAkordiyon") && !e.target.closest("#soruSayiEtiket")){
+      const a = $("sayiAkordiyon"), b = $("soruSayiEtiket");
+      if (a) a.classList.remove("acik");
+      if (b) b.setAttribute("aria-expanded", "false");
+      document.removeEventListener("mousedown", BIY._sayiDis);
+    }
   },
   // elle seçilen sorular (havuzdan) — sıralı liste
   _secilenSorular(){
@@ -2255,19 +2321,10 @@ const BIY = {
     const havuz = BIY._secSet().size;
     const inp = $("soruSayiInput");
     const lbl = document.querySelector(".biy-sorusayi-secim .biy-seviye-label");
-    // HAVUZ seçili → soru sayısı = seçilen soru sayısı (sabit); hazır rakamlar pasif, manuel alanda o sayı yazılı
-    if (havuz > 0){
-      state.soruSayiMax = havuz;
-      state.soruSayisi = havuz;
-      state.soruSayiHavuzdan = true;   // bu sayı havuzdan geldi → havuz bırakılınca sıfırlanacak
-      document.querySelectorAll(".biy-sayi-btn").forEach(b => { b.disabled = true; b.classList.add("biy-pasif"); b.classList.remove("secili"); });
-      if (inp){ inp.disabled = false; inp.readOnly = true; inp.max = havuz; inp.min = 1; inp.value = havuz; inp.classList.add("biy-secili"); }
-      BIY._sayiDonDur();
-      if (lbl) BIY._sayiEtiket(havuz, "havuz");
-      return;
-    }
-    // havuz modundan çıkıldıysa havuz kaynaklı soru sayısını sıfırla (öğretmen yeniden seçsin)
-    if (state.soruSayiHavuzdan){ state.soruSayisi = state.soruHedef || null; state.soruSayiHavuzdan = false; }
+    /* v138: Kaç soru sorulacağını artık HER ZAMAN soru sayısı süzgeci
+       belirler. Havuzdan seçim yapmak bu sayıyı değiştirmez; havuzdan o
+       sayıya ulaşılması beklenir (eksikse uyarı verilir). */
+    state.soruSayiHavuzdan = false;
     let mevcut;
     // dijital yarışma seçilen zorluğu önceliklendirip gerekirse diğer zorluklardan tamamlar → üst sınır konunun TÜM sorusu
     if (state.konuId) mevcut = BIY._bicimliSorular().length;
@@ -2688,6 +2745,10 @@ const BIY = {
     BIY._sayiDonDur();
     BIY._sayiEtiket(n, "secili");
     BIY._menuDurum();
+    /* Çevrimdışı kurulumdaki çıktı bölümü bu sayıya bakıyor: tazelensin. */
+    try { if (window.COFF && COFF.ciz && document.getElementById("ekranCevrimdisi")
+               && !document.getElementById("ekranCevrimdisi").hidden
+               && !document.getElementById("cdSunum")) COFF.ciz(); } catch(e){}
   },
   setSoruSayisiManuel(v){
     let n = parseInt(v, 10);

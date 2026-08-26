@@ -64,6 +64,7 @@ const D = {
   sorular: [],
   aktif: 0, cevapAcik: false, sayacKalan: 0, sayacId: null, sure: 30,
   sureEk: 0,                   // o soruya elle eklenen ek saniye (+15)
+  turImza: "",                 // hazırlanan soru setinin ait olduğu seçimler
   yanAcik: false, gsId: null, gsT: null, pkT: null, bitti: false,
   turPuan: {},                 // { soruSırası: { katılımcıId: "d" | "y" } }
   siralamaAcik: false,         // sorular arasındaki tam ekran sıralama
@@ -261,6 +262,33 @@ function zorlukOzet(){
 function seciliSorular(){
   const k = konuBul(D.konuId);
   return k ? konuSorulari(k) : [];
+}
+/* Yarışmaya ve çıktıya gidecek havuz: öğretmen "Soruları seç"ten elle
+   seçim yaptıysa yalnız o sorular, yapmadıysa dersin bütün havuzu. */
+function yarismaHavuzu(){
+  try {
+    if (BIY._secSet && BIY._secSet().size && BIY._secilenSorular){
+      const s = BIY._secilenSorular();
+      if (s && s.length) return s;
+    }
+  } catch(e){}
+  return seciliSorular();
+}
+/* Kaç soru sorulacak: soru sayısı süzgecindeki değer esastır. */
+function hedefSoru(){ return Math.max(1, Math.min(50, D.soruSayisi)); }
+function havuzSecili(){
+  try { return (BIY._secSet && BIY._secSet().size) || 0; } catch(e){ return 0; }
+}
+/* Soru setini kurar: havuz (elle seçim varsa o), hedef sayı kadarı. */
+function setKur(){
+  const havuz = yarismaHavuzu();
+  if (!havuz.length) return false;
+  const n = hedefSoru();
+  D.sorular = karis(havuz).slice(0, Math.min(n, havuz.length)).map(soruHazirla);
+  D.turImza = turImza();
+  D.aktif = 0; D.cevapAcik = false; D.turPuan = {}; D.siralamaAcik = false; D.bitti = false;
+  D.katilim.forEach(k => k.puan = 0);
+  return true;
 }
 
 /* Yazılan sınıf adlarını listeye çevir: virgül, noktalı virgül veya satır. */
@@ -547,7 +575,9 @@ function panelYerlestir(){
   };
   koy("cdPanelDers", PANEL.ders);
   koy("cdPanelAyar", PANEL.ayar);
-  koy("cdPanelSure", PANEL.sure);
+  /* Süre akordiyonu kendi düğmesinin içine girsin: öbür süzgeçler gibi
+     sayfanın üstüne açılır, sayfayı aşağı doğru uzatmaz. */
+  koy("sureSec", PANEL.sure);
 }
 
 /* ---------- büyük mod anahtarı (1. adımda) ---------- */
@@ -877,6 +907,48 @@ function adimlar(){
            : D.bicim === "takim" ? "Takımlar" : "Sınıf listesi";
   return ADIM_CD.map(a => a[0] === "liste" ? ["liste", ad] : a);
 }
+/* Kurulumda eksik kalan ne varsa listeler. Sekmeler arasında serbestçe
+   gezilebilir; ama bu liste boşalmadan yarışma başlatılamaz. */
+function eksikler(){
+  const e = [];
+  if (!D.konuId) e.push({ ad: "ders", yazi: "Ders seçilmedi", git: "ders" });
+  else if (!seciliSorular().length)
+    e.push({ ad: "ders", yazi: "Seçtiğin süzgeçlerde soru kalmadı", git: "ders" });
+  else {
+    /* Havuzdan elle seçim başlanmışsa soru sayısı süzgecindeki sayıya
+       ulaşılmalı; hiç seçim yoksa sorular kendiliğinden çekilir. */
+    const s = havuzSecili(), h = Math.min(hedefSoru(), seciliSorular().length);
+    if (s > 0 && s < h)
+      e.push({ ad: "ders", git: "ders",
+               yazi: "Havuzdan " + h + " soru seçmelisin — şu an " + s + " seçili" });
+  }
+  if (D.mod === "cevrimdisi"){
+    if (D.bicim === "sinif" && !sinifAdlari().length)
+      e.push({ ad: "liste", yazi: "Yarışan sınıf yazılmadı", git: "liste" });
+    else if (!D.katilim.length)
+      e.push({ ad: "liste", yazi: "Takım/sınıf listesi boş", git: "liste" });
+  }
+  return e;
+}
+/* Soru seti yalnız seçimler değiştiğinde yeniden kurulur; sekmeler arasında
+   dolaşmak hazır soruları ve puanları silmez. */
+function turImza(){
+  const b = D.bicimSecim || {}, z = (typeof state !== "undefined" && state.zorlukSecim) || {};
+  return [D.konuId || "", D.soruSayisi,
+          ["test","surukle","eslestir","yazma"].map(k => b[k] ? 1 : 0).join(""),
+          [1,2,3].map(k => z[k] === false ? 0 : 1).join(""),
+          (typeof state !== "undefined" && state.secilenSet ? state.secilenSet.size : 0)
+         ].join("|");
+}
+function turGerekli(){ return !D.sorular.length || D.turImza !== turImza(); }
+/* Sekmeler serbest gezilebildiği için ✓ "geçildi" değil "tamam" demek. */
+function adimTamam(k){
+  const e = eksikler();
+  if (k === "bas")  return !e.length && D.sorular.length > 0;
+  if (k === "bicim") return true;                       // biçim hep seçili
+  return !e.some(x => x.ad === k);
+}
+
 function adimAnahtar(){ const y = adimlar(); const a = y[D.adim - 1]; return a ? a[0] : y[0][0]; }
 /* Bir sonraki adımın anahtarı — "Başlat"a geçerken soruları hazırlamak için. */
 function sonrakiAnahtar(){ const a = adimlar()[D.adim]; return a ? a[0] : ""; }
@@ -901,16 +973,18 @@ function kurulumHtml(){
       <ol class="cdw-yol">
         ${yol.map(([k, a], i) => {
           const n = i + 1;
-          const durum = n < D.adim ? "bitti" : (n === D.adim ? "simdi" : "");
-          return `<li class="${durum}">
-            <button type="button" class="cdw-yol-tus" ${n <= D.adim ? "" : "disabled"}
-                    onclick="COFF.adimGit(${n})">
-              <span class="cdw-yol-no">${n < D.adim ? "✓" : n}</span>
+          const tamam = adimTamam(k);
+          const simdi = (n === D.adim);
+          const durum = (simdi ? "simdi " : "") + (tamam ? "bitti" : (n < D.adim ? "eksik" : ""));
+          return `<li class="${durum.trim()}">
+            <button type="button" class="cdw-yol-tus"
+                    title="${kacisi(a)}${tamam ? "" : " — eksik"}" onclick="COFF.adimGit(${n})">
+              <span class="cdw-yol-no">${tamam && !simdi ? "✓" : n}</span>
               <span class="cdw-yol-ad">${a}</span>
             </button></li>`;
         }).join("")}
       </ol>
-      ${adimAnahtar() === "bicim" ? "" : switchHtml(D.mod, true)}
+      ${switchHtml(D.mod, true)}
     </div>
 
     <div class="cdw-govde cdw-govde-${adimAnahtar()}">${adimHtml()}</div>
@@ -919,9 +993,12 @@ function kurulumHtml(){
       <span class="cdw-adim-not">${D.adim}. adım / ${yol.length}</span>
       <span class="cdw-uyari" id="cdUyari"></span>
       <span class="cdw-bosluk"></span>
-      ${son ? `<span class="cdw-bitti-not">Her şey hazır 🎉</span>`
-            : `<button type="button" class="cdw-tus cdw-tus-ana" onclick="COFF.adimIleri()">
-                 ${sonrakiAnahtar() === "bas" ? "Soruları hazırla ›" : "İleri ›"}</button>`}
+      ${son
+        ? (adimTamam("bas")
+            ? `<span class="cdw-bitti-not">Her şey hazır 🎉</span>`
+            : `<span class="cdw-bitti-not eksik">${eksikler().length} eksik var</span>`)
+        : `<button type="button" class="cdw-tus cdw-tus-ana" onclick="COFF.adimIleri()">
+             ${sonrakiAnahtar() === "bas" ? "Soruları hazırla ›" : "İleri ›"}</button>`}
     </div>
   </div>`;
 }
@@ -1104,44 +1181,98 @@ function adim2(){
 }
 
 /* --- 3 · ders, soru sayısı, süre ve soru türleri: hepsi tek ekranda --- */
-function adim3(){
+/* Cevap kâğıdının adı yarışma biçimine göre değişir. */
+function kagitAdi(){
+  return D.bicim === "kisi" ? "Kişi cevap kâğıdı"
+       : D.bicim === "sinif" ? "Sınıf cevap kâğıdı" : "Takım yarışma kâğıdı";
+}
+
+/* Çıktı bölümü: süzgeç değişince tek başına tazelenebilsin diye ayrı. */
+function ciktiHtml(){
   const havuz  = seciliSorular().length;
   const secili = (typeof state !== "undefined" && state.secilenSet) ? state.secilenSet.size : 0;
+  /* Çıktı ancak havuzdan hedef sayıda soru işaretlendikten sonra açılır. */
+  const hedef = Math.min(hedefSoru(), havuz);
+  const cikabilir = !!D.konuId && havuz > 0 && secili >= hedef;
+  return `
+    <div class="cdw-cikti${cikabilir ? "" : " kapali"}">
+      <span class="cdw-cikti-bas">Kâğıda dökmek istersen</span>
+      ${cikabilir ? "" : `<span class="cdw-cikti-not">
+        ${D.konuId && havuz > 0
+          ? `Havuzdan <b>${hedef}</b> soru işaretle${secili ? ` — şu an <b>${secili}</b> seçili` : ""}.`
+          : `Önce bir ders seç, sonra havuzdan soruları işaretle.`}
+        <button type="button" class="cdw-cikti-git" ${D.konuId && havuz > 0 ? "" : "disabled"}
+                onclick="COFF.havuzAc()">Soruları seç ›</button>
+      </span>`}
+      <div class="cdw-cikti-tuslar">
+        <button type="button" class="cdw-cikti-tus" ${cikabilir ? "" : "disabled"}
+                onclick="COFF.pdf('kitapcik')" title="Seçtiğin soruları PDF olarak indir">
+          ${CIZ.yazici}
+          <span><b>Soru kitapçığı</b><small>Bütün sorular kâğıtta — klasik test gibi dağıt.</small></span>
+          <i class="cdw-cikti-ok">⭳ PDF</i>
+        </button>
+        <button type="button" class="cdw-cikti-tus" ${cikabilir ? "" : "disabled"}
+                onclick="COFF.pdf('kart')" title="Boş cevap kâğıdını PDF olarak indir">
+          ${CIZ.kart}
+          <span><b>${kacisi(kagitAdi())}</b><small>Boş cevap kâğıdı — öğrenciler buraya yazar.</small></span>
+          <i class="cdw-cikti-ok">⭳ PDF</i>
+        </button>
+      </div>
+      <span class="cdw-pdf-durum" id="cdPdfDurum1">${cikabilir
+        ? kacisi(hedef + " soru kâğıda gidecek" + (secili > hedef
+            ? " (havuzda " + secili + " seçili, ilk " + hedef + " kullanılır)." : "."))
+        : ""}</span>
+    </div>`;
+}
+
+function adim3(){
   return `
   <div class="cdw-sahne cdw-genis cdw-ust-hizali">
     <h2 class="cdw-bas">Hangi dersten soru gelsin?</h2>
-    <p class="cdw-alt-bas">Önce yarışmanın kuralları: soru sayısı, türü, zorluğu, puanlama ve süre. Dersi hemen altından seç.</p>
     <div class="cdw-panel cdw-panel-ayar" id="cdPanelAyar"></div>
     <div class="cdw-panel" id="cdPanelSure"></div>
     <div class="cdw-panel" id="cdPanelDers"></div>
-    <p class="cdw-bilgi">${D.konuId
-      ? `Seçtiğin derste <b>${havuz}</b> uygun soru var${secili ? `, havuzdan <b>${secili}</b> soru seçili` : ""}.${
-          zorlukOzet() ? ` Zorluk süzgeci: <b>${kacisi(zorlukOzet())}</b>.` : ""} Puanlama: <b>${kacisi(puanOzetTr())}</b>.`
-      : `Henüz ders seçmedin — aşağıdan bir ders ya da ünitenin tamamını seç. Puanlama: <b>${kacisi(puanOzetTr())}</b>.`}
-    </p>
+    <div id="cdCiktiYuva">${ciktiHtml()}</div>
   </div>`;
 }
 
 /* --- 5 · başlat --- */
 function adim5(){
-  const kadi = D.bicim === "kisi" ? "Kişi cevap kâğıdı"
-             : D.bicim === "sinif" ? "Sınıf cevap kâğıdı" : "Takım yarışma kâğıdı";
   const kacKisi = D.katilim.length;
   const kimNot = D.bicim === "kisi" ? kacKisi + " öğrenci"
                : D.bicim === "sinif" ? (kacKisi > 1 ? kacKisi + " sınıf" : "bütün sınıf")
                : kacKisi + " takım";
   const ders = D.konuId ? dersTr(konuBul(D.konuId) || { id:"", ad:"" }) : "—";
+  const eks = eksikler();
+  const hazir = !eks.length && D.sorular.length > 0;
+  const kilit = hazir ? "" : "disabled";
   return `
   <div class="cdw-sahne">
-    <h2 class="cdw-bas">Hazır! Şimdi ne yapmak istersin?</h2>
+    <h2 class="cdw-bas">${hazir ? "Hazır! Şimdi ne yapmak istersin?" : "Bir adım kaldı"}</h2>
+    ${eks.length ? `
+    <div class="cdw-eksik" role="status">
+      <span class="cdw-eksik-bas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"/><line x1="12" y1="7.5" x2="12" y2="13"/>
+          <circle cx="12" cy="16.6" r="1.1" fill="currentColor" stroke="none"/>
+        </svg>
+        Yarışmayı başlatmak için önce şunlar gerekli:
+      </span>
+      <ul class="cdw-eksik-liste">
+        ${eks.map(x => `<li><b>${kacisi(x.yazi)}</b>
+          <button type="button" class="cdw-eksik-tus" onclick="COFF.adimGit(${adimNo(x.git)})">
+            ${x.git === "ders" ? "Ders sekmesine git" : "Takım sekmesine git"} ›</button></li>`).join("")}
+      </ul>
+    </div>` : ""}
     <div class="cdw-ozet">
       <span><i>Kimler</i>${kacisi(kimNot)}</span>
       <span><i>Ders</i>${kacisi(ders)}</span>
       <span><i>Soru</i>${D.sorular.length} soru</span>
       <span><i>Süre</i>${sureOzet()}</span>
     </div>
-    <div class="cdw-secim3 cdw-dort cdw-is">
-      <button type="button" class="cdw-kart cdw-is-kart" ${D.sorular.length ? "" : "disabled"}
+    <div class="cdw-secim3 cdw-ikili cdw-is">
+      <button type="button" class="cdw-kart cdw-is-kart" ${kilit}
               onclick="COFF.yansitBasla()">
         ${CIZ.perde}
         <b>Tahtaya yansıt</b>
@@ -1154,26 +1285,12 @@ function adim5(){
               onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();COFF.defterAc();}"
         >Nasıl işler?</span>
       </button>
-      <button type="button" class="cdw-kart cdw-is-kart" ${D.sorular.length && D.katilim.length > 1 ? "" : "disabled"}
+      <button type="button" class="cdw-kart cdw-is-kart" ${hazir && D.katilim.length > 1 ? "" : "disabled"}
               onclick="COFF.turnuvaAc()">
         ${CIZ.kupa}
         <b>Turnuva</b>
         <small>Eleme usulü: ikişerli eşleşme, kazanan üst tura. Yarı final, final, kupa.</small>
         <span class="cdw-is-tus">🏆 Şemayı kur</span>
-      </button>
-      <button type="button" class="cdw-kart cdw-is-kart" ${D.sorular.length ? "" : "disabled"}
-              onclick="COFF.pdf('kitapcik')">
-        ${CIZ.yazici}
-        <b>Soru kitapçığı</b>
-        <small>Bütün sorular kâğıtta. Yazıcıdan çıkarıp dağıtabilirsin.</small>
-        <span class="cdw-is-tus">⭳ PDF indir</span>
-      </button>
-      <button type="button" class="cdw-kart cdw-is-kart" ${D.sorular.length ? "" : "disabled"}
-              onclick="COFF.pdf('kart')">
-        ${CIZ.kart}
-        <b>${kacisi(kadi)}</b>
-        <small>Boş cevap kâğıdı. Tahtaya yansıtırken cevaplar buraya yazılır.</small>
-        <span class="cdw-is-tus">⭳ PDF indir</span>
       </button>
     </div>
     <div class="cdw-pdf-durum" id="cdPdfDurum"></div>
@@ -2068,7 +2185,15 @@ const COFF = {
   },
 
   /* ---- adım adım gezinme ---- */
-  adimGit(n){ D.adim = Math.max(1, Math.min(adimlar().length, n)); COFF.ciz(); },
+  adimGit(n){
+    D.adim = Math.max(1, Math.min(adimlar().length, n));
+    /* "Başlat" sekmesine girerken soru seti hazır değilse kurulur; hazırsa
+       olduğu gibi kalır — puanlar ve seçilmiş sorular korunur. */
+    if (adimAnahtar() === "bas" && D.konuId && seciliSorular().length && turGerekli()){
+      COFF.turKur(); return;
+    }
+    COFF.ciz();
+  },
   adimGeri(){ if (D.adim > 1) COFF.adimGit(D.adim - 1); },
   adimIleri(){
     const k = adimAnahtar();
@@ -2084,14 +2209,16 @@ const COFF = {
     if (k === "liste" && !D.katilim.length) listeKur();
     /* Son adıma ("Başlat") geçerken soruları burada hazırlıyoruz. */
     if (sonrakiAnahtar() === "bas"){
-      if (!D.konuId || !seciliSorular().length){
-        uyar("Önce bir ders seç."); COFF.adimGit(adimNo("ders")); return;
-      }
+      const eski = D.sorular.length;
       D.adim = adimNo("bas");
-      COFF.turKur();
+      if (D.konuId && seciliSorular().length && turGerekli()) COFF.turKur();
+      else COFF.ciz();
       const d5 = el("cdPdfDurum");
-      if (d5){ d5.className = "cdw-pdf-durum ok";
-        d5.textContent = D.sorular.length + " soru hazırlandı. Yukarıdaki seçeneklerden birini kullan."; }
+      if (d5 && D.sorular.length){
+        d5.className = "cdw-pdf-durum ok";
+        d5.textContent = D.sorular.length + " soru hazır" + (eski && !turGerekli() ? "" : "landı")
+          + ". Yukarıdaki seçeneklerden birini kullan.";
+      }
       return;
     }
     COFF.adimGit(D.adim + 1);
@@ -2105,15 +2232,10 @@ const COFF = {
   /* Süzgeç penceresi açıkken bütün ekranı yeniden çizmek pencereyi bir an
      kapatıp açıyordu. Onun yerine yalnız havuz bilgisini tazeliyoruz. */
   bilgiTazele(){
-    const e = document.querySelector("#ekranCevrimdisi .cdw-bilgi");
-    if (!e){ COFF.ciz(); return; }
-    const havuz  = seciliSorular().length;
-    const secili = (typeof state !== "undefined" && state.secilenSet) ? state.secilenSet.size : 0;
-    e.innerHTML = !D.konuId
-      ? `Henüz ders seçmedin — aşağıdan bir ders ya da ünitenin tamamını seç. Puanlama: <b>${kacisi(puanOzetTr())}</b>.`
-      : `Seçtiğin derste <b>${havuz}</b> uygun soru var${
-          secili ? `, havuzdan <b>${secili}</b> soru seçili` : ""}.${
-          zorlukOzet() ? ` Zorluk süzgeci: <b>${kacisi(zorlukOzet())}</b>.` : ""} Puanlama: <b>${kacisi(puanOzetTr())}</b>.`;
+    /* Süzgeç penceresi açıkken bütün ekranı yeniden çizmek pencereyi bir an
+       kapatıp açıyordu. Onun yerine yalnız çıktı bloğunu tazeliyoruz. */
+    const y = el("cdCiktiYuva");
+    if (y) y.innerHTML = ciktiHtml();
   },
   defterAc(){
     if (!D.sorular.length){ uyar("Önce soruları hazırla."); return; }
@@ -2298,12 +2420,7 @@ const COFF = {
   },
 
   turKur(){
-    const havuz = seciliSorular();
-    if (!havuz.length){ uyar("Bu derste seçtiğin çeşitlerde soru yok."); return false; }
-    const n = Math.max(1, Math.min(50, D.soruSayisi));
-    D.sorular = karis(havuz).slice(0, Math.min(n, havuz.length)).map(soruHazirla);
-    D.aktif = 0; D.cevapAcik = false; D.turPuan = {}; D.siralamaAcik = false; D.bitti = false;
-    D.katilim.forEach(k => k.puan = 0);
+    if (!setKur()){ uyar("Bu derste seçtiğin çeşitlerde soru yok."); return false; }
     COFF.ciz();
   },
 
@@ -2687,7 +2804,17 @@ const COFF = {
   },
 
   /* ---- pdf ---- */
-  pdf(tur){ CDPDF.uret(tur, D); },
+  pdf(tur){
+    /* Ders sekmesinden de çıktı alınabiliyor: soru seti hazır değilse
+       (ya da seçimler değiştiyse) önce burada kurulur. */
+    if (!D.konuId || !seciliSorular().length){ uyar("Önce bir ders seç."); return; }
+    if (turGerekli() && !setKur()){ uyar("Bu derste seçtiğin çeşitlerde soru yok."); return; }
+    if (!D.katilim.length) listeKur();
+    CDPDF.uret(tur, D);
+    const n1 = el("cdPdfDurum1");
+    if (n1){ n1.className = "cdw-pdf-durum ok";
+      n1.textContent = D.sorular.length + " soruluk PDF hazırlandı."; }
+  },
 
   _D: D
 };
