@@ -7,8 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Harmattan:wght@400;700&family=Marhey:wght@400;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="bilgiyarismasi.css?v=104">
-<link rel="stylesheet" href="cevrimdisi.css?v=45">
+<link rel="stylesheet" href="bilgiyarismasi.css?v=106">
+<link rel="stylesheet" href="cevrimdisi.css?v=54">
 
 <!-- Firebase 8.10.1 (compat) — proje: bilgiyarismasi7sinif1unite -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -297,6 +297,24 @@
         <div class="biy-bs-panel" id="zorlukSecPanel" aria-label="Zorluk" hidden></div>
       </div>
 
+      <!-- puanlama: dogruya kac puan, yanlisa eksi var mi -->
+      <div class="biy-bicim-sec" id="puanSec">
+        <button type="button" class="biy-bicim-btn" id="puanSecBtn" aria-haspopup="true"
+                aria-expanded="false" title="Puanlama" onclick="BIY.puanAcKapat()">
+          <svg viewBox="0 0 64 64" class="biy-svg biy-svg-puan" role="img" aria-label="Puanlama">
+            <title>Puanlama</title>
+            <circle class="biy-hale" cx="32" cy="32" r="26" fill="url(#biyGrTuruncu)" opacity=".14"/>
+            <path class="biy-pn-kurdele" d="M22 10h20l-4 14H26z" fill="url(#biyGrMor)"/>
+            <circle class="biy-pn-madalya" cx="32" cy="38" r="15" fill="url(#biyGrTuruncu)"/>
+            <circle cx="32" cy="38" r="10.5" fill="#fff" opacity=".92"/>
+            <g class="biy-pn-arti" stroke="#E67E22" stroke-width="3.6" stroke-linecap="round">
+              <line x1="32" y1="32.5" x2="32" y2="43.5"/><line x1="26.5" y1="38" x2="37.5" y2="38"/>
+            </g>
+          </svg>
+        </button>
+        <div class="biy-bs-panel" id="puanSecPanel" aria-label="Puanlama" hidden></div>
+      </div>
+
       <!-- zorluga gore sure: 1/2/3 yildiz akordiyonu -->
       <div class="biy-sure-sec" id="sureSec">
         <button type="button" class="biy-sure-btn biy-anim" id="sureBtn"
@@ -339,7 +357,7 @@
             </g>
           </svg>
         </span>
-        <span class="biy-menu-ad">Sınıf sistemi</span>
+        <span class="biy-menu-ad">Sınıfça Yarış</span>
         <span class="biy-menu-ar">نِظام الصُّفوف</span>
         <span class="biy-menu-desc">Her sınıfa bir karekod · sınıflar yarışır</span>
       </button>
@@ -359,7 +377,7 @@
             <path class="biy-tk-bag" d="M24 20 Q32 12 40 20" fill="none" stroke="url(#biyGrTuruncu)" stroke-width="3" stroke-linecap="round"/>
           </svg>
         </span>
-        <span class="biy-menu-ad">Takım sistemi</span>
+        <span class="biy-menu-ad">Takım Olarak Yarış</span>
         <span class="biy-menu-ar">نِظام الفِرَق</span>
         <span class="biy-menu-desc">Her takıma bir karekod · takımlar yarışır</span>
       </button>
@@ -378,7 +396,7 @@
             <circle class="biy-br-nokta" cx="46.5" cy="9" r="3.2" fill="url(#biyGrTuruncu)"/>
           </svg>
         </span>
-        <span class="biy-menu-ad">Bireysel sistem</span>
+        <span class="biy-menu-ad">Bireysel Yarış</span>
         <span class="biy-menu-ar">نِظام الأَفْراد</span>
         <span class="biy-menu-desc">Tek karekod · herkes kendi adıyla girer</span>
       </button>
@@ -500,9 +518,9 @@
 
 </div>
 
-<script src="bilgiyarismasi.js?v=128"></script>
+<script src="bilgiyarismasi.js?v=133"></script>
 <script src="cevrimdisi_pdf.js?v=5" defer></script>
-<script src="cevrimdisi.js?v=41"></script>
+<script src="cevrimdisi.js?v=51"></script>
 <script id="kidef-koruma">
 /* KAYNAK KORUMA (CAYDIRICI) — sag tik + gelistirici araclari kisayollari.
    Not: Tam guvenlik degildir; asil koruma Firestore kurallarindadir. */

@@ -791,7 +791,10 @@ function uniteBasligi(u){
   return t || (u ? u.ad : "");
 }
 function uniteAr(u){
-  return (window.CDTR && window.CDTR.unite && u && window.CDTR.unite[u.no]) ? u.ad : "";
+  if (!(window.CDTR && window.CDTR.unite && u && window.CDTR.unite[u.no])) return "";
+  /* Türkçe başlık "2. Ünite · Alışveriş vakti" ise Arapçası da aynı ikiliyi
+     versin: "الوَحْدَة الثّانِيَة · وَقْت التَّسَوُّق". */
+  return u.alt ? (u.ad + " · " + u.alt) : u.ad;
 }
 const arEk = m => m ? '<i class="biy-ar-alt">' + kacis(m) + '</i>' : '';
 
@@ -986,6 +989,9 @@ const state = {
   mod: null, uid: null,
   bicimSecim: { "test": true, "surukle": true, "eslestir": true, "yazma": true },
   zorlukSecim: { 1: true, 2: true, 3: true },
+  /* Puanlama: çevrimdışı yarışmada doğru/yanlış işaretlenince kaç puan
+     işleneceği. yon: "sabit" (her doğru aynı) | "zorluk" (kolay/orta/zor). */
+  puanlama: { yon: "sabit", dogru: 1, kolay: 1, orta: 2, zor: 3, yanlisAc: false, yanlis: 1 },
   oyunModu: "takim",         // takim | birey | okul  (yarışma biçimi)
   bekleyenListe: [],         // birey modu: onay bekleyen katılımcılar
   katilimId: null,           // öğrenci tarafı: kendi katılımcı kaydının id'si
@@ -1115,9 +1121,9 @@ function odaLinki(oda){
    birey : tek karekod, herkes kendi adını yazar, öğretmen onaylar
    okul  : tek karekod, öğrenci adını yazar + sınıfını seçer, sınıflar ORTALAMA puanla yarışır  */
 const MOD_BILGI = {
-  takim: { ad: "Takım sistemi", emoji: "👥", kisi: "Takım", cog: "Takımlar",      baslik: "Takımları oluştur ve bekle" },
-  birey: { ad: "Bireysel sistem", emoji: "🙋", kisi: "Katılımcı",  cog: "Katılımcılar", baslik: "Katılımcılar ve bekleme" },
-  okul:  { ad: "Sınıf sistemi",  emoji: "🏫", kisi: "Sınıf", cog: "Sınıflar",      baslik: "Sınıfları oluştur ve bekle" }
+  takim: { ad: "Takım Olarak Yarış", emoji: "👥", kisi: "Takım", cog: "Takımlar",      baslik: "Takımları oluştur ve bekle" },
+  birey: { ad: "Bireysel Yarış", emoji: "🙋", kisi: "Katılımcı",  cog: "Katılımcılar", baslik: "Katılımcılar ve bekleme" },
+  okul:  { ad: "Sınıfça Yarış",  emoji: "🏫", kisi: "Sınıf", cog: "Sınıflar",      baslik: "Sınıfları oluştur ve bekle" }
 };
 function modAl(){ return MOD_BILGI[state.oyunModu] ? state.oyunModu : "takim"; }
 function tekKarekod(){ return modAl() === "birey"; }   // yalnız birey: tek ortak karekod
@@ -1431,7 +1437,11 @@ const BIY = {
     const gor = gorunurUniteNolar(kilit);
     const satirlar = UNITELER.filter(u => gor.indexOf(u.no) >= 0);
     const tumKonu = kapsamTumKonu(kilit);
-    let h = '<div class="biy-ak' + (kilit ? ' biy-ak-kilitli' : '') + '">';
+    /* Hepsi kapalıyken dört ünite + birleşik satır tek bakışta görünsün diye
+       satırlar biraz sıkışır; bir ünite açıldığında normal boyuta döner. */
+    const hepsiKapali = (state.uniteAcik == null) && satirlar.length >= 4;
+    let h = '<div class="biy-ak' + (kilit ? ' biy-ak-kilitli' : '')
+          + (hepsiKapali ? ' biy-ak-sik' : '') + '">';
     /* En çok kullanılan seçenek bu: bütün kapsamdan soru. Listenin başında
        dursun ki öğretmen kaydırmadan bulsun. */
     const tumIlk = (satirlar.length > 1) ? tumKonu : null;
@@ -1509,13 +1519,24 @@ const BIY = {
     state.uniteAcik = no;
     if (no !== state.uniteNo) BIY.uniteSec(no); else BIY._konulariHazirla();
   },
+  /* Klasör kapsamı: 2. ünite yarışması ilk iki üniteyi, 4. ünite yarışması
+     dört ünitenin tamamını kapsıyor. Açılışta o birleşik ders hazır gelir;
+     öğretmen isterse listeden tek bir konuya iner. */
+  _kapsamKonuId(no){
+    return no === 2 ? "tum12" : no === 4 ? "tumu" : ("unite" + no);
+  },
+  _kapsamAdi(no){
+    return no === 2 ? "1-2. ünitenin tamamı"
+         : no === 4 ? "Bütün üniteler (1-4)"
+         : BIY._uniteAdi(no);
+  },
   /* Ünite kendiliğinden seçildiğinde kısa bir bilgi şeridi göster. */
   _otoUniteUygula(no, kaynak){
     if (!(no >= 1 && no <= 4)) return;
-    state.uniteNo = no; state.uniteAcik = no; state.uniteKilit = no;
+    state.uniteNo = no; state.uniteAcik = null; state.uniteKilit = no;
     state.otoUnite = { no: no, kaynak: kaynak };
     BIY._konulariHazirla();
-    BIY.konuSec("unite" + no);          // o ünitenin tüm soruları hazır seçili gelsin
+    BIY.konuSec(BIY._kapsamKonuId(no)); // klasörün kapsadığı bütün üniteler hazır seçili gelsin
     BIY._otoUniteNot();
   },
   _otoUniteNot(){
@@ -1526,7 +1547,7 @@ const BIY = {
     el.id = "otoUniteNot"; el.className = "biy-oto-not";
     el.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"'
       + ' stroke-linecap="round" stroke-linejoin="round"><path d="M20 6.5L9.4 17.1 4.5 12.2"/></svg>'
-      + '<span>' + kacis(BIY._uniteAdi(o.no)) + ' — kendiliğinden seçildi</span>'
+      + '<span>' + kacis(BIY._kapsamAdi(o.no)) + ' — kendiliğinden seçildi</span>'
       + '<button type="button" class="biy-oto-degis" onclick="BIY.kilidiAc()">Değiştir</button>';
     panel.insertAdjacentElement("afterend", el);
     setTimeout(() => { if (el.parentNode){ el.classList.add("biy-gec"); setTimeout(() => el.remove(), 600); } }, 5200);
@@ -1926,6 +1947,113 @@ const BIY = {
       ).join("")
       + '<p class="biy-bs-not">Kapattığın zorluktaki sorular havuzda soluk görünür, seçilemez.</p>';
   },
+  /* ---------- Puanlama süzgeci ---------- */
+  _puanOzet(){
+    const p = state.puanlama;
+    const bas = (p.yon === "zorluk")
+      ? "Zorluğa göre " + p.kolay + " / " + p.orta + " / " + p.zor + " puan"
+      : "Her doğru " + p.dogru + " puan";
+    return bas + (p.yanlisAc ? " · yanlış −" + p.yanlis : "");
+  },
+  _puanPanelDoldur(){
+    const el = $("puanSecPanel"); if (!el) return;
+    const p = state.puanlama;
+    const tik = '<span class="biy-bs-tik" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"'
+      + ' stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">'
+      + '<path d="M6 12.5l4 4 8-9"/></svg></span>';
+    /* Küçük −/+ tuşlarını bulmak zordu: en çok kullanılan değerler artık
+       doğrudan basılabilen iri rakam düğmeleri. */
+    const cip = (alan, deger, secenekler, on) => secenekler.map(v =>
+      '<button type="button" class="biy-pn-cip'+(v === deger ? ' secili' : '')+'"'
+      + ' onclick="BIY.puanSec(\''+alan+'\','+v+')">' + (on || "") + v + '</button>').join("");
+    const sayi = (alan, deger) =>
+      '<span class="biy-pn-sayi">'
+      + '<button type="button" class="biy-pn-eks" title="Azalt" aria-label="Azalt"'
+      + ' onclick="BIY.puanDegis(\''+alan+'\',-1)">−</button>'
+      + '<b>'+deger+'</b>'
+      + '<button type="button" class="biy-pn-art" title="Artır" aria-label="Artır"'
+      + ' onclick="BIY.puanDegis(\''+alan+'\',1)">+</button>'
+      + '</span>';
+    el.innerHTML =
+      '<div class="biy-bs-bas">Puanlama'
+      + '<button type="button" class="biy-bs-kapat" title="Kapat" aria-label="Kapat"'
+      + ' onclick="BIY.puanKapat()">✕</button></div>'
+
+      + '<button type="button" class="biy-bs-oge biy-pn-oge'+(p.yon === "sabit" ? ' secili' : '')+'"'
+      + ' aria-pressed="'+(p.yon === "sabit" ? 'true' : 'false')+'" onclick="BIY.puanYon(\'sabit\')">'
+      + '<span class="biy-bs-yazi"><b>Her doğru eşit puan</b>'
+      + '<small>Soru hangi zorlukta olursa olsun aynı puanı getirir.</small></span>' + tik + '</button>'
+      + '<div class="biy-pn-satir biy-pn-cipli'+(p.yon === "sabit" ? '' : ' biy-pn-pasif')+'">'
+      +   '<span>Doğru cevap</span>'
+      +   '<span class="biy-pn-cipler">' + cip("dogru", p.dogru, [1,2,3,5,10], "+") + '</span></div>' 
+
+      + '<button type="button" class="biy-bs-oge biy-pn-oge'+(p.yon === "zorluk" ? ' secili' : '')+'"'
+      + ' aria-pressed="'+(p.yon === "zorluk" ? 'true' : 'false')+'" onclick="BIY.puanYon(\'zorluk\')">'
+      + '<span class="biy-bs-yazi"><b>Zorluğa göre puan</b>'
+      + '<small>Zor soru daha çok kazandırır; sorunun yıldızı kullanılır.</small></span>' + tik + '</button>'
+      + '<div class="biy-pn-satir biy-pn-uclu'+(p.yon === "zorluk" ? '' : ' biy-pn-pasif')+'">'
+      +   '<span class="biy-pn-ikili"><i class="biy-hs-z1">Kolay</i>'  + sayi("kolay", p.kolay) + '</span>'
+      +   '<span class="biy-pn-ikili"><i class="biy-hs-z2">Orta</i>'   + sayi("orta",  p.orta)  + '</span>'
+      +   '<span class="biy-pn-ikili"><i class="biy-hs-z3">Zor</i>'    + sayi("zor",   p.zor)   + '</span></div>'
+
+      + '<button type="button" class="biy-bs-oge biy-pn-oge biy-pn-eksi'+(p.yanlisAc ? ' secili' : '')+'"'
+      + ' aria-pressed="'+(p.yanlisAc ? 'true' : 'false')+'" onclick="BIY.puanYanlisAc()">'
+      + '<span class="biy-bs-yazi"><b>Yanlışa eksi puan</b>'
+      + '<small>Kapalıyken yanlış işaretlemek puanı düşürmez.</small></span>' + tik + '</button>'
+      + '<div class="biy-pn-satir biy-pn-cipli biy-pn-kirmizi'+(p.yanlisAc ? '' : ' biy-pn-pasif')+'">'
+      +   '<span>Yanlış cevap</span>'
+      +   '<span class="biy-pn-cipler">' + cip("yanlis", p.yanlis, [1,2,3,5], "−") + '</span></div>' 
+
+      + '<p class="biy-bs-not">Çevrimdışı yarışmada ✓ / ✗ işaretlediğinde bu kurala göre puan işlenir.</p>';
+  },
+  puanYon(y){
+    state.puanlama.yon = (y === "zorluk") ? "zorluk" : "sabit";
+    BIY._puanPanelDoldur();
+    try { if (window.COFF && COFF.bilgiTazele) COFF.bilgiTazele(); } catch(e){}
+  },
+  puanYanlisAc(){
+    state.puanlama.yanlisAc = !state.puanlama.yanlisAc;
+    BIY._puanPanelDoldur();
+    try { if (window.COFF && COFF.bilgiTazele) COFF.bilgiTazele(); } catch(e){}
+  },
+  puanSec(alan, v){
+    const p = state.puanlama;
+    p[alan] = Math.max(1, Math.min(20, Number(v) || 1));
+    /* Soluk bir bölümdeki rakama basmak o bölümü de açsın: hiçbir düğme
+       "basıyorum ama bir şey olmuyor" hissi vermesin. */
+    if (alan === "dogru") p.yon = "sabit";
+    if (alan === "kolay" || alan === "orta" || alan === "zor") p.yon = "zorluk";
+    if (alan === "yanlis") p.yanlisAc = true;
+    BIY._puanPanelDoldur();
+    try { if (window.COFF && COFF.bilgiTazele) COFF.bilgiTazele(); } catch(e){}
+  },
+  puanDegis(alan, d){
+    const p = state.puanlama;
+    p[alan] = Math.max(1, Math.min(20, (p[alan] || 1) + d));
+    if (alan === "dogru") p.yon = "sabit";
+    if (alan === "kolay" || alan === "orta" || alan === "zor") p.yon = "zorluk";
+    if (alan === "yanlis") p.yanlisAc = true;
+    BIY._puanPanelDoldur();
+    try { if (window.COFF && COFF.bilgiTazele) COFF.bilgiTazele(); } catch(e){}
+  },
+  puanAcKapat(){
+    const p = $("puanSecPanel"), b = $("puanSecBtn"); if (!p) return;
+    if (!p.hidden) return;
+    BIY._ayarlariKapat("puan");
+    BIY._puanPanelDoldur();
+    p.hidden = false;
+    BIY._paneliYerlestir("puanSecPanel", "puanSecBtn");
+    if (b) b.setAttribute("aria-expanded", "true");
+    setTimeout(() => document.addEventListener("mousedown", BIY._puanDis), 0);
+  },
+  puanKapat(){
+    const p = $("puanSecPanel"), b = $("puanSecBtn");
+    if (p) p.hidden = true;
+    if (b) b.setAttribute("aria-expanded", "false");
+    document.removeEventListener("mousedown", BIY._puanDis);
+  },
+  _puanDis(e){ if (!e.target.closest || !e.target.closest("#puanSec")) BIY.puanKapat(); },
+
   zorlukAcKapat(){
     const p = $("zorlukSecPanel"), b = $("zorlukSecBtn"); if (!p) return;
     if (!p.hidden) return;                 // açıkken tuşa basmak kapatmaz; ✕ ile kapanır
@@ -1981,6 +2109,7 @@ const BIY = {
   _ayarlariKapat(haric){
     if (haric !== "bicim") BIY.bicimKapat();
     if (haric !== "zorluk") BIY.zorlukKapat();
+    if (haric !== "puan" && BIY.puanKapat) BIY.puanKapat();
     if (haric !== "sure" && BIY.sureKapat) BIY.sureKapat();
     if (haric !== "sayi"){
       const a = $("sayiAkordiyon"), b = $("soruSayiEtiket");
@@ -2015,6 +2144,14 @@ const BIY = {
     const yukari = ust > alt;
     p.classList.toggle("biy-bs-yukari", yukari);
     p.style.maxHeight = Math.max(190, Math.floor(yukari ? ust : alt)) + "px";
+    /* Yatayda da pencereden taşmasın: sağa/sola kayarak içeri alınır. */
+    p.style.transform = "translateX(-50%)";
+    const pr = p.getBoundingClientRect();
+    const pay = 12;
+    let kay = 0;
+    if (pr.right > window.innerWidth - pay) kay = (window.innerWidth - pay) - pr.right;
+    if (pr.left + kay < pay) kay = pay - pr.left;
+    if (kay) p.style.transform = "translateX(calc(-50% + " + Math.round(kay) + "px))";
   },
   /* ---------- Zorluğa göre süre (yıldız akordiyonu) ---------- */
   _soruSuresi(s){
@@ -4052,16 +4189,19 @@ window.addEventListener("beforeunload", function(e){
        Önce adres/klasör/bağlantı işaretlerine bakılır; hiçbiri yoksa daha
        önce seçilen ünite hatırlanır. Sonra (varsa) index'in başlığı okunur. */
     const otoU = uniteAlgila();
-    if (otoU){ state.uniteNo = otoU.no; state.uniteAcik = otoU.no; state.uniteKilit = otoU.no; state.otoUnite = otoU; }
+    if (otoU){ state.uniteNo = otoU.no; state.uniteAcik = null; state.uniteKilit = otoU.no; state.otoUnite = otoU; }
     else { try { const u = +localStorage.getItem("biy_unite"); if (u >= 1 && u <= 4) state.uniteNo = u; } catch(e){} }
     BIY._sureleriYukle(); BIY._sureRozet();
     BIY._konulariHazirla();
     if (otoU){
-      /* Klasör kapsamı 1-2 ve 1-4 aralığına genişledi; artık klasörün ünitesi
-         kendiliğinden seçilmiyor, ders seçimini öğretmen yapıyor. Yalnız
-         akordiyonda o ünite açık gelir ki elini uzatacağı yer belli olsun. */
-      state.uniteAcik = otoU.no;
+      /* Klasör kapsamı 1-2 ve 1-4 aralığında: 2. üniteden açılınca ilk iki
+         ünitenin tamamı, 4. üniteden açılınca dört ünitenin tamamı hazır
+         seçili gelir. Öğretmen listeden tek bir konuya inebilir. */
+      /* Akordiyon kapalı gelsin: bütün ünite başlıkları tek bakışta görünsün,
+         öğretmen hangi üniteye ineceğine kendisi karar versin. */
+      state.uniteAcik = null;
       BIY._konulariHazirla();
+      BIY.konuSec(BIY._kapsamKonuId(otoU.no));
       setTimeout(() => BIY._otoUniteNot(), 60);
     }
     /* index sayfasının BAŞLIĞI en güvenilir kaynak: adres parametresi yoksa
@@ -4071,7 +4211,7 @@ window.addEventListener("beforeunload", function(e){
       uniteBasliktanAlgila().then(no => {
         if (!no) return;
         if (BIY._secSet().size) return;                       // havuzdan seçim yapılmış
-        if (state.konuId && state.konuId !== ("unite" + state.uniteNo)) return;  // ders seçilmiş
+        if (state.konuId && state.konuId !== BIY._kapsamKonuId(state.uniteNo)) return;  // ders seçilmiş
         if (state.uniteNo === no && state.otoUnite) return;   // zaten doğru
         BIY._otoUniteUygula(no, "başlık");
       }).catch(() => {});

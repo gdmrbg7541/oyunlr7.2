@@ -59,9 +59,11 @@ const D = {
   bas: 1, son: 24, yok: "", takimSayi: 4,
   sinifAdlari: "",             // sınıf sisteminde yarışan sınıflar (öğretmen yazar)
   tasinan: null,               // takımlar arasında taşınan sıra numarası
+  anlAdim: 0, anlatimGoruldu: false,   // "nasıl işler" akış anlatımı
   katilim: [],                 // {id, ad, alt, renk, puan}
   sorular: [],
   aktif: 0, cevapAcik: false, sayacKalan: 0, sayacId: null, sure: 30,
+  sureEk: 0,                   // o soruya elle eklenen ek saniye (+15)
   yanAcik: false, gsId: null, gsT: null, pkT: null, bitti: false,
   turPuan: {},                 // { soruSırası: { katılımcıId: "d" | "y" } }
   siralamaAcik: false,         // sorular arasındaki tam ekran sıralama
@@ -135,11 +137,37 @@ function canlidanAl(){
   if (yeni && yeni !== D.bicim){ D.bicim = yeni; D.katilim = []; }
 }
 
+/* ---------- puanlama kuralı ----------
+   "Hangi dersten soru gelsin?" sayfasındaki Puanlama süzgecinden gelir:
+   ya her doğru aynı puan, ya da sorunun zorluk yıldızına göre. Yanlışa eksi
+   puan ayrı bir anahtarla açılır. */
+function puanAyar(){
+  const p = (typeof state !== "undefined" && state.puanlama) || null;
+  return p || { yon:"sabit", dogru:1, kolay:1, orta:2, zor:3, yanlisAc:false, yanlis:1 };
+}
+function soruPuani(s){
+  const p = puanAyar();
+  if (p.yon !== "zorluk") return Math.max(1, p.dogru || 1);
+  const z = (s && (s.zorluk === 2 || s.zorluk === 3)) ? s.zorluk : 1;
+  return Math.max(1, (z === 3 ? p.zor : z === 2 ? p.orta : p.kolay) || 1);
+}
+function yanlisPuani(){ const p = puanAyar(); return p.yanlisAc ? Math.max(1, p.yanlis || 1) : 0; }
+function puanOzetTr(){
+  const p = puanAyar();
+  const bas = (p.yon === "zorluk")
+    ? "zorluğa göre " + p.kolay + " / " + p.orta + " / " + p.zor + " puan"
+    : "her doğru " + Math.max(1, p.dogru || 1) + " puan";
+  return bas + (p.yanlisAc ? ", yanlış −" + Math.max(1, p.yanlis || 1) : "");
+}
+
 /* Süre artık zorluğa göre: 4. adımdaki yıldız akordiyonunda elle ayarlanır. */
 function soruSuresi(s){
   try { if (BIY._soruSuresi) return BIY._soruSuresi(s); } catch(e){}
   return D.sure;
 }
+/* Öğretmen +15 sn eklediğinde ilerleme çubuğu da uzasın: toplam süre
+   sorunun kendi süresi + o soruya eklenen ek süredir. */
+function toplamSure(s){ return (soruSuresi(s) || 1) + (D.sureEk || 0); }
 function sureOzet(){
   try {
     const y = z => (state.sureler && state.sureler[z]) || D.sure;
@@ -658,6 +686,72 @@ CIZ.pankart = `<svg viewBox="0 0 640 260" class="cd-pk-ciz" aria-hidden="true">
   </g>
 </svg>`;
 
+/* 2. adımın üç aşaması: numaraları yaz → gelmeyenleri çıkar → takımlar kurulsun */
+CIZ.adimNo = `<svg viewBox="0 0 72 56" class="cdw-la-ciz" aria-hidden="true">
+  <rect x="6" y="5" width="60" height="46" rx="7" fill="#fff" stroke="#C7D3E0" stroke-width="2.4"/>
+  <path d="M17 5 v46" stroke="#E4EBF2" stroke-width="2.2"/>
+  ${[0,1,2].map(i => `
+    <circle cx="11.5" cy="${16 + i*13}" r="2.4" fill="#5B9BD5"/>
+    <rect x="23" y="${12 + i*13}" width="${34 - i*7}" height="7" rx="3.5" fill="#DCE6F3"/>`).join("")}
+</svg>`;
+
+CIZ.adimYok = `<svg viewBox="0 0 72 56" class="cdw-la-ciz" aria-hidden="true">
+  <rect x="6" y="5" width="60" height="46" rx="7" fill="#fff" stroke="#C7D3E0" stroke-width="2.4"/>
+  <rect x="15" y="12" width="42" height="7" rx="3.5" fill="#DCE6F3"/>
+  <g>
+    <rect x="15" y="25" width="42" height="7" rx="3.5" fill="#F6D5D2"/>
+    <path d="M13 28.5 h46" stroke="#EF5350" stroke-width="2.6" stroke-linecap="round"/>
+  </g>
+  <g>
+    <rect x="15" y="38" width="30" height="7" rx="3.5" fill="#F6D5D2"/>
+    <path d="M13 41.5 h34" stroke="#EF5350" stroke-width="2.6" stroke-linecap="round"/>
+  </g>
+</svg>`;
+
+CIZ.adimTakim = `<svg viewBox="0 0 72 56" class="cdw-la-ciz" aria-hidden="true">
+  ${[["#16A085",5],["#42A5F5",26],["#EF5350",47]].map(([c,x]) => `
+    <rect x="${x}" y="10" width="20" height="36" rx="5" fill="#fff" stroke="${c}" stroke-width="2.4"/>
+    <rect x="${+x+4}" y="15" width="12" height="5" rx="2.5" fill="${c}"/>
+    <circle cx="${+x+7}" cy="28" r="3" fill="${c}" opacity=".55"/>
+    <circle cx="${+x+14}" cy="28" r="3" fill="${c}" opacity=".55"/>
+    <circle cx="${+x+7}" cy="37" r="3" fill="${c}" opacity=".55"/>
+    <circle cx="${+x+14}" cy="37" r="3" fill="${c}" opacity=".55"/>`).join("")}
+</svg>`;
+
+/* Anlatım perdesi 2: tahtada soru ve işleyen süre */
+CIZ.tahta = `<svg viewBox="0 0 300 190" class="cd-anl-ciz" aria-hidden="true">
+  <rect x="18" y="12" width="264" height="140" rx="10" fill="#1F3864"/>
+  <rect x="26" y="20" width="248" height="124" rx="7" fill="#2A4A7C"/>
+  <rect x="120" y="152" width="60" height="9" rx="3" fill="#B7854A"/>
+  <rect x="96" y="161" width="108" height="7" rx="3.5" fill="#8C6239"/>
+  <rect x="52" y="38" width="196" height="13" rx="6.5" fill="#7FC7B6" opacity=".9"/>
+  <rect x="78" y="58" width="144" height="9" rx="4.5" fill="#5A7EB5"/>
+  ${[0,1].map(i => [0,1].map(j => `
+    <rect x="${58 + j*98}" y="${84 + i*26}" width="86" height="18" rx="6"
+          fill="#3A5C93" stroke="#5A7EB5" stroke-width="1.6"/>`).join("")).join("")}
+  <g class="cd-anl-sure">
+    <rect x="52" y="128" width="196" height="7" rx="3.5" fill="#16304F"/>
+    <rect class="cd-anl-sure-dolgu" x="52" y="128" width="196" height="7" rx="3.5" fill="#EF5350"/>
+  </g>
+</svg>`;
+
+/* Anlatım perdesi 4: puan satırı */
+CIZ.puanSatir = `<svg viewBox="0 0 300 120" class="cd-anl-ciz" aria-hidden="true">
+  ${[["#16A085",8],["#42A5F5",44],["#EF5350",80]].map(([c,y],i) => `
+    <g class="cd-anl-pn" style="--gec:${i*0.28}s">
+      <rect x="14" y="${y}" width="272" height="28" rx="9" fill="#fff"
+            stroke="#E4EBF2" stroke-width="2"/>
+      <rect x="14" y="${y}" width="6" height="28" rx="3" fill="${c}"/>
+      <circle cx="36" cy="${+y+14}" r="8" fill="${c}"/>
+      <rect x="52" y="${+y+9}" width="88" height="10" rx="5" fill="#DCE6F3"/>
+      <g class="cd-anl-tik">
+        <circle cx="248" cy="${+y+14}" r="11" fill="#16A085"/>
+        <path d="M243 ${+y+14} l3.6 3.6 7-7.6" stroke="#fff" stroke-width="2.6"
+              fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+    </g>`).join("")}
+</svg>`;
+
 CIZ.kupa = `<svg viewBox="0 0 140 110" class="cdw-cizim" aria-hidden="true">
   <ellipse cx="70" cy="101" rx="40" ry="6" fill="#E8EEF6"/>
   <rect x="50" y="90" width="40" height="9" rx="3" fill="#B7791F"/>
@@ -772,18 +866,20 @@ function switchTazele(aktif){
 /* ---------- adım adım kurulum (slayt) ---------- */
 /* Kurulum tek sayfa: iki mod da aynı adımlardan geçer. Yalnız "Sınıf listesi"
    çevrimdışına özeldir — canlıda öğrenciler karekodla kendileri katılır. */
-const ADIM_CD    = [["bicim","Kimler yarışacak?"], ["liste","Sınıf listesi"],
-                    ["ders","Ders ve sorular"], ["bas","Başlat"]];
-const ADIM_CANLI = [["bicim","Kimler yarışacak?"],
-                    ["ders","Ders ve sorular"], ["bas","Başlat"]];
+const ADIM_CD    = [["ders","Ders ve sorular"], ["bicim","Kimler yarışacak?"],
+                    ["liste","Sınıf listesi"], ["bas","Başlat"]];
+const ADIM_CANLI = [["ders","Ders ve sorular"], ["bicim","Kimler yarışacak?"],
+                    ["bas","Başlat"]];
 function adimlar(){
   if (D.mod === "canli") return ADIM_CANLI;
-  /* Sınıf sisteminde 2. adım sıra numarası değil, sınıf adları alır. */
-  if (D.bicim === "sinif")
-    return ADIM_CD.map(a => a[0] === "liste" ? ["liste","Yarışan sınıflar"] : a);
-  return ADIM_CD;
+  /* 2. adımın adı biçime göre değişir: sınıflar mı, takımlar mı? */
+  const ad = D.bicim === "sinif" ? "Yarışan sınıflar"
+           : D.bicim === "takim" ? "Takımlar" : "Sınıf listesi";
+  return ADIM_CD.map(a => a[0] === "liste" ? ["liste", ad] : a);
 }
-function adimAnahtar(){ const a = adimlar()[D.adim - 1]; return a ? a[0] : "bicim"; }
+function adimAnahtar(){ const y = adimlar(); const a = y[D.adim - 1]; return a ? a[0] : y[0][0]; }
+/* Bir sonraki adımın anahtarı — "Başlat"a geçerken soruları hazırlamak için. */
+function sonrakiAnahtar(){ const a = adimlar()[D.adim]; return a ? a[0] : ""; }
 function adimNo(anahtar){
   const i = adimlar().findIndex(a => a[0] === anahtar);
   return i >= 0 ? i + 1 : 1;
@@ -814,7 +910,7 @@ function kurulumHtml(){
             </button></li>`;
         }).join("")}
       </ol>
-      ${D.adim === 1 ? "" : switchHtml(D.mod, true)}
+      ${adimAnahtar() === "bicim" ? "" : switchHtml(D.mod, true)}
     </div>
 
     <div class="cdw-govde cdw-govde-${adimAnahtar()}">${adimHtml()}</div>
@@ -825,7 +921,7 @@ function kurulumHtml(){
       <span class="cdw-bosluk"></span>
       ${son ? `<span class="cdw-bitti-not">Her şey hazır 🎉</span>`
             : `<button type="button" class="cdw-tus cdw-tus-ana" onclick="COFF.adimIleri()">
-                 ${adimAnahtar() === "ders" ? "Soruları hazırla ›" : "İleri ›"}</button>`}
+                 ${sonrakiAnahtar() === "bas" ? "Soruları hazırla ›" : "İleri ›"}</button>`}
     </div>
   </div>`;
 }
@@ -858,7 +954,7 @@ const menuKartlar = () => [
             </g>
           </svg>
         </span>
-        <span class="biy-menu-ad">Sınıf sistemi</span>
+        <span class="biy-menu-ad">Sınıfça Yarış</span>
         <span class="biy-menu-ar">نِظام الصُّفوف</span>
         <span class="biy-menu-desc">Her sınıfa bir karekod · sınıflar yarışır</span>
         <span class="cdw-menu-tik">✓</span>
@@ -878,14 +974,14 @@ const menuKartlar = () => [
             <path class="biy-tk-bag" d="M24 20 Q32 12 40 20" fill="none" stroke="url(#biyGrTuruncu)" stroke-width="3" stroke-linecap="round"/>
           </svg>
         </span>
-        <span class="biy-menu-ad">Takım sistemi</span>
+        <span class="biy-menu-ad">Takım Olarak Yarış</span>
         <span class="biy-menu-ar">نِظام الفِرَق</span>
         <span class="biy-menu-desc">Her takıma bir karekod · takımlar yarışır</span>
         <span class="cdw-menu-tik">✓</span>
       </button>`,
   `<button class="biy-menu-kart${D.bicim==='kisi'?' cdw-secili':''}${
         D.mod === "cevrimdisi" ? " cdw-kart-pasif" : ""}"
-        ${D.mod === "cevrimdisi" ? 'disabled title="Bireysel sistem yalnız çevrimiçi yarışmada kullanılır"' : ""}
+        ${D.mod === "cevrimdisi" ? 'disabled title="Bireysel Yarış yalnız çevrimiçi yarışmada kullanılır"' : ""}
         onclick="COFF.bicimSec('kisi')">
         <span class="biy-menu-emoji biy-anim" aria-hidden="true">
           <svg viewBox="0 0 64 64" class="biy-svg biy-svg-birey">
@@ -900,7 +996,7 @@ const menuKartlar = () => [
             <circle class="biy-br-nokta" cx="46.5" cy="9" r="3.2" fill="url(#biyGrTuruncu)"/>
           </svg>
         </span>
-        <span class="biy-menu-ad">Bireysel sistem</span>
+        <span class="biy-menu-ad">Bireysel Yarış</span>
         <span class="biy-menu-ar">نِظام الأَفْراد</span>
         <span class="biy-menu-desc">${D.mod === "cevrimdisi"
           ? "Yalnız çevrimiçi · puanı sistem işler"
@@ -931,10 +1027,28 @@ function adim2(){
   const kacSinif = sinifAdlari().length;
   return `
   <div class="cdw-sahne cdw-genis">
-    <h2 class="cdw-bas">${sinifMi ? "Yarışan sınıflar" : "Sınıf listesi"}</h2>
+    <h2 class="cdw-bas">${sinifMi ? "Yarışan sınıflar" : "Takımları kuralım"}</h2>
     <p class="cdw-alt-bas">${sinifMi
       ? "Hangi sınıflar yarışacak? Adını yaz, ekle; istemediğini ✕ ile çıkar."
-      : "Sıra numaralarını yaz, listeyi kuralım."}</p>
+      : "Sınıfın sıra numaralarını yaz, <b>bugün gelmeyenleri çıkar</b>; kalan numaralar takımlara dağılsın."}</p>
+    ${sinifMi ? "" : `
+    <ol class="cdw-liste-adim">
+      <li>
+        ${CIZ.adimNo}
+        <b>Sıra numaraları</b>
+        <small>Kaçtan kaça? Örnek: <i>1 → 24</i></small>
+      </li>
+      <li class="cdw-la-vurgu">
+        ${CIZ.adimYok}
+        <b>Gelmeyenleri çıkar</b>
+        <small>Bugün olmayanların numarasını yaz — takımlara girmezler.</small>
+      </li>
+      <li>
+        ${CIZ.adimTakim}
+        <b>Takımlar hazır</b>
+        <small>Numaralar eşit dağılır; sürükleyerek değiştirebilirsin.</small>
+      </li>
+    </ol>`}
 
     <div class="cdw-serit">
       ${sinifMi ? `
@@ -996,14 +1110,14 @@ function adim3(){
   return `
   <div class="cdw-sahne cdw-genis cdw-ust-hizali">
     <h2 class="cdw-bas">Hangi dersten soru gelsin?</h2>
-    <p class="cdw-alt-bas">Dersi seç; soru sayısını, türünü, zorluğunu ve süreyi de burada ayarla.</p>
-    <div class="cdw-panel" id="cdPanelDers"></div>
+    <p class="cdw-alt-bas">Önce yarışmanın kuralları: soru sayısı, türü, zorluğu, puanlama ve süre. Dersi hemen altından seç.</p>
     <div class="cdw-panel cdw-panel-ayar" id="cdPanelAyar"></div>
     <div class="cdw-panel" id="cdPanelSure"></div>
+    <div class="cdw-panel" id="cdPanelDers"></div>
     <p class="cdw-bilgi">${D.konuId
       ? `Seçtiğin derste <b>${havuz}</b> uygun soru var${secili ? `, havuzdan <b>${secili}</b> soru seçili` : ""}.${
-          zorlukOzet() ? ` Zorluk süzgeci: <b>${kacisi(zorlukOzet())}</b>.` : ""}`
-      : `Henüz ders seçmedin — yukarıdan bir ders ya da ünitenin tamamını seç.`}
+          zorlukOzet() ? ` Zorluk süzgeci: <b>${kacisi(zorlukOzet())}</b>.` : ""} Puanlama: <b>${kacisi(puanOzetTr())}</b>.`
+      : `Henüz ders seçmedin — aşağıdan bir ders ya da ünitenin tamamını seç. Puanlama: <b>${kacisi(puanOzetTr())}</b>.`}
     </p>
   </div>`;
 }
@@ -1028,11 +1142,12 @@ function adim5(){
     </div>
     <div class="cdw-secim3 cdw-dort cdw-is">
       <button type="button" class="cdw-kart cdw-is-kart" ${D.sorular.length ? "" : "disabled"}
-              onclick="COFF.sunumAc()">
+              onclick="COFF.yansitBasla()">
         ${CIZ.perde}
         <b>Tahtaya yansıt</b>
-        <small>Sorular tek tek büyük görünür, geri sayım çalışır, cevabı sen açarsın.
-          Yazıcı gerekmez; öğrenciler defterine yazar.</small>
+        <small>Sorular tek tek büyük görünür, geri sayım çalışır, cevabı sen açarsın.</small>
+        <span class="cdw-kagit-not">📓 Yazıcı gerekmez — her takım cevabını <i class="cdw-kn-vur">kendi defterine</i> yazar,
+          kâğıt ve kalem hazır olsun.</span>
         <span class="cdw-is-tus">▶ Başlat</span>
         <span class="cdw-nasil" role="button" tabindex="0"
               onclick="event.stopPropagation();COFF.defterAc()"
@@ -1062,6 +1177,67 @@ function adim5(){
       </button>
     </div>
     <div class="cdw-pdf-durum" id="cdPdfDurum"></div>
+  </div>`;
+}
+
+/* Tahtaya yansıt açılınca gösterilen kısa akış anlatımı: dört perde,
+   her biri kendi animasyonuyla. Bir kez görülünce tekrar açılmaz. */
+function anlatimPerdeleri(){
+  const kimNot = D.bicim === "kisi" ? "Her öğrenci kendi defterine yazar."
+               : D.bicim === "sinif" ? "Her sınıf kendi arasında karar verir, sözcüsü söyler."
+               : "Her takım tek bir deftere yazar, sözcü okur.";
+  return [
+    { bas: "Defter ve kalem hazır olsun",
+      alt: "Herkes defterine 1'den " + D.sorular.length + "'e kadar numara yazsın. " + kimNot,
+      ciz: CIZ.kaldiranlar, sinif: "p1" },
+    { bas: "Soru tahtada, süre işliyor",
+      alt: "Soru büyük görünür, geri sayım başlar. Cevabı kimse söylemez — herkes defterine yazar.",
+      ciz: CIZ.tahta, sinif: "p2" },
+    { bas: "Herkes cevabını defterine yazar",
+      alt: "Süre boyunca yazarlar. Son 5 saniyede uyarı sesi gelir.",
+      ciz: CIZ.yazanlar, sinif: "p3" },
+    { bas: "Cevabı aç, puanı işle",
+      alt: "Doğru cevap pankartta açılır. Sağdaki tabloda her takıma ✓ ya da ✗ verirsin; hepsi işaretlenmeden sonraki soruya geçilmez.",
+      ciz: CIZ.puanSatir, sinif: "p4" }
+  ];
+}
+
+function anlatimHtml(){
+  const p = anlatimPerdeleri();
+  const i = Math.max(0, Math.min(p.length - 1, D.anlAdim || 0));
+  const s = p[i];
+  return `
+  <div class="cdw" dir="ltr">
+    <div class="cdw-ust">
+      <button type="button" class="cdw-geri-tus" onclick="COFF.basaDon()"
+              title="Geri" aria-label="Geri">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+        </svg>
+      </button>
+      <ol class="cdw-yol"><li class="simdi"><button type="button" class="cdw-yol-tus" disabled>
+        <span class="cdw-yol-no">▶</span><span class="cdw-yol-ad">Nasıl işler?</span></button></li></ol>
+      <button type="button" class="cd-tus cd-tus-ufak" onclick="COFF.anlatimBitir()">Atla ›</button>
+    </div>
+    <div class="cdw-govde cdw-govde-anl">
+      <div class="cdw-sahne cdw-genis">
+        <div class="cd-anl ${s.sinif}" id="cdAnl">${s.ciz}</div>
+        <h2 class="cdw-bas cd-anl-bas">${kacisi(s.bas)}</h2>
+        <p class="cdw-alt-bas cd-anl-alt">${kacisi(s.alt)}</p>
+        <div class="cd-anl-nokta">${p.map((_, j) =>
+          `<button type="button" class="cd-anl-n${j === i ? " ac" : ""}${j < i ? " gecti" : ""}"
+             onclick="COFF.anlatimGit(${j})" aria-label="${j + 1}. adım"></button>`).join("")}</div>
+      </div>
+    </div>
+    <div class="cdw-alt">
+      <span class="cdw-adim-not">${i + 1} / ${p.length}</span>
+      <span class="cdw-bosluk"></span>
+      ${i > 0 ? `<button type="button" class="cdw-tus" onclick="COFF.anlatimGit(${i - 1})">‹ Geri</button>` : ""}
+      ${i < p.length - 1
+        ? `<button type="button" class="cdw-tus cdw-tus-ana" onclick="COFF.anlatimGit(${i + 1})">İleri ›</button>`
+        : `<button type="button" class="cdw-tus cdw-tus-ana" onclick="COFF.anlatimBitir()">▶ Yarışmayı başlat</button>`}
+    </div>
   </div>`;
 }
 
@@ -1226,6 +1402,112 @@ function ciftlerHtml(s, on){
     `<span${arMi(x[1]) ? ' class="ar"' : ""}>${kacisi(x[1])}</span></span>`).join("") + `</span>`;
 }
 
+/* ---------- Türkçe yönergeler ----------
+   Havuzdaki soru metinleri Arapça yönerge + Arapça/Türkçe içerik biçiminde
+   yazılmış ("ما مَعْنى «أَسْتَيْقِظُ»؟" gibi). Tahtada 7. sınıfın yönergeyi
+   anlaması için yönergeyi Türkçe veriyoruz; sorulan kelime/cümle ise kendi
+   satırında, harekeleriyle birlikte büyük puntoda duruyor.
+   Eşleşme harekesiz sade metin üzerinden yapılır; gösterilen içerik hep
+   sorunun kendi hâlidir. Üçüncü alan: 1 = «» içinde ayrı bir içerik var. */
+const yonSade = t => String(t || "").replace(/[\u064B-\u0652\u0670\u0640]/g, "")
+                                    .replace(/\s+/g, " ").trim();
+const YON_TABLO = [
+  [/^الموز ب (\d+) ليرات والتفاح ب (\d+) ليرات\. أيهما أغلى؟$/, m => "Muz " + m[1] + " lira, elma " + m[2] + " lira. Hangisi daha pahalı?", 0],
+  [/^الكرز ب (\d+) ليرات والتفاح ب (\d+) ليرات\. أيهما أرخص؟$/, m => "Kiraz " + m[1] + " lira, elma " + m[2] + " lira. Hangisi daha ucuz?", 0],
+  [/^الكرز ب (\d+) ليرات والتفاح ب (\d+) ليرات\. «[^»]*» — صحيح؟$/, m => "Kiraz " + m[1] + " lira, elma " + m[2] + " lira. Aşağıdaki cümle doğru mu?", 1],
+  [/^المشمش ب (\d+) ليرات والموز ب (\d+) ليرة\. «[^»]*» — صحيح؟$/, m => "Kayısı " + m[1] + " lira, muz " + m[2] + " lira. Aşağıdaki cümle doğru mu?", 1],
+  [/^رتب الأيام: Pazartesi → Perşembe \(من اليمين\)\.$/, "Günleri Pazartesi'den Perşembe'ye sırala (sağdan sola).", 0],
+  [/^رتب الساعات من (\d+) إلى (\d+) \(من اليمين\)\.$/, m => "Saatleri " + m[1] + "'den " + m[2] + "'ye sırala (sağdan sola).", 0],
+  [/^رتب الأعداد من (\d+) إلى (\d+) \(من اليمين\)\.$/, m => "Sayıları " + m[1] + "'den " + m[2] + "'ye sırala (sağdan sola).", 0],
+  [/^ما الكلمة المناسبة للفراغ؟ «[^»]*»$/, "Boşluğa hangi kelime gelmeli?", 1],
+  [/^أين يقع مسجد آياصوفيا الكبير؟$/, "Ayasofya Camii hangi şehirdedir?", 0],
+  [/^كيف نقول الساعة (\d+) بالعربية؟$/, m => "Saat " + m[1] + " Arapça nasıl söylenir?", 0],
+  [/^ماذا نفعل عند الضوء الأحمر؟$/, "Kırmızı ışıkta ne yaparız?", 0],
+  [/^ماذا نفعل عند الضوء الأخضر؟$/, "Yeşil ışıkta ne yaparız?", 0],
+  [/^صل الضمائر بالأفعال \(درس\)\.$/, "Zamirleri «دَرَسَ» fiiliyle eşleştir.", 0],
+  [/^صل الضمائر بالأفعال \(نام\)\.$/, "Zamirleri «نامَ» fiiliyle eşleştir.", 0],
+  [/^صل كل مدينة بما تشتهر به\.$/, "Her şehri meşhur olduğu şeyle eşleştir.", 0],
+  [/^صل وسائل النقل بمعانيها\.$/, "Ulaşım araçlarını anlamlarıyla eşleştir.", 0],
+  [/^صل صيغ التفضيل بمعانيها\.$/, "Üstünlük kalıplarını anlamlarıyla eşleştir.", 0],
+  [/^أي وسيلة تسير على الماء؟$/, "Suda giden ulaşım aracı hangisidir?", 0],
+  [/^أي وسيلة تسير تحت الأرض؟$/, "Yer altında giden ulaşım aracı hangisidir?", 0],
+  [/^أي كلمة نستعمل مع الجمع؟$/, "Çoğul isimle hangi kelimeyi kullanırız?", 0],
+  [/^صل ألوان إشارات المرور\.$/, "Trafik ışığı renklerini eşleştir.", 0],
+  [/^ما ترجمة «[^»]*» بالعربية؟$/, "Bunun Arapçası hangisidir?", 1],
+  [/^كيف نقول «[^»]*» بالعربية؟$/, "Bunu Arapça nasıl söyleriz?", 1],
+  [/^كيف نقول (\d+):(\d+) بالعربية؟$/, m => "Saat " + m[1] + ":" + m[2] + " Arapça nasıl söylenir?", 0],
+  [/^صل الاتجاهات بمعانيها\.$/, "Yönleri anlamlarıyla eşleştir.", 0],
+  [/^صل طرق السفر بمعانيها\.$/, "Seyahat yollarını anlamlarıyla eşleştir.", 0],
+  [/^ما معنى «[^»]*» بالترتيب؟$/, "Bunların sırasıyla Türkçe anlamı nedir?", 1],
+  [/^بماذا تشتهر ديار بكر؟$/, "Diyarbakır neyiyle meşhurdur?", 0],
+  [/^صل الأفعال بمعانيها\.$/, "Fiilleri anlamlarıyla eşleştir.", 0],
+  [/^صل الساعات بالأرقام\.$/, "Saatleri rakamlarıyla eşleştir.", 0],
+  [/^صل الأعداد بالأرقام\.$/, "Sayıları rakamlarıyla eşleştir.", 0],
+  [/^صل الأماكن بمعانيها\.$/, "Mekânları anlamlarıyla eşleştir.", 0],
+  [/^صل الأوامر بمعانيها\.$/, "Emir kiplerini anlamlarıyla eşleştir.", 0],
+  [/^صل كل مدينة بموقعها\.$/, "Her şehri bulunduğu bölgeyle eşleştir.", 0],
+  [/^صل كل مدينة بمعلمها\.$/, "Her şehri simgesiyle eşleştir.", 0],
+  [/^صل الكلمات بمعانيها\.$/, "Kelimeleri anlamlarıyla eşleştir.", 0],
+  [/^صل الصفات بمعانيها\.$/, "Sıfatları anlamlarıyla eşleştir.", 0],
+  [/^صل المواد الغذائية\.$/, "Gıda maddelerini anlamlarıyla eşleştir.", 0],
+  [/^بماذا تشتهر أرضروم؟$/, "Erzurum neyiyle meşhurdur?", 0],
+  [/^بماذا تشتهر باطمان؟$/, "Batman neyiyle meşhurdur?", 0],
+  [/^«[^»]*» أي جواب مناسب؟$/, "Bu soruya uygun cevap hangisi?", 1],
+  [/^من فاعل الفعل «[^»]*»؟$/, "Bu fiilin öznesi kimdir?", 1],
+  [/^صل المدن بأسمائها\.$/, "Şehirleri adlarıyla eşleştir.", 0],
+  [/^بماذا تشتهر بورصة؟$/, "Bursa neyiyle meşhurdur?", 0],
+  [/^بماذا تشتهر قيصري؟$/, "Kayseri neyiyle meşhurdur?", 0],
+  [/^بماذا تشتهر أفيون؟$/, "Afyon neyiyle meşhurdur?", 0],
+  [/^بماذا تشتهر مرسين؟$/, "Mersin neyiyle meşhurdur?", 0],
+  [/^اكتب «[^»]*» بالحروف\.$/, "Bu kelimeyi Arapça harflerle yaz.", 1],
+  [/^صل المفرد بالجمع\.$/, "Tekilleri çoğullarıyla eşleştir.", 0],
+  [/^أي مدينة هي «[^»]*»؟$/, "Bu hangi şehirdir?", 1],
+  [/^رتب الكلمات: «[^»]*»$/, "Kelimeleri doğru sıraya diz.", 1],
+  [/^صل أطعمة الفطور\.$/, "Kahvaltılıkları anlamlarıyla eşleştir.", 0],
+  [/^صل أوقات الصلاة\.$/, "Namaz vakitlerini anlamlarıyla eşleştir.", 0],
+  [/^أين يذهب المريض؟$/, "Hasta nereye gider?", 0],
+  [/^أين تقع أنطاليا؟$/, "Antalya hangi bölgededir?", 0],
+  [/^أي صلاة هي «[^»]*»؟$/, "Bu hangi namazdır?", 1],
+  [/^«[^»]*» متى يستيقظ؟$/, "Bu cümleye göre ne zaman uyanıyor?", 1],
+  [/^صل ظروف الزمان\.$/, "Zaman zarflarını anlamlarıyla eşleştir.", 0],
+  [/^أين نقرأ الكتب؟$/, "Kitapları nerede okuruz?", 0],
+  [/^ما عاصمة تركيا؟$/, "Türkiye'nin başkenti neresidir?", 0],
+  [/^أين تقع سامسون؟$/, "Samsun hangi bölgededir?", 0],
+  [/^«[^»]*» ما معناها؟$/, "Bu kelimenin anlamı nedir?", 1],
+  [/^كم الساعة؟ «[^»]*»$/, "Saat kaç?", 1],
+  [/^أي يوم هو «[^»]*»؟$/, "Bu hangi gündür?", 1],
+  [/^أي جملة صحيحة؟$/, "Hangi cümle doğrudur?", 0],
+  [/^أين تقع إزمير؟$/, "İzmir hangi bölgededir?", 0],
+  [/^أين تقع قونيا؟$/, "Konya hangi bölgededir?", 0],
+  [/^أين تقع مرسين؟$/, "Mersin hangi bölgededir?", 0],
+  [/^أين تقع سينوب؟$/, "Sinop hangi bölgededir?", 0],
+  [/^صل المشروبات\.$/, "İçecekleri anlamlarıyla eşleştir.", 0],
+  [/^صل الخضراوات\.$/, "Sebzeleri anlamlarıyla eşleştir.", 0],
+  [/^ما معنى «[^»]*»؟$/, "Bu kelimenin Türkçe anlamı nedir?", 1],
+  [/^أين تقع وان؟$/, "Van hangi bölgededir?", 0],
+  [/^ما جمع «[^»]*»؟$/, "Bu kelimenin çoğulu hangisidir?", 1],
+  [/^صل الأطعمة\.$/, "Yiyecekleri anlamlarıyla eşleştir.", 0],
+  [/^صل الفواكه\.$/, "Meyveleri anlamlarıyla eşleştir.", 0],
+  [/^صل الأضداد\.$/, "Zıt anlamlıları eşleştir.", 0],
+  [/^صل الأيام\.$/, "Günleri anlamlarıyla eşleştir.", 0],
+  [/^أكمل: «[^»]*»$/, "Cümleyi tamamla.", 1],
+];
+
+function soruBaslik(s){
+  const ham  = String((s && s.soru) || "");
+  const sade = yonSade(ham);
+  for (let i = 0; i < YON_TABLO.length; i++){
+    const kalip = YON_TABLO[i][0], tr = YON_TABLO[i][1], icerikli = YON_TABLO[i][2];
+    const m = sade.match(kalip);
+    if (!m) continue;
+    const yonerge = (typeof tr === "function") ? tr(m) : tr;
+    if (!icerikli) return { yonerge: yonerge, cumle: "" };
+    const c = ham.match(/\u00AB([^\u00BB]*)\u00BB/);
+    return { yonerge: yonerge, cumle: c ? c[1].trim() : "" };
+  }
+  return null;                       // tabloda yoksa soru olduğu gibi kalsın
+}
+
 function sunumHtml(){
   const s = SORULAR()[D.aktif];
   if (!s) return "";
@@ -1233,13 +1515,22 @@ function sunumHtml(){
   let govde = "";
   if (b === "test"){
     const arSik = s.secenekler.some(arMi);
-    govde = `<div class="cd-secenekler${arSik?" ar":""}" style="grid-template-columns:repeat(${s.secenekler.length>3?2:1},1fr)">`
+    /* Şıklar uzunsa punto kademeli insin: soru başlığıyla birlikte ekrana sığsın. */
+    const enUzun = s.secenekler.reduce((a,x) => Math.max(a, yonSade(x).length), 0);
+    const sSinif = enUzun <= 14 ? "" : enUzun <= 24 ? " s2" : " s3";
+    govde = `<div class="cd-secenekler${arSik?" ar":""}${sSinif}" style="grid-template-columns:repeat(${s.secenekler.length>3?2:1},1fr)">`
       + s.secenekler.map((x,i) => `<div class="cd-secenek${D.cevapAcik && i===s.dogru ? " dogru":""}${arMi(x)?" ar":""}">
           <span class="cd-harf">${HARF[i]}</span><span>${kacisi(x)}</span></div>`).join("") + `</div>`;
   } else if (b === "surukle"){
     const p = D.cevapAcik ? (s.parcalar || []) : (s.karisik || karis(s.parcalar || []));
-    govde = `<div class="cd-parcalar">` + p.map(x =>
-      `<span class="cd-parca${arMi(x)?" ar":""}">${kacisi(x)}</span>`).join("") + `</div>`;
+    /* Kelime sayısı ve uzunluğu arttıkça punto kademeli küçülsün; yoksa
+       6-7 kelimelik cümleler ikinci satıra taşıp ekranı aşıyor. */
+    const yuk = p.reduce((a, x) => a + sadeAr(x).length, 0) + p.length * 2;
+    let kSinif = yuk <= 30 ? " k1" : yuk <= 40 ? " k2" : yuk <= 48 ? " k3" : " k4";
+    /* Kelime sayısı kendi başına da genişlik demek: altı ve üzeri hep küçülsün. */
+    if (p.length >= 6 && (kSinif === " k1" || kSinif === " k2")) kSinif = " k3";
+    govde = `<div class="cd-parcalar cd-kelimeler${kSinif}">` + p.map(x =>
+      `<span class="cd-parca cd-kelime${arMi(x)?" ar":""}">${kacisi(x)}</span>`).join("") + `</div>`;
     if (D.cevapAcik){
       const tam = (s.parcalar||[]).join(" ");
       govde += `<div class="cd-cevap${arMi(tam)?" ar":""}">${kacisi(tam)}</div>`;
@@ -1269,10 +1560,10 @@ function sunumHtml(){
   } else {
     govde = D.cevapAcik
       ? `<div class="cd-cevap${arMi(s.cevapYazi)?" ar":""}">${kacisi(s.cevapYazi || "")}</div>`
-      : `<div class="cd-parcalar">` + (s.tusKarisik || karis(s.tuslar || [])).map(x =>
-          `<span class="cd-parca${arMi(x)?" ar":""}">${kacisi(x)}</span>`).join("") + `</div>`;
+      : `<div class="cd-parcalar cd-harfler">` + (s.tusKarisik || karis(s.tuslar || [])).map(x =>
+          `<span class="cd-parca cd-harf-tas${arMi(x)?" ar":""}">${kacisi(x)}</span>`).join("") + `</div>`;
   }
-  const tam = soruSuresi(s) || 1;
+  const tam = toplamSure(s);
   const yuzde = Math.max(0, Math.min(100, Math.round((D.sayacKalan / tam) * 100)));
   return `
   <div class="cd-sunum${D.siralamaAcik?" sira-acik":(D.yanAcik?" yan-acik":"")}${D.cevapAcik&&!D.siralamaAcik?" cevap-acik":""}" id="cdSunum">
@@ -1299,20 +1590,36 @@ function sunumHtml(){
             }">${kacisi(m)}</span>`; })()}
       <span class="cd-cs-no" dir="ltr">Soru ${D.aktif+1} / ${SORULAR().length}</span>
     </div>` : `
-    <div class="cd-sunum-orta">
+    <div class="cd-sunum-orta cd-b-${b}">
       <span class="cd-soru-no" dir="ltr">${D.mac ? kacisi(turAdi(D.mac.ti)) + " · " : ""}Soru ${D.aktif+1} / ${SORULAR().length} · ${kacisi(BICIM_TR[b]||"")}</span>
-      <div class="cd-soru${arMi(s.soru)?" ar":""}">${kacisi(s.soru)}</div>
-      ${arapcaSatiri(s) ? `<div class="cd-soru ar cd-soru-alt">${kacisi(arapcaSatiri(s))}</div>` : ""}
+      ${(() => { const x = soruBaslik(s);
+        if (x && x.cumle){
+          /* Kısa içerik en büyük puntoyu kaldırır; uzun cümlede kademeli iner. */
+          const n = yonSade(x.cumle).length;
+          const h = n <= 16 ? " h1" : n <= 30 ? " h2" : n <= 46 ? " h3" : " h4";
+          return `
+          <div class="cd-yonerge">${kacisi(x.yonerge)}</div>
+          <div class="cd-hedef${h}${arMi(x.cumle) ? " ar" : ""}">${kacisi(x.cumle)}</div>`;
+        }
+        if (x){
+          const n = x.yonerge.length;
+          return `<div class="cd-soru cd-soru-tr${n <= 32 ? "" : n <= 46 ? " t2" : " t3"}">${kacisi(x.yonerge)}</div>`;
+        }
+        return `<div class="cd-soru${arMi(s.soru)?" ar":""}">${kacisi(s.soru)}</div>
+          ${arapcaSatiri(s) ? `<div class="cd-soru ar cd-soru-alt">${kacisi(arapcaSatiri(s))}</div>` : ""}`;
+      })()}
       ${govde}
     </div>`)}
     <div class="cd-sunum-alt">
       ${ilerlemeHtml()}
       <button class="cd-tus" onclick="COFF.sayacBasDur()" id="cdSayacTus">${D.sayacId?"⏸ Duraklat":"▶ Süreyi başlat"}</button>
+      <button class="cd-tus cd-tus-ek" id="cdSureEkTus" onclick="COFF.sureEkle(15)"
+              ${D.cevapAcik ? "disabled" : ""} title="Süreye 15 saniye ekle">+15 sn</button>
       <button class="cd-tus cd-tus-ana" onclick="COFF.cevapAc()">${D.cevapAcik?"Cevap açık":"Cevabı göster"}</button>
       <button class="cd-tus" onclick="COFF.geri()" ${D.aktif?"":"disabled"}>‹ Önceki</button>
-      <button class="cd-tus${ileriKilitli() ? " kilitli" : ""}" id="cdIleriTus"
+      <button class="cd-tus${ileriKilitli() ? " kilitli" : " hazir"}" id="cdIleriTus"
               onclick="COFF.ileri()" ${ileriKilitli() ? "disabled" : ""}
-              title="${ileriKilitli() ? kacisi(ileriNeden()) : ""}">
+              title="${ileriKilitli() ? kacisi(ileriNeden()) : "Herkes değerlendirildi — sonraki soruya geçebilirsin"}">
         ${D.aktif+1>=SORULAR().length?(D.mac?"Maçı bitir":"Bitir"):"Sonraki ›"}</button>
       <span class="cd-kisayol">boşluk: cevap · ← →: soru · S: süre · P: puan · +: doğru, −: geri al</span>
     </div>
@@ -1437,14 +1744,23 @@ function puanHtml(){
 }
 
 /* Puan tablosunun başındaki ilerleme notu. */
+/* Bu sorunun kaç puan getirdiğini panelde göster: puanlama sabit 1 puan
+   olmadığı sürece öğretmen ne işlediğini görsün. */
+function puanRozeti(){
+  const s = SORULAR()[D.aktif];
+  const art = soruPuani(s), eksi = yanlisPuani();
+  if (art === 1 && !eksi) return "";
+  return `<span class="cd-puan-rozet">✓ +${art}${eksi ? ` · ✗ −${eksi}` : ""}</span>`;
+}
 function isaretNotu(){
   if (!D.cevapAcik)
-    return `<span class="cd-isaret-not">Süre bitince <b>Cevabı göster</b>, sonra herkesi işaretle</span>`;
+    return `<span class="cd-isaret-not">Süre bitince <b>Cevabı göster</b>, sonra herkesi işaretle</span>${puanRozeti()}`;
   const n = isaretSayisi(), t = YAR().length;
   const ad = D.bicim === "kisi" ? "öğrenci" : (D.bicim === "sinif" ? "sınıf" : "takım");
-  return hepsiIsaretli()
+  return (hepsiIsaretli()
     ? `<span class="cd-isaret-not tamam">Hepsi değerlendirildi · sonraki soruya geçebilirsin</span>`
-    : `<span class="cd-isaret-not">${n} / ${t} ${ad} değerlendirildi · ✓ ✗ ya da +/− kullan</span>`;
+    : `<span class="cd-isaret-not">${n} / ${t} ${ad} değerlendirildi · ✓ ✗ ya da +/− kullan</span>`)
+    + puanRozeti();
 }
 
 
@@ -1708,13 +2024,13 @@ const COFF = {
     else if (alan === "sinifAdlari"){ D.sinifAdlari = String(v || ""); listeKur(); COFF.ciz(); return; }
     else if (sayisal[alan]) D[alan] = Math.max(1, parseInt(v, 10) || 1);
     if (alan === "sure") D.sure = Math.max(10, Math.min(180, parseInt(v,10) || 30));
-    if (D.adim === 2) sayacTazele();
+    if (adimAnahtar() === "liste") sayacTazele();
   },
   bicimSec(v){
     /* Çevrimdışında her öğrenciye tek tek puan vermek zor; bireysel sistem
        yalnız karekodlu (çevrimiçi) yarışmada kullanılabilir. */
     if (v === "kisi" && D.mod === "cevrimdisi"){
-      uyar("Bireysel sistem yalnız çevrimiçi yarışmada kullanılır.");
+      uyar("Bireysel Yarış yalnız çevrimiçi yarışmada kullanılır.");
       return;
     }
     D.bicim = v;
@@ -1756,15 +2072,21 @@ const COFF = {
   adimGeri(){ if (D.adim > 1) COFF.adimGit(D.adim - 1); },
   adimIleri(){
     const k = adimAnahtar();
+    if (k === "ders"){
+      if (!D.konuId){ uyar("Önce bir ders seç."); return; }
+      if (!seciliSorular().length){ uyar("Bu derste seçtiğin çeşitlerde soru yok."); return; }
+    }
     if (k === "liste" && D.bicim === "sinif" && !D.katilim.length){
       uyar("En az bir sınıf ekle.");
       const g = el("cdSinifAd"); if (g) g.focus();
       return;
     }
     if (k === "liste" && !D.katilim.length) listeKur();
-    if (k === "ders"){
-      if (!D.konuId){ uyar("Önce bir ders seç."); return; }
-      if (!seciliSorular().length){ uyar("Bu derste seçtiğin çeşitlerde soru yok."); return; }
+    /* Son adıma ("Başlat") geçerken soruları burada hazırlıyoruz. */
+    if (sonrakiAnahtar() === "bas"){
+      if (!D.konuId || !seciliSorular().length){
+        uyar("Önce bir ders seç."); COFF.adimGit(adimNo("ders")); return;
+      }
       D.adim = adimNo("bas");
       COFF.turKur();
       const d5 = el("cdPdfDurum");
@@ -1788,16 +2110,28 @@ const COFF = {
     const havuz  = seciliSorular().length;
     const secili = (typeof state !== "undefined" && state.secilenSet) ? state.secilenSet.size : 0;
     e.innerHTML = !D.konuId
-      ? `Henüz ders seçmedin — yukarıdan bir ders ya da ünitenin tamamını seç.`
+      ? `Henüz ders seçmedin — aşağıdan bir ders ya da ünitenin tamamını seç. Puanlama: <b>${kacisi(puanOzetTr())}</b>.`
       : `Seçtiğin derste <b>${havuz}</b> uygun soru var${
           secili ? `, havuzdan <b>${secili}</b> soru seçili` : ""}.${
-          zorlukOzet() ? ` Zorluk süzgeci: <b>${kacisi(zorlukOzet())}</b>.` : ""}`;
+          zorlukOzet() ? ` Zorluk süzgeci: <b>${kacisi(zorlukOzet())}</b>.` : ""} Puanlama: <b>${kacisi(puanOzetTr())}</b>.`;
   },
   defterAc(){
     if (!D.sorular.length){ uyar("Önce soruları hazırla."); return; }
-    const e = el("ekranCevrimdisi"); if (e) e.innerHTML = defterHtml();
+    D.anlAdim = 0;
+    const e = el("ekranCevrimdisi"); if (e) e.innerHTML = anlatimHtml();
   },
   defterBasla(){ D.yanAcik = true; COFF.sunumAc(); },
+  /* Kart: ilk seferde akış anlatımı, sonrasında doğrudan yarışma. */
+  yansitBasla(){
+    if (!D.sorular.length){ uyar("Önce soruları hazırla."); return; }
+    if (!D.anlatimGoruldu){ D.anlatimGoruldu = true; COFF.defterAc(); return; }
+    COFF.sunumAc();
+  },
+  anlatimGit(i){
+    D.anlAdim = Math.max(0, i);
+    const e = el("ekranCevrimdisi"); if (e) e.innerHTML = anlatimHtml();
+  },
+  anlatimBitir(){ D.anlatimGoruldu = true; D.yanAcik = true; COFF.sunumAc(); },
   /* Sunum açılır açılmaz 3 · 2 · 1 · Başla! sayımı; bitince süre işlemeye başlar. */
   _geriSayim(){
     const k = el("cdSunum"); if (!k) return;
@@ -1977,6 +2311,7 @@ const COFF = {
   sunumAc(){
     if (!D.sorular.length) return;
     D.aktif = 0; D.cevapAcik = false; D.siralamaAcik = false; D.bitti = false;
+    D.sureEk = 0;
     D.sayacKalan = soruSuresi(D.sorular[0]);
     COFF._sunumCiz();
     document.addEventListener("keydown", COFF._tus);
@@ -2131,14 +2466,16 @@ const COFF = {
     D.siralamaAcik = false;
     if (D.aktif + 1 >= SORULAR().length){ COFF.bitir(); return; }
     D.aktif++; D.cevapAcik = false; D.yanAcik = false; D.siralamaAcik = false;
+    D.sureEk = 0;
     D.sayacKalan = soruSuresi(SORULAR()[D.aktif]);
-    COFF._sayacDur(); COFF._sunumCiz();
+    COFF._sayacDur(); COFF._sunumCiz(); COFF._sayacBaslat();
   },
   geri(){
     if (!D.aktif) return;
     D.aktif--; D.cevapAcik = false; D.yanAcik = false; D.siralamaAcik = false;
+    D.sureEk = 0;
     D.sayacKalan = soruSuresi(SORULAR()[D.aktif]);
-    COFF._sayacDur(); COFF._sunumCiz();
+    COFF._sayacDur(); COFF._sunumCiz(); COFF._sayacBaslat();
   },
   sayacBasDur(){
     if (D.sayacId){ COFF._sayacDur(); }
@@ -2149,7 +2486,7 @@ const COFF = {
         if (s){ s.textContent = cdSure(D.sayacKalan); s.classList.toggle("az", D.sayacKalan <= 10); }
         const c = document.querySelector("#cdSunum .cd-ilerleme");
         if (c){
-          const tam = soruSuresi(SORULAR()[D.aktif]) || 1;
+          const tam = toplamSure(SORULAR()[D.aktif]);
           const i = c.querySelector("i");
           if (i) i.style.width = Math.max(0, Math.min(100, (D.sayacKalan / tam) * 100)) + "%";
           c.classList.toggle("az", D.sayacKalan <= 10);
@@ -2161,6 +2498,26 @@ const COFF = {
     const t = el("cdSayacTus"); if (t) t.textContent = D.sayacId ? "⏸ Duraklat" : "▶ Süreyi başlat";
   },
   _sayacDur(){ if (D.sayacId){ clearInterval(D.sayacId); D.sayacId = null; } },
+  /* Yeni soru açılınca süre beklemeden işlemeye başlasın. */
+  _sayacBaslat(){ if (!D.sayacId && !D.cevapAcik && D.sayacKalan > 0) COFF.sayacBasDur(); },
+  /* Sınıfın işi yetişmediyse öğretmen süreye 15 saniye ekleyebilir. */
+  sureEkle(n){
+    if (D.cevapAcik) return;
+    D.sureEk = (D.sureEk || 0) + n;
+    D.sayacKalan += n;
+    const s = el("cdSayac");
+    if (s){ s.textContent = cdSure(D.sayacKalan); s.classList.toggle("az", D.sayacKalan <= 10); }
+    const c = document.querySelector("#cdSunum .cd-ilerleme");
+    if (c){
+      const tam = toplamSure(SORULAR()[D.aktif]);
+      const i = c.querySelector("i");
+      if (i) i.style.width = Math.max(0, Math.min(100, (D.sayacKalan / tam) * 100)) + "%";
+      c.classList.toggle("az", D.sayacKalan <= 10);
+    }
+    const e = el("cdSureEkTus");
+    if (e){ e.classList.remove("vur"); void e.offsetWidth; e.classList.add("vur"); }
+    COFF._sayacBaslat();
+  },
   yanAcKapa(){
     D.yanAcik = !D.yanAcik;
     const y = el("cdYan"); if (y) y.classList.toggle("acik", D.yanAcik);
@@ -2175,9 +2532,13 @@ const COFF = {
   geriAl(id){
     const k = YAR().find(x => x.id === id); if (!k) return;
     const t = turIsaret();
-    if (t[id] === "d"){ k.puan = Math.max(0, k.puan - 1); delete t[id]; }
+    const art  = soruPuani(SORULAR()[D.aktif]);
+    const eksi = yanlisPuani();
+    if (t[id] === "d"){ k.puan -= art; delete t[id]; }
+    else if (t[id] === "y"){ k.puan += eksi; delete t[id]; }
     else if (t[id]){ delete t[id]; }              // "bilemedi" işaretini kaldır
-    else k.puan = Math.max(0, k.puan - 1);        // önceki turlardan kalan fazlalık
+    else k.puan -= art;                           // önceki turlardan kalan fazlalık
+    if (!eksi) k.puan = Math.max(0, k.puan);      // eksi puan kapalıysa sıfırın altına inmesin
     COFF._panelTazele();
   },
   /* Doğru / bilemedi işareti. ✓ ve ✗ tuşlarında aynı tuşa yeniden basınca
@@ -2187,8 +2548,13 @@ const COFF = {
     const t = turIsaret();
     const eski = t[id] || "";
     const yeni = (!zorla && eski === tip) ? "" : tip;
-    if (eski === "d") k.puan = Math.max(0, k.puan - 1);   // eski doğruyu geri al
-    if (yeni === "d") k.puan += 1;
+    const art  = soruPuani(SORULAR()[D.aktif]);
+    const eksi = yanlisPuani();
+    if (eski === "d") k.puan -= art;               // eski doğruyu geri al
+    if (eski === "y") k.puan += eksi;              // eski yanlışın cezasını geri al
+    if (yeni === "d") k.puan += art;
+    if (yeni === "y") k.puan -= eksi;
+    if (!eksi) k.puan = Math.max(0, k.puan);
     if (yeni) t[id] = yeni; else delete t[id];
     COFF._panelTazele();
   },
@@ -2199,9 +2565,15 @@ const COFF = {
     const i = el("cdIleriTus");
     if (i){
       const kilit = ileriKilitli();
+      const yeniAcildi = !kilit && i.classList.contains("kilitli");
       i.disabled = kilit;
       i.classList.toggle("kilitli", kilit);
-      i.title = kilit ? ileriNeden() : "";
+      i.classList.toggle("hazir", !kilit);
+      i.title = kilit ? ileriNeden() : "Herkes değerlendirildi — sonraki soruya geçebilirsin";
+      /* Son takım da işaretlendiği an tuş bir kez sıçrasın. */
+      if (yeniAcildi){
+        i.classList.remove("yeni"); void i.offsetWidth; i.classList.add("yeni");
+      } else if (kilit) i.classList.remove("yeni");
     }
   },
 
@@ -2243,6 +2615,7 @@ const COFF = {
     D.mac = { ti: sm.ti, mi: sm.mi, yarisan: [sm.m.a, sm.m.b], sorular: sorular, ek: 0, sonuc: null };
     D.turPuan = {};
     D.aktif = 0; D.cevapAcik = false; D.siralamaAcik = false; D.bitti = false; D.yanAcik = true;
+    D.sureEk = 0;
     D.sayacKalan = soruSuresi(sorular[0]);
     COFF._sunumCiz();
     document.addEventListener("keydown", COFF._tus);
@@ -2262,8 +2635,9 @@ const COFF = {
       D.mac.ek++;
       D.aktif = D.mac.sorular.length - 1;
       D.cevapAcik = false; D.siralamaAcik = false; D.yanAcik = false;
+      D.sureEk = 0;
       D.sayacKalan = soruSuresi(D.mac.sorular[D.aktif]);
-      COFF._sayacDur(); COFF._sunumCiz();
+      COFF._sayacDur(); COFF._sunumCiz(); COFF._sayacBaslat();
       uyarSunum("Berabere! Altın soru — bileni maçı kazanır.");
       sesCal([{ f:392, t:0, d:0.12 }, { f:523, t:0.11, d:0.2 }], 0.16);
       return;
@@ -2318,7 +2692,7 @@ const COFF = {
   _D: D
 };
 
-window.CDTR = { unite: UNITE_TR, ders: DERS_TR };
+window.CDTR = { unite: UNITE_TR, ders: DERS_TR, soruBaslik: soruBaslik };
 window.COFF = COFF;
 
 /* Bu dosya bilgiyarismasi.js'ten sonra yüklenir; mod kapısı zaten çizildiyse
